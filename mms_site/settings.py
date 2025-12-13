@@ -31,9 +31,14 @@ INSTALLED_APPS = [
     "wagtail.images",
     "wagtail.search",
     "wagtail.admin",
+    "wagtail.contrib.modeladmin",
     "wagtail",
     "home",
     "membership",
+    "finance",
+    "education",
+    "assets",
+    "operations",
 ]
 
 MIDDLEWARE = [
