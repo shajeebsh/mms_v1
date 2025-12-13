@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "wagtail.admin",
     "wagtail",
     "home",
+    "membership",
 ]
 
 MIDDLEWARE = [
