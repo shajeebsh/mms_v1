@@ -8,6 +8,7 @@ class FamilyAdmin(ModelAdmin):
     model = Family
     menu_label = 'Families'
     menu_icon = 'group'
+    add_to_admin_menu = False  # Will be included in grouped menu
     list_display = ('name', 'phone', 'email', 'created_at')
     search_fields = ('name', 'phone', 'email')
     panels = [
@@ -22,6 +23,7 @@ class MemberAdmin(ModelAdmin):
     model = Member
     menu_label = 'Members'
     menu_icon = 'user'
+    add_to_admin_menu = False  # Will be included in grouped menu
     list_display = ('full_name', 'family', 'date_of_birth', 'gender', 'is_active')
     list_filter = ('gender', 'is_active', 'family')
     search_fields = ('first_name', 'last_name', 'email', 'phone')
@@ -41,6 +43,7 @@ class VitalRecordAdmin(ModelAdmin):
     model = VitalRecord
     menu_label = 'Vital Records'
     menu_icon = 'date'
+    add_to_admin_menu = False  # Will be included in grouped menu
     list_display = ('record_type', 'member', 'date', 'location')
     list_filter = ('record_type', 'date')
     search_fields = ('member__first_name', 'member__last_name', 'location', 'details')

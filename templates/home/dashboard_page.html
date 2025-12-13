@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — {{ page.title }}{% endblock %}
+
+{% block content %}
+  <div class="dashboard">
+    <h1>{{ page.title }}</h1>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total Families</h3>
+        <div class="stat-number">{{ total_families }}</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Total Members</h3>
+        <div class="stat-number">{{ total_members }}</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Total Donations</h3>
+        <div class="stat-number">${{ total_donations|floatformat:2 }}</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Total Expenses</h3>
+        <div class="stat-number">${{ total_expenses|floatformat:2 }}</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Net Financial</h3>
+        <div class="stat-number {{ net_financial|default:0 >= 0 and 'positive' or 'negative' }}">
+          ${{ net_financial|floatformat:2 }}
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Active Classes</h3>
+        <div class="stat-number">{{ active_classes }}</div>
+      </div>
+
+      <div class="stat-card">
+        <h3>Total Enrollments</h3>
+        <div class="stat-number">{{ total_enrollments }}</div>
+      </div>
+    </div>
+
+    <div class="dashboard-sections">
+      <div class="section">
+        <h2>Recent Donations</h2>
+        <ul>
+          {% for donation in recent_donations %}
+            <li>{{ donation.member.full_name }} - ${{ donation.amount }} ({{ donation.date }})</li>
+          {% empty %}
+            <li>No recent donations</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>Upcoming Bookings</h2>
+        <ul>
+          {% for booking in upcoming_bookings %}
+            <li>{{ booking.event_name }} - {{ booking.booking_date }} at {{ booking.start_time }}</li>
+          {% empty %}
+            <li>No upcoming bookings</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .dashboard { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .stat-card { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .stat-number { font-size: 2em; font-weight: bold; color: #007bff; margin-top: 10px; }
+    .stat-number.positive { color: #28a745; }
+    .stat-number.negative { color: #dc3545; }
+    .dashboard-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .section { background: #f8f9fa; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .section h2 { margin-top: 0; color: #495057; }
+    .section ul { list-style: none; padding: 0; }
+    .section li { padding: 8px 0; border-bottom: 1px solid #dee2e6; }
+    .section li:last-child { border-bottom: none; }
+  </style>
+{% endblock %}
