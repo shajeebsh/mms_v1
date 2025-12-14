@@ -1,7 +1,7 @@
 from wagtail import hooks
 from wagtail.admin.menu import MenuItem
 from wagtail.admin.search import SearchArea
-from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
+from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from .models import (
