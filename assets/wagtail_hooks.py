@@ -1,5 +1,5 @@
 from wagtail.admin.panels import FieldPanel
-from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
+from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
 from .models import Shop, PropertyUnit
 
