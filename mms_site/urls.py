@@ -9,6 +9,8 @@ urlpatterns = [
     path("documents/", include("wagtail.documents.urls")),
     path("membership/", include("membership.urls")),
     path("", include("home.urls")),
+    path("hr/", include("hr.urls")),
+    path("committee/", include("committee.urls")),
     path("", include("wagtail.urls")),
 ]
 

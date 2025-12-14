@@ -162,7 +162,125 @@ def register_administration_menu():
         ]
     )
 
-    # Create main administration menu with submenus
+    # Create HR submenu
+    hr_menu = Menu(
+        items=[
+            MenuItem(
+                label="👥 Staff Directory",
+                url=get_hr_url("StaffMemberAdmin"),
+                icon_name="user",
+                order=1,
+            ),
+            MenuItem(
+                label="📋 Staff Positions",
+                url=get_hr_url("StaffPositionAdmin"),
+                icon_name="user",
+                order=2,
+            ),
+            MenuItem(
+                label="📅 Attendance Records",
+                url=get_hr_url("AttendanceAdmin"),
+                icon_name="date",
+                order=3,
+            ),
+            MenuItem(
+                label="🏖️ Leave Requests",
+                url=get_hr_url("LeaveRequestAdmin"),
+                icon_name="time",
+                order=4,
+            ),
+            MenuItem(
+                label="📝 Leave Types",
+                url=get_hr_url("LeaveTypeAdmin"),
+                icon_name="doc-full",
+                order=5,
+            ),
+            MenuItem(
+                label="💰 Payroll Records",
+                url=get_hr_url("PayrollAdmin"),
+                icon_name="money",
+                order=6,
+            ),
+            MenuItem(
+                label="⚙️ Salary Components",
+                url=get_hr_url("SalaryComponentAdmin"),
+                icon_name="cog",
+                order=7,
+            ),
+            MenuItem(
+                label="💵 Staff Salaries",
+                url=get_hr_url("StaffSalaryAdmin"),
+                icon_name="download",
+                order=8,
+            ),
+        ]
+    )
+
+    # Create committee submenu
+    committee_menu = Menu(
+        items=[
+            MenuItem(
+                label="🏛️ Trustees",
+                url=get_committee_url("TrusteeAdmin"),
+                icon_name="user",
+                order=1,
+            ),
+            MenuItem(
+                label="📋 Trustee Meetings",
+                url=get_committee_url("TrusteeMeetingAdmin"),
+                icon_name="date",
+                order=2,
+            ),
+            MenuItem(
+                label="👥 Committees",
+                url=get_committee_url("CommitteeAdmin"),
+                icon_name="group",
+                order=3,
+            ),
+            MenuItem(
+                label="📅 Committee Meetings",
+                url=get_committee_url("MeetingAdmin"),
+                icon_name="calendar",
+                order=4,
+            ),
+            MenuItem(
+                label="📝 Committee Types",
+                url=get_committee_url("CommitteeTypeAdmin"),
+                icon_name="tag",
+                order=5,
+            ),
+            MenuItem(
+                label="👤 Committee Members",
+                url=get_committee_url("CommitteeMemberAdmin"),
+                icon_name="user",
+                order=6,
+            ),
+            MenuItem(
+                label="✅ Meeting Attendees",
+                url=get_committee_url("MeetingAttendeeAdmin"),
+                icon_name="tick",
+                order=7,
+            ),
+            MenuItem(
+                label="📎 Meeting Attachments",
+                url=get_committee_url("MeetingAttachmentAdmin"),
+                icon_name="doc-full",
+                order=8,
+            ),
+            MenuItem(
+                label="📋 Trustee Meeting Attendees",
+                url=get_committee_url("TrusteeMeetingAttendeeAdmin"),
+                icon_name="tick",
+                order=9,
+            ),
+            MenuItem(
+                label="📎 Trustee Meeting Attachments",
+                url=get_committee_url("TrusteeMeetingAttachmentAdmin"),
+                icon_name="doc-full",
+                order=10,
+            ),
+        ]
+    )
     administration_menu = Menu(
         items=[
             SubmenuMenuItem(
@@ -182,6 +300,15 @@ def register_administration_menu():
                 menu=operations_menu,
                 icon_name="calendar",
                 order=5,
+            ),
+            SubmenuMenuItem(
+                label="👥 HR & Payroll", menu=hr_menu, icon_name="user", order=6
+            ),
+            SubmenuMenuItem(
+                label="🏛️ Committee & Minutes",
+                menu=committee_menu,
+                icon_name="group",
+                order=7,
             ),
         ]
     )
@@ -222,6 +349,20 @@ def get_assets_url(admin_class_name):
 
 def get_operations_url(admin_class_name):
     from operations import wagtail_hooks
+
+    admin_class = getattr(wagtail_hooks, admin_class_name)
+    return admin_class().url_helper.index_url
+
+
+def get_hr_url(admin_class_name):
+    from hr import wagtail_hooks
+
+    admin_class = getattr(wagtail_hooks, admin_class_name)
+    return admin_class().url_helper.index_url
+
+
+def get_committee_url(admin_class_name):
+    from committee import wagtail_hooks
 
     admin_class = getattr(wagtail_hooks, admin_class_name)
     return admin_class().url_helper.index_url
