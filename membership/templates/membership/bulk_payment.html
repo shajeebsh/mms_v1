@@ -1,0 +1,156 @@
+{% extends "wagtailadmin/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="nice-padding">
+    <h1>Bulk Payment Processing</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages">
+                <ul class="messagelist">
+                    <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+                </ul>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="bulk-payment-form">
+        {% csrf_token %}
+
+        <div class="field">
+            <label for="payment_method">Payment Method:</label>
+            <select name="payment_method" id="payment_method" required>
+                <option value="">Select Payment Method</option>
+                {% for method_code, method_name in payment_methods %}
+                    <option value="{{ method_code }}">{{ method_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="payment_date">Payment Date:</label>
+            <input type="date" name="payment_date" id="payment_date" value="{{ today|date:'Y-m-d' }}">
+        </div>
+
+        <div class="field">
+            <label for="notes">Notes:</label>
+            <textarea name="notes" id="notes" rows="3" placeholder="Optional payment notes"></textarea>
+        </div>
+
+        <h2>Select Families with Outstanding Dues</h2>
+        <div class="families-list">
+            {% for family in families %}
+                <div class="family-item">
+                    <label class="family-checkbox">
+                        <input type="checkbox" name="family_ids" value="{{ family.id }}">
+                        <span class="family-info">
+                            <strong>{{ family.name }}</strong>
+                            {% if family.phone %} - {{ family.phone }}{% endif %}
+                            {% if family.email %} - {{ family.email }}{% endif %}
+                        </span>
+                    </label>
+                    <div class="dues-summary">
+                        {% with dues_count=family.membership_dues.filter|length %}
+                            {% if dues_count > 0 %}
+                                <small>{{ dues_count }} unpaid dues</small>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="button button-primary">Process Bulk Payment</button>
+            <a href="{% url 'admin:index' %}" class="button button-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.bulk-payment-form {
+    max-width: 800px;
+}
+
+.field {
+    margin-bottom: 20px;
+}
+
+.field label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.field input, .field select, .field textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.families-list {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.family-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.family-item:last-child {
+    border-bottom: none;
+}
+
+.family-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.family-checkbox input[type="checkbox"] {
+    margin-right: 10px;
+    width: auto;
+}
+
+.family-info {
+    flex: 1;
+}
+
+.dues-summary {
+    margin-top: 5px;
+    color: #666;
+}
+
+.actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.button-primary {
+    background-color: #007cba;
+    color: white;
+}
+
+.button-secondary {
+    background-color: #f7f7f7;
+    color: #333;
+    border: 1px solid #ccc;
+}
+</style>
+{% endblock %}

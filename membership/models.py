@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from decimal import Decimal
 
 
 class Family(models.Model):
@@ -41,6 +43,96 @@ class Member(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+
+class MembershipDues(models.Model):
+    """Monthly membership dues for families - ₹10 per couple per month"""
+    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name='membership_dues')
+    year = models.PositiveIntegerField(help_text="Year for the dues")
+    month = models.PositiveIntegerField(help_text="Month for the dues (1-12)")
+    amount_due = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10.00'), help_text="Amount due (₹10 per couple)")
+    is_paid = models.BooleanField(default=False)
+    due_date = models.DateField(help_text="Due date for payment")
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['family', 'year', 'month']
+        ordering = ['-year', '-month', 'family__name']
+        verbose_name = "Membership Due"
+        verbose_name_plural = "Membership Dues"
+
+    def __str__(self):
+        return f"{self.family.name} - {self.year}-{self.month:02d} (₹{self.amount_due})"
+
+    def clean(self):
+        if self.amount_due <= 0:
+            raise ValidationError("Amount due must be greater than zero")
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate due date if not set
+        if not self.due_date:
+            from datetime import date
+            self.due_date = date(self.year, self.month, 1)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_overdue(self):
+        """Check if the dues are overdue"""
+        return not self.is_paid and self.due_date < timezone.now().date()
+
+
+class Payment(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('cash', 'Cash'),
+        ('bank', 'Bank Transfer'),
+        ('upi', 'UPI'),
+    ]
+
+    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, help_text="Payment amount")
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
+    receipt_number = models.CharField(max_length=20, unique=True, editable=False, help_text="Auto-generated receipt number")
+    payment_date = models.DateField(default=timezone.now)
+    notes = models.TextField(blank=True, help_text="Payment notes")
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Many-to-many relationship for bulk payments
+    membership_dues = models.ManyToManyField(MembershipDues, blank=True, related_name='payments', help_text="Dues covered by this payment")
+
+    class Meta:
+        ordering = ['-payment_date', '-created_at']
+        verbose_name = "Payment"
+        verbose_name_plural = "Payments"
+
+    def __str__(self):
+        return f"Receipt #{self.receipt_number} - {self.family.name} - ₹{self.amount}"
+
+    def save(self, *args, **kwargs):
+        if not self.receipt_number:
+            # Generate auto receipt number: REC-YYYYMMDD-XXXX
+            today = timezone.now().date()
+            prefix = f"REC-{today.strftime('%Y%m%d')}"
+            # Find the next available number for today
+            existing_receipts = Payment.objects.filter(
+                receipt_number__startswith=prefix
+            ).order_by('-receipt_number')
+
+            if existing_receipts.exists():
+                last_number = int(existing_receipts.first().receipt_number.split('-')[-1])
+                next_number = last_number + 1
+            else:
+                next_number = 1
+
+            self.receipt_number = f"{prefix}-{next_number:04d}"
+
+        super().save(*args, **kwargs)
+
+    @property
+    def total_dues_covered(self):
+        """Total amount of dues covered by this payment"""
+        return sum(due.amount_due for due in self.membership_dues.all())
 
 
 class VitalRecord(models.Model):
