@@ -1,7 +1,7 @@
 from wagtail.admin.panels import FieldPanel
 from wagtail.contrib.modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Family, Member, VitalRecord
+from .models import Family, Member, VitalRecord, MembershipDues, Payment
 
 
 class FamilyAdmin(ModelAdmin):
@@ -39,6 +39,49 @@ class MemberAdmin(ModelAdmin):
     ]
 
 
+class MembershipDuesAdmin(ModelAdmin):
+    model = MembershipDues
+    menu_label = 'Membership Dues'
+    menu_icon = 'money'
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ('family', 'year', 'month', 'amount_due', 'is_paid', 'due_date', 'is_overdue')
+    list_filter = ('year', 'month', 'is_paid', 'due_date')
+    search_fields = ('family__name',)
+    list_editable = ('is_paid',)
+    panels = [
+        FieldPanel('family'),
+        FieldPanel('year'),
+        FieldPanel('month'),
+        FieldPanel('amount_due'),
+        FieldPanel('is_paid'),
+        FieldPanel('due_date'),
+    ]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('family')
+
+
+class PaymentAdmin(ModelAdmin):
+    model = Payment
+    menu_label = 'Payments'
+    menu_icon = 'credit-card'
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ('receipt_number', 'family', 'amount', 'payment_method', 'payment_date', 'total_dues_covered')
+    list_filter = ('payment_method', 'payment_date')
+    search_fields = ('receipt_number', 'family__name', 'notes')
+    panels = [
+        FieldPanel('family'),
+        FieldPanel('amount'),
+        FieldPanel('payment_method'),
+        FieldPanel('payment_date'),
+        FieldPanel('membership_dues'),
+        FieldPanel('notes'),
+    ]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('family').prefetch_related('membership_dues')
+
+
 class VitalRecordAdmin(ModelAdmin):
     model = VitalRecord
     menu_label = 'Vital Records'
@@ -58,4 +101,6 @@ class VitalRecordAdmin(ModelAdmin):
 
 modeladmin_register(FamilyAdmin)
 modeladmin_register(MemberAdmin)
+modeladmin_register(MembershipDuesAdmin)
+modeladmin_register(PaymentAdmin)
 modeladmin_register(VitalRecordAdmin)

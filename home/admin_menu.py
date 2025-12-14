@@ -10,8 +10,10 @@ def register_administration_menu():
     membership_menu = Menu(items=[
         MenuItem(label='👥 Members', url=get_membership_url('MemberAdmin'), icon_name='user', order=1),
         MenuItem(label='🏠 Families', url=get_membership_url('FamilyAdmin'), icon_name='group', order=2),
-        MenuItem(label='📋 Vital Records', url=get_membership_url('VitalRecordAdmin'), icon_name='date', order=3),
-    ])
+        MenuItem(label='� Membership Dues', url=get_membership_url('MembershipDuesAdmin'), icon_name='money', order=3),
+        MenuItem(label='💳 Payments', url=get_membership_url('PaymentAdmin'), icon_name='credit-card', order=4),
+        MenuItem(label='📋 Vital Records', url=get_membership_url('VitalRecordAdmin'), icon_name='date', order=5),        MenuItem(label='⚡ Bulk Payment', url='/membership/bulk-payment/', icon_name='plus', order=6),
+        MenuItem(label='📊 Generate Monthly Dues', url='/membership/generate-monthly-dues/', icon_name='calendar', order=7),    ])
 
     # Create finance submenu
     finance_menu = Menu(items=[
@@ -20,6 +22,7 @@ def register_administration_menu():
         MenuItem(label='📊 Financial Reports', url=get_finance_url('FinancialReportAdmin'), icon_name='chart-bar', order=3),
         MenuItem(label='🏷️ Donation Categories', url=get_finance_url('DonationCategoryAdmin'), icon_name='tag', order=4),
         MenuItem(label='🏷️ Expense Categories', url=get_finance_url('ExpenseCategoryAdmin'), icon_name='tag', order=5),
+        MenuItem(label='⚠️ Overdue Membership Dues', url='/membership/overdue-report/', icon_name='warning', order=6),
     ])
 
     # Create education submenu
