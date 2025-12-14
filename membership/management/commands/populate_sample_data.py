@@ -1,14 +1,18 @@
+import random
+from datetime import date, time, timedelta
+from decimal import Decimal
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from decimal import Decimal
-from datetime import date, time, timedelta
-import random
 
-from membership.models import Family, Member, MembershipDues, Payment, VitalRecord
-from assets.models import Shop, PropertyUnit
-from education.models import Teacher, Class, StudentEnrollment
-from finance.models import DonationCategory, ExpenseCategory, Donation, Expense, FinancialReport
-from operations.models import AuditoriumBooking, PrayerTime, DigitalSignageContent
+from assets.models import PropertyUnit, Shop
+from education.models import Class, StudentEnrollment, Teacher
+from finance.models import (Donation, DonationCategory, Expense,
+                            ExpenseCategory, FinancialReport)
+from membership.models import (Family, Member, MembershipDues, Payment,
+                               VitalRecord)
+from operations.models import (AuditoriumBooking, DigitalSignageContent,
+                               PrayerTime)
 
 
 class Command(BaseCommand):
@@ -132,7 +136,12 @@ class Command(BaseCommand):
         self.stdout.write('Creating education sample data...')
 
         # Get some members to make teachers
-        members = list(Member.objects.all()[:3])
+        existing_teacher_members = Teacher.objects.values_list('member_id', flat=True)
+        members = list(Member.objects.exclude(id__in=existing_teacher_members)[:3])
+
+        if len(members) < 3:
+            self.stdout.write(self.style.WARNING('Not enough members available to create teachers. Skipping teacher creation.'))
+            return
 
         # Create teachers
         teachers_data = [
@@ -143,8 +152,13 @@ class Command(BaseCommand):
 
         teachers = []
         for teacher_data in teachers_data:
-            teacher = Teacher.objects.create(**teacher_data)
+            teacher, created = Teacher.objects.get_or_create(
+                member=teacher_data['member'],
+                defaults=teacher_data
+            )
             teachers.append(teacher)
+            if created:
+                self.stdout.write(f"Created teacher: {teacher.member.first_name} {teacher.member.last_name}")
 
         # Create classes
         classes_data = [
@@ -185,8 +199,13 @@ class Command(BaseCommand):
 
         donation_categories = []
         for cat_data in donation_categories_data:
-            cat = DonationCategory.objects.create(**cat_data)
+            cat, created = DonationCategory.objects.get_or_create(
+                name=cat_data['name'],
+                defaults=cat_data
+            )
             donation_categories.append(cat)
+            if created:
+                self.stdout.write(f"Created donation category: {cat.name}")
 
         # Create expense categories
         expense_categories_data = [
@@ -198,8 +217,13 @@ class Command(BaseCommand):
 
         expense_categories = []
         for cat_data in expense_categories_data:
-            cat = ExpenseCategory.objects.create(**cat_data)
+            cat, created = ExpenseCategory.objects.get_or_create(
+                name=cat_data['name'],
+                defaults=cat_data
+            )
             expense_categories.append(cat)
+            if created:
+                self.stdout.write(f"Created expense category: {cat.name}")
 
         # Get members for donations
         members = list(Member.objects.all())
@@ -279,7 +303,12 @@ class Command(BaseCommand):
                 })
 
         for prayer_data in prayer_times_data:
-            PrayerTime.objects.create(**prayer_data)
+            PrayerTime.objects.get_or_create(
+                date=prayer_data['date'],
+                prayer=prayer_data['prayer'],
+                location=prayer_data['location'],
+                defaults=prayer_data
+            )
 
         # Create digital signage content
         signage_data = [
@@ -288,6 +317,9 @@ class Command(BaseCommand):
             {'title': 'Community Meeting', 'content_type': 'event', 'content': 'Monthly community meeting this Saturday at 4:00 PM in the main hall.', 'display_start': timezone.now(), 'display_end': timezone.now() + timedelta(days=3), 'priority': 7},
             {'title': 'Quran Verse of the Day', 'content_type': 'quran_verse', 'content': '"And whoever puts all his trust in Allah, He will be enough for him." (Quran 65:3)', 'display_start': timezone.now(), 'display_end': timezone.now() + timedelta(days=1), 'priority': 5},
         ]
+
+        for content_data in signage_data:
+            DigitalSignageContent.objects.create(**content_data)        ]
 
         for content_data in signage_data:
             DigitalSignageContent.objects.create(**content_data)

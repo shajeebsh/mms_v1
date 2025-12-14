@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+
 from membership.models import Member
 
 
@@ -21,16 +22,26 @@ class ExpenseCategory(models.Model):
 
 class Donation(models.Model):
     DONATION_TYPES = [
-        ('cash', 'Cash'),
-        ('check', 'Check'),
-        ('online', 'Online'),
-        ('other', 'Other'),
+        ("cash", "Cash"),
+        ("check", "Check"),
+        ("online", "Online"),
+        ("other", "Other"),
     ]
 
-    member = models.ForeignKey(Member, on_delete=models.SET_NULL, null=True, blank=True, related_name='donations')
-    category = models.ForeignKey(DonationCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    member = models.ForeignKey(
+        Member,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="donations",
+    )
+    category = models.ForeignKey(
+        DonationCategory, on_delete=models.SET_NULL, null=True, blank=True
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    donation_type = models.CharField(max_length=20, choices=DONATION_TYPES, default='cash')
+    donation_type = models.CharField(
+        max_length=20, choices=DONATION_TYPES, default="cash"
+    )
     date = models.DateField(default=timezone.now)
     notes = models.TextField(blank=True)
     receipt_number = models.CharField(max_length=50, blank=True)
@@ -41,11 +52,13 @@ class Donation(models.Model):
         return f"Donation by {self.member} - ${self.amount}"
 
     class Meta:
-        ordering = ['-date']
+        ordering = ["-date"]
 
 
 class Expense(models.Model):
-    category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(
+        ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField(default=timezone.now)
     description = models.TextField()
@@ -59,14 +72,14 @@ class Expense(models.Model):
         return f"Expense: {self.description} - ${self.amount}"
 
     class Meta:
-        ordering = ['-date']
+        ordering = ["-date"]
 
 
 class FinancialReport(models.Model):
     REPORT_PERIODS = [
-        ('monthly', 'Monthly'),
-        ('quarterly', 'Quarterly'),
-        ('yearly', 'Yearly'),
+        ("monthly", "Monthly"),
+        ("quarterly", "Quarterly"),
+        ("yearly", "Yearly"),
     ]
 
     period = models.CharField(max_length=20, choices=REPORT_PERIODS)
@@ -82,4 +95,5 @@ class FinancialReport(models.Model):
         return f"{self.period.title()} Report: {self.start_date} to {self.end_date}"
 
     class Meta:
-        ordering = ['-generated_at']
+        ordering = ["-generated_at"]
+        ordering = ["-generated_at"]

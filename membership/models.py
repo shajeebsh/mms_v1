@@ -1,13 +1,16 @@
+from decimal import Decimal
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
-from django.core.exceptions import ValidationError
-from decimal import Decimal
 
 
 class Family(models.Model):
     name = models.CharField(max_length=200, help_text="Family name or surname")
     address = models.TextField(blank=True, help_text="Family address")
-    phone = models.CharField(max_length=20, blank=True, help_text="Primary phone number")
+    phone = models.CharField(
+        max_length=20, blank=True, help_text="Primary phone number"
+    )
     email = models.EmailField(blank=True, help_text="Family email")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -21,16 +24,16 @@ class Family(models.Model):
 
 class Member(models.Model):
     GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-        ('O', 'Other'),
+        ("M", "Male"),
+        ("F", "Female"),
+        ("O", "Other"),
     ]
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
-    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name='members')
+    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="members")
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     is_active = models.BooleanField(default=True)
@@ -47,18 +50,26 @@ class Member(models.Model):
 
 class MembershipDues(models.Model):
     """Monthly membership dues for families - ₹10 per couple per month"""
-    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name='membership_dues')
+
+    family = models.ForeignKey(
+        Family, on_delete=models.CASCADE, related_name="membership_dues"
+    )
     year = models.PositiveIntegerField(help_text="Year for the dues")
     month = models.PositiveIntegerField(help_text="Month for the dues (1-12)")
-    amount_due = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10.00'), help_text="Amount due (₹10 per couple)")
+    amount_due = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("10.00"),
+        help_text="Amount due (₹10 per couple)",
+    )
     is_paid = models.BooleanField(default=False)
     due_date = models.DateField(help_text="Due date for payment")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ['family', 'year', 'month']
-        ordering = ['-year', '-month', 'family__name']
+        unique_together = ["family", "year", "month"]
+        ordering = ["-year", "-month", "family__name"]
         verbose_name = "Membership Due"
         verbose_name_plural = "Membership Dues"
 
@@ -73,6 +84,7 @@ class MembershipDues(models.Model):
         # Auto-calculate due date if not set
         if not self.due_date:
             from datetime import date
+
             self.due_date = date(self.year, self.month, 1)
         super().save(*args, **kwargs)
 
@@ -84,25 +96,39 @@ class MembershipDues(models.Model):
 
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
-        ('cash', 'Cash'),
-        ('bank', 'Bank Transfer'),
-        ('upi', 'UPI'),
+        ("cash", "Cash"),
+        ("bank", "Bank Transfer"),
+        ("upi", "UPI"),
     ]
 
-    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name='payments')
-    amount = models.DecimalField(max_digits=10, decimal_places=2, help_text="Payment amount")
+    family = models.ForeignKey(
+        Family, on_delete=models.CASCADE, related_name="payments"
+    )
+    amount = models.DecimalField(
+        max_digits=10, decimal_places=2, help_text="Payment amount"
+    )
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES)
-    receipt_number = models.CharField(max_length=20, unique=True, editable=False, help_text="Auto-generated receipt number")
+    receipt_number = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False,
+        help_text="Auto-generated receipt number",
+    )
     payment_date = models.DateField(default=timezone.now)
     notes = models.TextField(blank=True, help_text="Payment notes")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     # Many-to-many relationship for bulk payments
-    membership_dues = models.ManyToManyField(MembershipDues, blank=True, related_name='payments', help_text="Dues covered by this payment")
+    membership_dues = models.ManyToManyField(
+        MembershipDues,
+        blank=True,
+        related_name="payments",
+        help_text="Dues covered by this payment",
+    )
 
     class Meta:
-        ordering = ['-payment_date', '-created_at']
+        ordering = ["-payment_date", "-created_at"]
         verbose_name = "Payment"
         verbose_name_plural = "Payments"
 
@@ -117,10 +143,12 @@ class Payment(models.Model):
             # Find the next available number for today
             existing_receipts = Payment.objects.filter(
                 receipt_number__startswith=prefix
-            ).order_by('-receipt_number')
+            ).order_by("-receipt_number")
 
             if existing_receipts.exists():
-                last_number = int(existing_receipts.first().receipt_number.split('-')[-1])
+                last_number = int(
+                    existing_receipts.first().receipt_number.split("-")[-1]
+                )
                 next_number = last_number + 1
             else:
                 next_number = 1
@@ -137,19 +165,25 @@ class Payment(models.Model):
 
 class VitalRecord(models.Model):
     RECORD_TYPE_CHOICES = [
-        ('birth', 'Birth'),
-        ('death', 'Death'),
-        ('marriage', 'Marriage'),
-        ('baptism', 'Baptism'),
-        ('confirmation', 'Confirmation'),
-        ('other', 'Other'),
+        ("birth", "Birth"),
+        ("death", "Death"),
+        ("marriage", "Marriage"),
+        ("baptism", "Baptism"),
+        ("confirmation", "Confirmation"),
+        ("other", "Other"),
     ]
 
     record_type = models.CharField(max_length=20, choices=RECORD_TYPE_CHOICES)
     date = models.DateField()
-    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='vital_records')
-    details = models.TextField(blank=True, help_text="Additional details about the record")
-    location = models.CharField(max_length=200, blank=True, help_text="Location where the event occurred")
+    member = models.ForeignKey(
+        Member, on_delete=models.CASCADE, related_name="vital_records"
+    )
+    details = models.TextField(
+        blank=True, help_text="Additional details about the record"
+    )
+    location = models.CharField(
+        max_length=200, blank=True, help_text="Location where the event occurred"
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -157,4 +191,5 @@ class VitalRecord(models.Model):
         return f"{self.record_type} - {self.member.full_name} ({self.date})"
 
     class Meta:
-        ordering = ['-date']
+        ordering = ["-date"]
+        ordering = ["-date"]
