@@ -23,6 +23,7 @@ from finance.models import Donation, DonationCategory, Expense, ExpenseCategory
 from membership.models import Family, Member, MembershipDues, Payment
 from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                PrayerTime)
+from home.admin_menu import get_finance_url, get_membership_url, get_education_url, get_assets_url, get_operations_url, get_hr_url, get_committee_url
 
 from .models import DashboardWidget, ReportExport, UserProfile
 
@@ -81,7 +82,161 @@ def dashboard_view(request):
     else:  # staff or volunteer
         context.update(get_staff_dashboard_data())
 
+    # Add quick actions / widgets depending on the user's groups or role
+    context['quick_actions'] = get_quick_actions(request.user)
+
     return render(request, 'home/dashboard.html', context)
+
+
+def get_quick_actions(user):
+    """Return a list of quick action dicts depending on user groups or superuser."""
+    actions = []
+    if not user or user.is_anonymous:
+        return actions
+
+    if user.is_superuser:
+        return [
+            {'name': 'Site Admin', 'url': '/django-admin/', 'icon': 'cog'},
+            {'name': 'Wagtail CMS', 'url': '/cms/', 'icon': 'pencil'},
+            {'name': 'Run Migrations', 'url': '/admin/db/', 'icon': 'database'},
+        ]
+
+    group_names = set(g.name.lower() for g in user.groups.all())
+
+    if 'membership' in group_names:
+        actions += [
+            {'name': 'Members', 'url': '/membership/', 'icon': 'user'},
+            {'name': 'Families', 'url': '/membership/families/', 'icon': 'group'},
+            {'name': 'Overdue Dues', 'url': '/membership/overdue-report/', 'icon': 'warning'},
+        ]
+
+    if 'finance' in group_names:
+        actions += [
+            {'name': 'Record Donation', 'url': get_finance_url('DonationAdmin'), 'icon': 'money'},
+            {'name': 'Record Expense', 'url': get_finance_url('ExpenseAdmin'), 'icon': 'minus'},
+            {'name': 'Financial Reports', 'url': get_finance_url('FinancialReportAdmin'), 'icon': 'chart-bar'},
+        ]
+
+    if 'education' in group_names:
+        actions += [
+            {'name': 'Add Class', 'url': '/education/class/create/', 'icon': 'book'},
+            {'name': 'Enroll Student', 'url': '/education/enroll/', 'icon': 'user-plus'},
+            {'name': 'Teachers', 'url': '/education/teachers/', 'icon': 'user-tie'},
+        ]
+
+    if 'assets' in group_names:
+        actions += [
+            {'name': 'Shops', 'url': '/assets/shops/', 'icon': 'shopping-cart'},
+            {'name': 'Property Units', 'url': '/assets/units/', 'icon': 'home'},
+        ]
+
+    if 'operations' in group_names:
+        actions += [
+            {'name': 'Auditorium Bookings', 'url': '/operations/bookings/', 'icon': 'calendar'},
+            {'name': 'Digital Signage', 'url': '/operations/signage/', 'icon': 'tv'},
+            {'name': 'Prayer Times', 'url': '/operations/prayer-times/', 'icon': 'clock'},
+        ]
+
+    if 'hr' in group_names:
+        actions += [
+            {'name': 'Staff Directory', 'url': '/hr/staff/', 'icon': 'users'},
+            {'name': 'Attendance', 'url': '/hr/attendance/', 'icon': 'clipboard'},
+            {'name': 'Payroll', 'url': '/hr/payroll/', 'icon': 'money-bill'},
+        ]
+
+    if 'committee' in group_names:
+        actions += [
+            {'name': 'Trustees', 'url': '/committee/trustees/', 'icon': 'user-shield'},
+            {'name': 'Meetings', 'url': '/committee/meetings/', 'icon': 'calendar-alt'},
+            {'name': 'Attachments', 'url': '/committee/attachments/', 'icon': 'paperclip'},
+        ]
+
+    return actions
+
+
+def get_role_menu(user):
+    """Build a simple role-based menu (list of dicts with label and url)."""
+    menu = []
+    if not user or user.is_anonymous:
+        return menu
+
+    group_names = set(g.name.lower() for g in user.groups.all())
+
+    if 'membership' in group_names:
+        menu += [
+            {'label': 'Members', 'url': get_membership_url('MemberAdmin')},
+            {'label': 'Families', 'url': get_membership_url('FamilyAdmin')},
+            {'label': 'Overdue Dues', 'url': '/membership/overdue-report/'},
+        ]
+
+    if 'finance' in group_names:
+        menu += [
+            {'label': 'Donations', 'url': get_finance_url('DonationAdmin')},
+            {'label': 'Expenses', 'url': get_finance_url('ExpenseAdmin')},
+            {'label': 'Financial Reports', 'url': get_finance_url('FinancialReportAdmin')},
+        ]
+
+    if 'education' in group_names:
+        menu += [
+            {'label': 'Teachers', 'url': get_education_url('TeacherAdmin')},
+            {'label': 'Classes', 'url': get_education_url('ClassAdmin')},
+            {'label': 'Enrollments', 'url': '/education/enroll/'},
+        ]
+
+    if 'assets' in group_names:
+        menu += [
+            {'label': 'Shops', 'url': get_assets_url('ShopAdmin')},
+            {'label': 'Property Units', 'url': get_assets_url('PropertyUnitAdmin')},
+        ]
+
+    if 'operations' in group_names:
+        menu += [
+            {'label': 'Auditorium Bookings', 'url': get_operations_url('AuditoriumBookingAdmin')},
+            {'label': 'Prayer Times', 'url': get_operations_url('PrayerTimeAdmin')},
+        ]
+
+    if 'hr' in group_names:
+        menu += [
+            {'label': 'Staff Directory', 'url': get_hr_url('StaffMemberAdmin')},
+            {'label': 'Payroll', 'url': get_hr_url('PayrollAdmin')},
+        ]
+
+    if 'committee' in group_names:
+        menu += [
+            {'label': 'Trustees', 'url': get_committee_url('TrusteeAdmin')},
+            {'label': 'Meetings', 'url': get_committee_url('MeetingAdmin')},
+        ]
+
+    return menu
+
+
+@login_required
+def portal_view(request):
+    """A single-page portal combining dashboard and role-based menus."""
+    user_profile = getattr(request.user, 'profile', None)
+    if not user_profile:
+        user_profile = UserProfile.objects.create(user=request.user, user_type='staff')
+
+    user_type = user_profile.user_type
+
+    context = {
+        'user_profile': user_profile,
+        'user_type': user_type,
+    }
+
+    if user_type == 'admin':
+        context.update(get_admin_dashboard_data())
+    elif user_type == 'executive':
+        context.update(get_executive_dashboard_data())
+    elif user_type == 'manager':
+        context.update(get_manager_dashboard_data())
+    else:
+        context.update(get_staff_dashboard_data())
+
+    context['quick_actions'] = get_quick_actions(request.user)
+    context['role_menu'] = get_role_menu(request.user)
+
+    return render(request, 'home/portal.html', context)
 
 
 def get_admin_dashboard_data():
@@ -369,6 +524,30 @@ def export_overdue_dues_report(request):
         doc.build(elements)
 
         return response
+
+
+def redirect_finance_donation_create(request):
+    """Redirect legacy frontend finance donation create URL to ModelAdmin index."""
+    try:
+        return redirect(get_finance_url('DonationAdmin'))
+    except Exception:
+        return redirect('/cms/')
+
+
+def redirect_finance_expense_create(request):
+    """Redirect legacy frontend finance expense create URL to ModelAdmin index."""
+    try:
+        return redirect(get_finance_url('ExpenseAdmin'))
+    except Exception:
+        return redirect('/cms/')
+
+
+def redirect_finance_reports(request):
+    """Redirect legacy frontend finance reports URL to ModelAdmin index."""
+    try:
+        return redirect(get_finance_url('FinancialReportAdmin'))
+    except Exception:
+        return redirect('/cms/')
 
     return JsonResponse({'error': 'Invalid format'}, status=400)
 

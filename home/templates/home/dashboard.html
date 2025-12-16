@@ -315,11 +315,24 @@
                     <span class="live-indicator">Live Data</span>
                     Last updated: <span id="last-updated">{{ now|date:"M j, Y g:i A" }}</span>
                 </p>
+                <p>
+                    <a class="btn btn-sm btn-primary" href="{% url 'home:portal' %}">Open Portal (menus &amp; quick actions)</a>
+                </p>
             </div>
         </div>
     </div>
 
     <div class="container">
+        {% if quick_actions %}
+            <div class="quick-actions" style="margin-bottom:20px;">
+                {% for action in quick_actions %}
+                    <a class="action-card" href="{{ action.url }}">
+                        <div class="action-icon"><i class="fas fa-{{ action.icon }}"></i></div>
+                        <div class="action-title">{{ action.name }}</div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% if user_type == 'executive' %}
             <!-- Executive Dashboard -->
             <div class="kpi-grid">
