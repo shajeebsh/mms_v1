@@ -83,13 +83,14 @@ def dashboard_view(request):
         context.update(get_staff_dashboard_data())
 
     # Add quick actions / widgets depending on the user's groups or role
-    context['quick_actions'] = get_quick_actions(request.user)
-
+    context['sidebar_actions'] = get_dashboard_actions(request.user)
+    context['quick_actions'] = context['sidebar_actions'] # Keep for backward compat if template needs it
+    
     return render(request, 'home/dashboard.html', context)
 
 
-def get_quick_actions(user):
-    """Return a list of quick action dicts depending on user groups or superuser."""
+def get_dashboard_actions(user):
+    """Return a list of dashboard actions (name, url, icon) based on user roles."""
     actions = []
     if not user or user.is_anonymous:
         return actions
@@ -103,140 +104,66 @@ def get_quick_actions(user):
 
     group_names = set(g.name.lower() for g in user.groups.all())
 
+    # Membership
     if 'membership' in group_names:
         actions += [
-            {'name': 'Members', 'url': '/membership/', 'icon': 'user'},
-            {'name': 'Families', 'url': '/membership/families/', 'icon': 'group'},
+            {'name': 'Members', 'url': get_membership_url('MemberAdmin'), 'icon': 'user'},
+            {'name': 'Families', 'url': get_membership_url('FamilyAdmin'), 'icon': 'group'},
             {'name': 'Overdue Dues', 'url': '/membership/overdue-report/', 'icon': 'warning'},
         ]
 
+    # Finance
     if 'finance' in group_names:
         actions += [
-            {'name': 'Record Donation', 'url': get_finance_url('DonationAdmin'), 'icon': 'money'},
-            {'name': 'Record Expense', 'url': get_finance_url('ExpenseAdmin'), 'icon': 'minus'},
+            {'name': 'Donations', 'url': get_finance_url('DonationAdmin'), 'icon': 'money'},
+            {'name': 'Expenses', 'url': get_finance_url('ExpenseAdmin'), 'icon': 'minus'},
             {'name': 'Financial Reports', 'url': get_finance_url('FinancialReportAdmin'), 'icon': 'chart-bar'},
         ]
 
+    # Education
     if 'education' in group_names:
+        # Prefer ModelAdmin URLs where possible, but keep specific custom views if valuable
         actions += [
-            {'name': 'Add Class', 'url': '/education/class/create/', 'icon': 'book'},
+            {'name': 'Classes', 'url': get_education_url('ClassAdmin'), 'icon': 'book'},
+            {'name': 'Teachers', 'url': get_education_url('TeacherAdmin'), 'icon': 'user-tie'},
             {'name': 'Enroll Student', 'url': '/education/enroll/', 'icon': 'user-plus'},
-            {'name': 'Teachers', 'url': '/education/teachers/', 'icon': 'user-tie'},
         ]
 
+    # Assets
     if 'assets' in group_names:
         actions += [
-            {'name': 'Shops', 'url': '/assets/shops/', 'icon': 'shopping-cart'},
-            {'name': 'Property Units', 'url': '/assets/units/', 'icon': 'home'},
+            {'name': 'Shops', 'url': get_assets_url('ShopAdmin'), 'icon': 'shopping-cart'},
+            {'name': 'Property Units', 'url': get_assets_url('PropertyUnitAdmin'), 'icon': 'home'},
         ]
 
+    # Operations
     if 'operations' in group_names:
         actions += [
-            {'name': 'Auditorium Bookings', 'url': '/operations/bookings/', 'icon': 'calendar'},
-            {'name': 'Digital Signage', 'url': '/operations/signage/', 'icon': 'tv'},
-            {'name': 'Prayer Times', 'url': '/operations/prayer-times/', 'icon': 'clock'},
+            {'name': 'Auditorium Bookings', 'url': get_operations_url('AuditoriumBookingAdmin'), 'icon': 'calendar'},
+            {'name': 'Digital Signage', 'url': '/operations/signage/', 'icon': 'tv'}, # Keep if custom
+            {'name': 'Prayer Times', 'url': get_operations_url('PrayerTimeAdmin'), 'icon': 'clock'},
         ]
 
+    # HR
     if 'hr' in group_names:
         actions += [
-            {'name': 'Staff Directory', 'url': '/hr/staff/', 'icon': 'users'},
+            {'name': 'Staff Directory', 'url': get_hr_url('StaffMemberAdmin'), 'icon': 'users'},
             {'name': 'Attendance', 'url': '/hr/attendance/', 'icon': 'clipboard'},
-            {'name': 'Payroll', 'url': '/hr/payroll/', 'icon': 'money-bill'},
+            {'name': 'Payroll', 'url': get_hr_url('PayrollAdmin'), 'icon': 'money-bill'},
         ]
 
+    # Committee
     if 'committee' in group_names:
         actions += [
-            {'name': 'Trustees', 'url': '/committee/trustees/', 'icon': 'user-shield'},
-            {'name': 'Meetings', 'url': '/committee/meetings/', 'icon': 'calendar-alt'},
+            {'name': 'Trustees', 'url': get_committee_url('TrusteeAdmin'), 'icon': 'user-shield'},
+            {'name': 'Meetings', 'url': get_committee_url('MeetingAdmin'), 'icon': 'calendar-alt'},
             {'name': 'Attachments', 'url': '/committee/attachments/', 'icon': 'paperclip'},
         ]
 
     return actions
 
 
-def get_role_menu(user):
-    """Build a simple role-based menu (list of dicts with label and url)."""
-    menu = []
-    if not user or user.is_anonymous:
-        return menu
 
-    group_names = set(g.name.lower() for g in user.groups.all())
-
-    if 'membership' in group_names:
-        menu += [
-            {'label': 'Members', 'url': get_membership_url('MemberAdmin')},
-            {'label': 'Families', 'url': get_membership_url('FamilyAdmin')},
-            {'label': 'Overdue Dues', 'url': '/membership/overdue-report/'},
-        ]
-
-    if 'finance' in group_names:
-        menu += [
-            {'label': 'Donations', 'url': get_finance_url('DonationAdmin')},
-            {'label': 'Expenses', 'url': get_finance_url('ExpenseAdmin')},
-            {'label': 'Financial Reports', 'url': get_finance_url('FinancialReportAdmin')},
-        ]
-
-    if 'education' in group_names:
-        menu += [
-            {'label': 'Teachers', 'url': get_education_url('TeacherAdmin')},
-            {'label': 'Classes', 'url': get_education_url('ClassAdmin')},
-            {'label': 'Enrollments', 'url': '/education/enroll/'},
-        ]
-
-    if 'assets' in group_names:
-        menu += [
-            {'label': 'Shops', 'url': get_assets_url('ShopAdmin')},
-            {'label': 'Property Units', 'url': get_assets_url('PropertyUnitAdmin')},
-        ]
-
-    if 'operations' in group_names:
-        menu += [
-            {'label': 'Auditorium Bookings', 'url': get_operations_url('AuditoriumBookingAdmin')},
-            {'label': 'Prayer Times', 'url': get_operations_url('PrayerTimeAdmin')},
-        ]
-
-    if 'hr' in group_names:
-        menu += [
-            {'label': 'Staff Directory', 'url': get_hr_url('StaffMemberAdmin')},
-            {'label': 'Payroll', 'url': get_hr_url('PayrollAdmin')},
-        ]
-
-    if 'committee' in group_names:
-        menu += [
-            {'label': 'Trustees', 'url': get_committee_url('TrusteeAdmin')},
-            {'label': 'Meetings', 'url': get_committee_url('MeetingAdmin')},
-        ]
-
-    return menu
-
-
-@login_required
-def portal_view(request):
-    """A single-page portal combining dashboard and role-based menus."""
-    user_profile = getattr(request.user, 'profile', None)
-    if not user_profile:
-        user_profile = UserProfile.objects.create(user=request.user, user_type='staff')
-
-    user_type = user_profile.user_type
-
-    context = {
-        'user_profile': user_profile,
-        'user_type': user_type,
-    }
-
-    if user_type == 'admin':
-        context.update(get_admin_dashboard_data())
-    elif user_type == 'executive':
-        context.update(get_executive_dashboard_data())
-    elif user_type == 'manager':
-        context.update(get_manager_dashboard_data())
-    else:
-        context.update(get_staff_dashboard_data())
-
-    context['quick_actions'] = get_quick_actions(request.user)
-    context['role_menu'] = get_role_menu(request.user)
-
-    return render(request, 'home/portal.html', context)
 
 
 def get_admin_dashboard_data():
@@ -293,6 +220,33 @@ def get_admin_dashboard_data():
         booking_date__gte=today,
         status='approved'
     ).order_by('booking_date')[:5]
+
+    # Chart Data: Expenses by Category
+    expenses_by_category = Expense.objects.values('category__name').annotate(
+        total=Sum('amount')
+    ).order_by('-total')
+    data['expenses_by_category'] = list(expenses_by_category)
+
+    # Chart Data: Revenue Sources
+    donations_by_type = Donation.objects.values('donation_type').annotate(
+        total=Sum('amount')
+    ).order_by('-total')
+    # Map display names for donation types
+    donation_type_display = dict(Donation.DONATION_TYPES)
+    data['donations_by_type'] = [
+        {'type': donation_type_display.get(d['donation_type'], d['donation_type']), 'total': float(d['total'])}
+        for d in donations_by_type
+    ]
+
+    payments_by_method = Payment.objects.values('payment_method').annotate(
+        total=Sum('amount')
+    ).order_by('-total')
+    # Map display names for payment methods
+    payment_method_display = dict(Payment.PAYMENT_METHOD_CHOICES)
+    data['payments_by_method'] = [
+        {'method': payment_method_display.get(p['payment_method'], p['payment_method']), 'total': float(p['total'])}
+        for p in payments_by_method
+    ]
 
     return data
 

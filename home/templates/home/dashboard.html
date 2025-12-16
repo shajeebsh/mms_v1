@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,26 +67,52 @@
             text-transform: uppercase;
         }
 
-        .badge-admin { background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; }
-        .badge-executive { background: linear-gradient(45deg, #f39c12, #e67e22); color: white; }
-        .badge-manager { background: linear-gradient(45deg, #3498db, #2980b9); color: white; }
-        .badge-staff { background: linear-gradient(45deg, #27ae60, #229954); color: white; }
-        .badge-volunteer { background: linear-gradient(45deg, #9b59b6, #8e44ad); color: white; }
+        .badge-admin {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .badge-executive {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .badge-manager {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .badge-staff {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .badge-volunteer {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+        }
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            /* Smaller tiles */
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .kpi-card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 8px;
+            /* Slightly tighter radius */
+            padding: 12px;
+            /* Very compact padding */
             box-shadow: var(--card-shadow);
-            border-left: 4px solid var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+            /* Thinner border */
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .kpi-card:hover {
@@ -94,30 +121,38 @@
         }
 
         .kpi-icon {
-            font-size: 2.5rem;
+            font-size: 1.5rem;
+            /* Smaller icon */
             color: var(--primary-color);
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
 
         .kpi-value {
-            font-size: 2rem;
+            font-size: 1.3rem;
+            /* Smaller value */
             font-weight: 700;
             color: var(--secondary-color);
-            margin-bottom: 5px;
+            margin-bottom: 2px;
+            line-height: 1.2;
         }
 
         .kpi-label {
             color: #6c757d;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
+            /* Smaller label */
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .chart-container {
             background: white;
             border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
+            padding: 15px;
+            /* Compact padding */
+            margin-bottom: 20px;
             box-shadow: var(--card-shadow);
         }
 
@@ -160,15 +195,16 @@
         .activity-feed {
             background: white;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: var(--card-shadow);
         }
 
         .activity-item {
             display: flex;
             align-items: center;
-            padding: 15px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #f1f3f4;
+            font-size: 0.9rem;
         }
 
         .activity-item:last-child {
@@ -176,33 +212,48 @@
         }
 
         .activity-icon {
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 15px;
-            font-size: 16px;
+            margin-right: 10px;
+            font-size: 12px;
+            flex-shrink: 0;
         }
 
-        .activity-icon.donation { background: #d4edda; color: #155724; }
-        .activity-icon.payment { background: #cce5ff; color: #004085; }
-        .activity-icon.booking { background: #fff3cd; color: #856404; }
+        .activity-icon.donation {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .activity-icon.payment {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .activity-icon.booking {
+            background: #fff3cd;
+            color: #856404;
+        }
 
         .activity-content {
             flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .activity-title {
-            font-weight: 600;
+        .activity-text {
             color: var(--secondary-color);
-            margin-bottom: 2px;
         }
 
-        .activity-meta {
-            color: #6c757d;
-            font-size: 14px;
+        .activity-date {
+            font-size: 0.75rem;
+            color: #bdc3c7;
+            margin-left: auto;
+            padding-left: 5px;
         }
 
         .quick-actions {
@@ -263,9 +314,17 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -285,6 +344,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
@@ -315,153 +375,231 @@
                     <span class="live-indicator">Live Data</span>
                     Last updated: <span id="last-updated">{{ now|date:"M j, Y g:i A" }}</span>
                 </p>
-                <p>
-                    <a class="btn btn-sm btn-primary" href="{% url 'home:portal' %}">Open Portal (menus &amp; quick actions)</a>
-                </p>
+
             </div>
         </div>
     </div>
 
     <div class="container">
-        {% if quick_actions %}
-            <div class="quick-actions" style="margin-bottom:20px;">
-                {% for action in quick_actions %}
-                    <a class="action-card" href="{{ action.url }}">
-                        <div class="action-icon"><i class="fas fa-{{ action.icon }}"></i></div>
-                        <div class="action-title">{{ action.name }}</div>
-                    </a>
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% if user_type == 'executive' %}
-            <!-- Executive Dashboard -->
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                    <div class="kpi-value">{{ kpis.total_members|floatformat:0 }}</div>
-                    <div class="kpi-label">Total Members</div>
+        <div class="row">
+            <!-- Sidebar -->
+            <aside class="col-lg-3 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Actions</h5>
+                        <div class="d-grid gap-2">
+                            {% for action in sidebar_actions %}
+                            <a href="{{ action.url }}" class="btn btn-outline-primary text-start">
+                                <i class="fas fa-{{ action.icon }} me-2"></i> {{ action.name }}
+                            </a>
+                            {% empty %}
+                            <span class="text-muted small">No actions available.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-home"></i></div>
-                    <div class="kpi-value">{{ kpis.total_families|floatformat:0 }}</div>
-                    <div class="kpi-label">Total Families</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
-                    <div class="kpi-value">₹{{ kpis.total_income|floatformat:0 }}</div>
-                    <div class="kpi-label">Total Income</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-building"></i></div>
-                    <div class="kpi-value">{{ kpis.occupancy_rate|floatformat:1 }}%</div>
-                    <div class="kpi-label">Occupancy Rate</div>
-                </div>
-            </div>
 
-            <!-- Executive Charts -->
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3 class="chart-title">Income Trends (Last 12 Months)</h3>
-                            <div class="export-buttons">
-                                <a href="{% url 'home:export_report' 'financial_summary' %}?format=csv" class="btn-export">
-                                    <i class="fas fa-download"></i> CSV
-                                </a>
-                                <a href="{% url 'home:export_report' 'financial_summary' %}?format=pdf" class="btn-export">
-                                    <i class="fas fa-file-pdf"></i> PDF
-                                </a>
+                <!-- Recent Activity Feed (Sidebar) -->
+                {% if user_type == 'admin' or user_type == 'executive' %}
+                <div class="activity-feed mt-4">
+                    <h6 class="text-uppercase text-muted mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Recent
+                        Activity</h6>
+
+                    {% if recent_donations %}
+                    {% for donation in recent_donations %}
+                    <div class="activity-item"
+                        title="Donation: ₹{{ donation.amount }} from {{ donation.member }} on {{ donation.date }}">
+                        <div class="activity-icon donation"><i class="fas fa-hand-holding-heart"></i></div>
+                        <div class="activity-content">
+                            <span class="activity-text">
+                                <strong>₹{{ donation.amount }}</strong> - {{ donation.member.first_name }}
+                            </span>
+                        </div>
+                        <span class="activity-date">{{ donation.date|date:"M j" }}</span>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if recent_payments %}
+                    {% for payment in recent_payments %}
+                    <div class="activity-item" title="Payment: ₹{{ payment.amount }} from {{ payment.family.name }}">
+                        <div class="activity-icon payment"><i class="fas fa-credit-card"></i></div>
+                        <div class="activity-content">
+                            <span class="activity-text">
+                                <strong>₹{{ payment.amount }}</strong> - {{ payment.family.name|truncatechars:15 }}
+                            </span>
+                        </div>
+                        <span class="activity-date">{{ payment.payment_date|date:"M j" }}</span>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if upcoming_bookings %}
+                    {% for booking in upcoming_bookings %}
+                    <div class="activity-item" title="Booking: {{ booking.event_name }}">
+                        <div class="activity-icon booking"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="activity-content">
+                            <span class="activity-text">{{ booking.event_name|truncatechars:20 }}</span>
+                        </div>
+                        <span class="activity-date">{{ booking.booking_date|date:"M j" }}</span>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% endif %}
+            </aside>
+
+            <!-- Main Content -->
+            <main class="col-lg-9">
+                {% if user_type == 'executive' %}
+                <!-- Executive Dashboard -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                        <div class="kpi-value">{{ kpis.total_members|floatformat:0 }}</div>
+                        <div class="kpi-label">Total Members</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-home"></i></div>
+                        <div class="kpi-value">{{ kpis.total_families|floatformat:0 }}</div>
+                        <div class="kpi-label">Total Families</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
+                        <div class="kpi-value">₹{{ kpis.total_income|floatformat:0 }}</div>
+                        <div class="kpi-label">Total Income</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-building"></i></div>
+                        <div class="kpi-value">{{ kpis.occupancy_rate|floatformat:1 }}%</div>
+                        <div class="kpi-label">Occupancy Rate</div>
+                    </div>
+                </div>
+
+                <!-- Executive Charts -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Income Trends (Last 12 Months)</h3>
+                                <div class="export-buttons">
+                                    <a href="{% url 'home:export_report' 'financial_summary' %}?format=csv"
+                                        class="btn-export">
+                                        <i class="fas fa-download"></i> CSV
+                                    </a>
+                                    <a href="{% url 'home:export_report' 'financial_summary' %}?format=pdf"
+                                        class="btn-export">
+                                        <i class="fas fa-file-pdf"></i> PDF
+                                    </a>
+                                </div>
                             </div>
+                            <canvas id="incomeChart" width="400" height="200"></canvas>
                         </div>
-                        <canvas id="incomeChart" width="400" height="200"></canvas>
                     </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3 class="chart-title">Monthly Dues vs Target</h3>
-                        </div>
-                        <div class="text-center p-4">
-                            <div style="font-size: 3rem; color: {% if dues_achievement >= 100 %}#27ae60{% else %}#f39c12{% endif %}">
-                                {{ dues_achievement|floatformat:1 }}%
+                    <div class="col-lg-4">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Monthly Dues vs Target</h3>
                             </div>
-                            <p class="mb-2">Achievement Rate</p>
-                            <small class="text-muted">
-                                ₹{{ current_month_dues|floatformat:0 }} / ₹{{ monthly_dues_target|floatformat:0 }}
-                            </small>
+                            <div class="text-center p-4">
+                                <div
+                                    style="font-size: 3rem; color: {% if dues_achievement >= 100 %}#27ae60{% else %}#f39c12{% endif %}">
+                                    {{ dues_achievement|floatformat:1 }}%
+                                </div>
+                                <p class="mb-2">Achievement Rate</p>
+                                <small class="text-muted">
+                                    ₹{{ current_month_dues|floatformat:0 }} / ₹{{ monthly_dues_target|floatformat:0 }}
+                                </small>
+                            </div>
+                            <canvas id="duesChart" width="200" height="200"></canvas>
                         </div>
-                        <canvas id="duesChart" width="200" height="200"></canvas>
                     </div>
                 </div>
-            </div>
 
-        {% elif user_type == 'admin' %}
-            <!-- Admin Dashboard -->
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                    <div class="kpi-value">{{ total_members|floatformat:0 }}</div>
-                    <div class="kpi-label">Active Members</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-home"></i></div>
-                    <div class="kpi-value">{{ total_families|floatformat:0 }}</div>
-                    <div class="kpi-label">Families</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="kpi-value">{{ active_classes|floatformat:0 }}</div>
-                    <div class="kpi-label">Active Classes</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
-                    <div class="kpi-value">{{ total_shops|floatformat:0 }}</div>
-                    <div class="kpi-label">Shops</div>
-                </div>
-            </div>
-
-            <!-- Admin Charts -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h3 class="chart-title">Monthly Trends</h3>
-                    <div class="export-buttons">
-                        <a href="{% url 'home:export_report' 'membership_summary' %}?format=csv" class="btn-export">
-                            <i class="fas fa-download"></i> CSV
-                        </a>
+                {% elif user_type == 'admin' %}
+                <!-- Admin Dashboard -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                        <div class="kpi-value">{{ total_members|floatformat:0 }}</div>
+                        <div class="kpi-label">Active Members</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-home"></i></div>
+                        <div class="kpi-value">{{ total_families|floatformat:0 }}</div>
+                        <div class="kpi-label">Families</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="kpi-value">{{ active_classes|floatformat:0 }}</div>
+                        <div class="kpi-label">Active Classes</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <div class="kpi-value">{{ total_shops|floatformat:0 }}</div>
+                        <div class="kpi-label">Shops</div>
                     </div>
                 </div>
-                <canvas id="adminChart" width="400" height="200"></canvas>
-            </div>
 
-        {% elif user_type == 'manager' %}
-            <!-- Manager Dashboard -->
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="kpi-value">{{ department_overview.active_classes|floatformat:0 }}</div>
-                    <div class="kpi-label">Active Classes</div>
+                <!-- Admin Charts -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Monthly Trends</h3>
+                                <div class="export-buttons">
+                                    <a href="{% url 'home:export_report' 'membership_summary' %}?format=csv"
+                                        class="btn-export">
+                                        <i class="fas fa-download"></i> CSV
+                                    </a>
+                                </div>
+                            </div>
+                            <canvas id="adminChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <!-- Revenue Sources -->
+                        <div class="chart-container mb-4">
+                            <h3 class="chart-title mb-3">Revenue Sources</h3>
+                            <canvas id="revenueSourcesChart" width="200" height="200"></canvas>
+                        </div>
+                        <!-- Expense Breakdown -->
+                        <div class="chart-container">
+                            <h3 class="chart-title mb-3">Expense Breakdown</h3>
+                            <canvas id="expensesChart" width="200" height="200"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-user-graduate"></i></div>
-                    <div class="kpi-value">{{ department_overview.total_students|floatformat:0 }}</div>
-                    <div class="kpi-label">Total Students</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                    <div class="kpi-value">{{ department_overview.active_teachers|floatformat:0 }}</div>
-                    <div class="kpi-label">Active Teachers</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="kpi-value">{{ department_overview.total_bookings|floatformat:0 }}</div>
-                    <div class="kpi-label">Upcoming Bookings</div>
-                </div>
-            </div>
 
-        {% else %}
-            <!-- Staff/Volunteer Dashboard -->
-            <div class="quick-actions">
-                {% for action in quick_actions %}
+                {% elif user_type == 'manager' %}
+                <!-- Manager Dashboard -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="kpi-value">{{ department_overview.active_classes|floatformat:0 }}</div>
+                        <div class="kpi-label">Active Classes</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-user-graduate"></i></div>
+                        <div class="kpi-value">{{ department_overview.total_students|floatformat:0 }}</div>
+                        <div class="kpi-label">Total Students</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <div class="kpi-value">{{ department_overview.active_teachers|floatformat:0 }}</div>
+                        <div class="kpi-label">Active Teachers</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="kpi-value">{{ department_overview.total_bookings|floatformat:0 }}</div>
+                        <div class="kpi-label">Upcoming Bookings</div>
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- Staff/Volunteer Dashboard -->
+                <div class="quick-actions">
+                    {% for action in quick_actions %}
                     <a href="{{ action.url }}" class="action-card">
                         <div class="action-icon">
                             <i class="fas fa-{{ action.icon }}"></i>
@@ -469,81 +607,30 @@
                         <div class="action-title">{{ action.name }}</div>
                         <div class="action-desc">Quick access to {{ action.name|lower }}</div>
                     </a>
-                {% endfor %}
-            </div>
-
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                    <div class="kpi-value">{{ today_overview.total_members|floatformat:0 }}</div>
-                    <div class="kpi-label">Total Members</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="kpi-value">{{ today_overview.active_classes|floatformat:0 }}</div>
-                    <div class="kpi-label">Active Classes</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-calendar-day"></i></div>
-                    <div class="kpi-value">{{ today_overview.today_bookings|floatformat:0 }}</div>
-                    <div class="kpi-label">Today's Bookings</div>
-                </div>
-            </div>
-        {% endif %}
-
-        <!-- Recent Activity Feed (for all users) -->
-        {% if user_type == 'admin' or user_type == 'executive' %}
-            <div class="activity-feed">
-                <h3 class="chart-title mb-4">Recent Activity</h3>
-                {% if recent_donations %}
-                    {% for donation in recent_donations %}
-                        <div class="activity-item">
-                            <div class="activity-icon donation">
-                                <i class="fas fa-hand-holding-heart"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Donation Received</div>
-                                <div class="activity-meta">
-                                    ₹{{ donation.amount }} from {{ donation.member }} on {{ donation.date|date:"M j, Y" }}
-                                </div>
-                            </div>
-                        </div>
                     {% endfor %}
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                        <div class="kpi-value">{{ today_overview.total_members|floatformat:0 }}</div>
+                        <div class="kpi-label">Total Members</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="kpi-value">{{ today_overview.active_classes|floatformat:0 }}</div>
+                        <div class="kpi-label">Active Classes</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon"><i class="fas fa-calendar-day"></i></div>
+                        <div class="kpi-value">{{ today_overview.today_bookings|floatformat:0 }}</div>
+                        <div class="kpi-label">Today's Bookings</div>
+                    </div>
+                </div>
                 {% endif %}
 
-                {% if recent_payments %}
-                    {% for payment in recent_payments %}
-                        <div class="activity-item">
-                            <div class="activity-icon payment">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Membership Payment</div>
-                                <div class="activity-meta">
-                                    ₹{{ payment.amount }} from {{ payment.family.name }} on {{ payment.payment_date|date:"M j, Y" }}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-
-                {% if upcoming_bookings %}
-                    {% for booking in upcoming_bookings %}
-                        <div class="activity-item">
-                            <div class="activity-icon booking">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Auditorium Booking</div>
-                                <div class="activity-meta">
-                                    {{ booking.event_name }} on {{ booking.booking_date|date:"M j, Y" }} at {{ booking.start_time }}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        {% endif %}
+            </main>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -565,107 +652,160 @@
 
         // Initialize charts
         {% if user_type == 'executive' %}
-            // Income Trends Chart
-            const incomeCtx = document.getElementById('incomeChart').getContext('2d');
-            const incomeData = {{ monthly_income_trends|safe }};
-            new Chart(incomeCtx, {
-                type: 'line',
-                data: {
-                    labels: incomeData.map(item => item.month),
-                    datasets: [{
-                        label: 'Income',
-                        data: incomeData.map(item => item.income),
-                        borderColor: '#3498db',
-                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                        tension: 0.4
-                    }, {
-                        label: 'Target',
-                        data: incomeData.map(item => item.target),
-                        borderColor: '#e74c3c',
-                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        borderDash: [5, 5],
-                        tension: 0.4
-                    }]
+        // Income Trends Chart
+        const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+        const incomeData = {{ monthly_income_trends| safe }};
+        new Chart(incomeCtx, {
+            type: 'line',
+            data: {
+                labels: incomeData.map(item => item.month),
+                datasets: [{
+                    label: 'Income',
+                    data: incomeData.map(item => item.income),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Target',
+                    data: incomeData.map(item => item.target),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderDash: [5, 5],
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toLocaleString();
-                                }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '₹' + value.toLocaleString();
                             }
                         }
                     }
                 }
-            });
+            }
+        });
 
-            // Dues Achievement Chart
-            const duesCtx = document.getElementById('duesChart').getContext('2d');
-            new Chart(duesCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Collected', 'Remaining'],
-                    datasets: [{
-                        data: [{{ current_month_dues }}, {{ remaining_dues }}],
-                        backgroundColor: ['#27ae60', '#ecf0f1'],
-                        borderWidth: 0
-                    }]
+        // Dues Achievement Chart
+        const duesCtx = document.getElementById('duesChart').getContext('2d');
+        new Chart(duesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Collected', 'Remaining'],
+                datasets: [{
+                    data: [{{ current_month_dues }}, {{ remaining_dues }}],
+            backgroundColor: ['#27ae60', '#ecf0f1'],
+            borderWidth: 0
+        }]
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
-                    }
+            options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
                 }
+            }
+        }
             });
 
         {% elif user_type == 'admin' %}
-            // Admin Monthly Trends Chart
-            const adminCtx = document.getElementById('adminChart').getContext('2d');
-            const adminData = {{ monthly_trends|safe }};
-            new Chart(adminCtx, {
-                type: 'bar',
-                data: {
-                    labels: adminData.map(item => item.month),
-                    datasets: [{
-                        label: 'Donations',
-                        data: adminData.map(item => item.donations),
-                        backgroundColor: '#27ae60'
-                    }, {
-                        label: 'Expenses',
-                        data: adminData.map(item => item.expenses),
-                        backgroundColor: '#e74c3c'
-                    }, {
-                        label: 'Dues',
-                        data: adminData.map(item => item.dues),
-                        backgroundColor: '#3498db'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value.toLocaleString();
-                                }
+        // Admin Monthly Trends Chart
+        const adminCtx = document.getElementById('adminChart').getContext('2d');
+        const adminData = {{ monthly_trends| safe }};
+        new Chart(adminCtx, {
+            type: 'bar',
+            data: {
+                labels: adminData.map(item => item.month),
+                datasets: [{
+                    label: 'Donations',
+                    data: adminData.map(item => item.donations),
+                    backgroundColor: '#27ae60'
+                }, {
+                    label: 'Expenses',
+                    data: adminData.map(item => item.expenses),
+                    backgroundColor: '#e74c3c'
+                }, {
+                    label: 'Dues',
+                    data: adminData.map(item => item.dues),
+                    backgroundColor: '#3498db'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '₹' + value.toLocaleString();
                             }
                         }
                     }
                 }
-            });
+            }
+        });
+
+        // Revenue Sources Chart
+        const revenueCtx = document.getElementById('revenueSourcesChart').getContext('2d');
+        const donationTypes = {{ donations_by_type| safe }};
+        const paymentMethods = {{ payments_by_method| safe }};
+
+        // Combine data for display
+        const revenueLabels = [...donationTypes.map(d => 'Donation: ' + d.type), ...paymentMethods.map(p => 'Payment: ' + p.method)];
+        const revenueValues = [...donationTypes.map(d => d.total), ...paymentMethods.map(p => p.total)];
+        const revenueColors = [
+            ...donationTypes.map((_, i) => `hsl(${120 + i * 20}, 70%, 50%)`), // Greens for donations
+            ...paymentMethods.map((_, i) => `hsl(${200 + i * 20}, 70%, 50%)`)  // Blues for payments
+        ];
+
+        new Chart(revenueCtx, {
+            type: 'pie',
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    data: revenueValues,
+                    backgroundColor: revenueColors,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                }
+            }
+        });
+
+        // Expense Breakdown Chart
+        const expenseCtx = document.getElementById('expensesChart').getContext('2d');
+        const expenseData = {{ expenses_by_category| safe }};
+        new Chart(expenseCtx, {
+            type: 'doughnut',
+            data: {
+                labels: expenseData.map(item => item.category__name),
+                datasets: [{
+                    data: expenseData.map(item => item.total),
+                    backgroundColor: [
+                        '#e74c3c', '#e67e22', '#f1c40f', '#9b59b6', '#34495e', '#95a5a6'
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                }
+            }
+        });
         {% endif %}
     </script>
 </body>
+
 </html>
