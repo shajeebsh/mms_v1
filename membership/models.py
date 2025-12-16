@@ -60,7 +60,7 @@ class MembershipDues(models.Model):
         max_digits=10,
         decimal_places=2,
         default=Decimal("10.00"),
-        help_text="Amount due (₹10 per couple)",
+        help_text="Amount due (matches System Settings)",
     )
     is_paid = models.BooleanField(default=False)
     due_date = models.DateField(help_text="Due date for payment")
@@ -86,6 +86,29 @@ class MembershipDues(models.Model):
             from datetime import date
 
             self.due_date = date(self.year, self.month, 1)
+        if not self.due_date:
+            from datetime import date
+
+            self.due_date = date(self.year, self.month, 1)
+
+        # Use system setting for default amount if new and amount is default
+        if self.pk is None and self.amount_due == Decimal("10.00"):
+            from home.models import SystemSettings
+            from wagtail.models import Site
+
+            try:
+                # Try to get the default site
+                site = Site.objects.filter(is_default_site=True).first()
+                if not site:
+                    site = Site.objects.first()
+
+                if site:
+                    settings = SystemSettings.for_site(site)
+                    self.amount_due = settings.monthly_membership_dues
+            except Exception:
+                # Fallback to hardcoded default if any issues with settings/site
+                pass
+
         super().save(*args, **kwargs)
 
     @property
@@ -167,9 +190,10 @@ class VitalRecord(models.Model):
     RECORD_TYPE_CHOICES = [
         ("birth", "Birth"),
         ("death", "Death"),
-        ("marriage", "Marriage"),
-        ("baptism", "Baptism"),
-        ("confirmation", "Confirmation"),
+        ("nikah", "Nikah (Marriage)"),
+        ("janazah", "Janazah (Funeral)"),
+        ("aqiqah", "Aqiqah"),
+        ("shahada", "Shahada"),
         ("other", "Other"),
     ]
 

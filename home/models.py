@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
 from wagtail.admin.panels import FieldPanel
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
 from wagtail.models import Page
 
 
@@ -136,3 +137,18 @@ class ReportExport(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+@register_setting
+class SystemSettings(BaseSiteSetting):
+    monthly_membership_dues = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=10.00,
+        help_text="Default monthly membership dues amount",
+    )
+
+    panels = [
+        FieldPanel("monthly_membership_dues"),
+    ]
+

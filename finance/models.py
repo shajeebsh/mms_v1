@@ -49,7 +49,7 @@ class Donation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Donation by {self.member} - ${self.amount}"
+        return f"Donation by {self.member} - ₹{self.amount}"
 
     class Meta:
         ordering = ["-date"]
@@ -69,7 +69,7 @@ class Expense(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Expense: {self.description} - ${self.amount}"
+        return f"Expense: {self.description} - ₹{self.amount}"
 
     class Meta:
         ordering = ["-date"]
