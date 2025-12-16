@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "wagtail.admin",
     "wagtail",
     "wagtail_modeladmin",
+    "wagtail.contrib.settings",
     "home",
     "membership",
     "finance",
