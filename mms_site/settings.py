@@ -6,7 +6,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "replace-me-for-production")
 DEBUG = True
-ALLOWED_HOSTS = []
+# Allow local hosts by default to make the project easier to run for forks.
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Base URL for Wagtail admin (used in notification emails)
 WAGTAILADMIN_BASE_URL = os.environ.get("WAGTAILADMIN_BASE_URL", "http://127.0.0.1:8000")
