@@ -81,7 +81,76 @@ def dashboard_view(request):
     else:  # staff or volunteer
         context.update(get_staff_dashboard_data())
 
+    # Add quick actions / widgets depending on the user's groups or role
+    context['quick_actions'] = get_quick_actions(request.user)
+
     return render(request, 'home/dashboard.html', context)
+
+
+def get_quick_actions(user):
+    """Return a list of quick action dicts depending on user groups or superuser."""
+    actions = []
+    if not user or user.is_anonymous:
+        return actions
+
+    if user.is_superuser:
+        return [
+            {'name': 'Site Admin', 'url': '/django-admin/', 'icon': 'cog'},
+            {'name': 'Wagtail CMS', 'url': '/cms/', 'icon': 'pencil'},
+            {'name': 'Run Migrations', 'url': '/admin/db/', 'icon': 'database'},
+        ]
+
+    group_names = set(g.name.lower() for g in user.groups.all())
+
+    if 'membership' in group_names:
+        actions += [
+            {'name': 'Members', 'url': '/membership/', 'icon': 'user'},
+            {'name': 'Families', 'url': '/membership/families/', 'icon': 'group'},
+            {'name': 'Overdue Dues', 'url': '/membership/overdue-report/', 'icon': 'warning'},
+        ]
+
+    if 'finance' in group_names:
+        actions += [
+            {'name': 'Record Donation', 'url': '/finance/donation/create/', 'icon': 'money'},
+            {'name': 'Record Expense', 'url': '/finance/expense/create/', 'icon': 'minus'},
+            {'name': 'Financial Reports', 'url': '/finance/reports/', 'icon': 'chart-bar'},
+        ]
+
+    if 'education' in group_names:
+        actions += [
+            {'name': 'Add Class', 'url': '/education/class/create/', 'icon': 'book'},
+            {'name': 'Enroll Student', 'url': '/education/enroll/', 'icon': 'user-plus'},
+            {'name': 'Teachers', 'url': '/education/teachers/', 'icon': 'user-tie'},
+        ]
+
+    if 'assets' in group_names:
+        actions += [
+            {'name': 'Shops', 'url': '/assets/shops/', 'icon': 'shopping-cart'},
+            {'name': 'Property Units', 'url': '/assets/units/', 'icon': 'home'},
+        ]
+
+    if 'operations' in group_names:
+        actions += [
+            {'name': 'Auditorium Bookings', 'url': '/operations/bookings/', 'icon': 'calendar'},
+            {'name': 'Digital Signage', 'url': '/operations/signage/', 'icon': 'tv'},
+            {'name': 'Prayer Times', 'url': '/operations/prayer-times/', 'icon': 'clock'},
+        ]
+
+    if 'hr' in group_names:
+        actions += [
+            {'name': 'Staff Directory', 'url': '/hr/staff/', 'icon': 'users'},
+            {'name': 'Attendance', 'url': '/hr/attendance/', 'icon': 'clipboard'},
+            {'name': 'Payroll', 'url': '/hr/payroll/', 'icon': 'money-bill'},
+        ]
+
+    if 'committee' in group_names:
+        actions += [
+            {'name': 'Trustees', 'url': '/committee/trustees/', 'icon': 'user-shield'},
+            {'name': 'Meetings', 'url': '/committee/meetings/', 'icon': 'calendar-alt'},
+            {'name': 'Attachments', 'url': '/committee/attachments/', 'icon': 'paperclip'},
+        ]
+
+    return actions
 
 
 def get_admin_dashboard_data():

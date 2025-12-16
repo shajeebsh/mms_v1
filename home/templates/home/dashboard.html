@@ -320,6 +320,16 @@
     </div>
 
     <div class="container">
+        {% if quick_actions %}
+            <div class="quick-actions" style="margin-bottom:20px;">
+                {% for action in quick_actions %}
+                    <a class="action-card" href="{{ action.url }}">
+                        <div class="action-icon"><i class="fas fa-{{ action.icon }}"></i></div>
+                        <div class="action-title">{{ action.name }}</div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% if user_type == 'executive' %}
             <!-- Executive Dashboard -->
             <div class="kpi-grid">
