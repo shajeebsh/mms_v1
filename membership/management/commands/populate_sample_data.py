@@ -319,7 +319,4 @@ class Command(BaseCommand):
         ]
 
         for content_data in signage_data:
-            DigitalSignageContent.objects.create(**content_data)        ]
-
-        for content_data in signage_data:
             DigitalSignageContent.objects.create(**content_data)

@@ -52,7 +52,24 @@ def customize_main_menu(request, menu_items):
 
     # Filter the administration submenu to only include allowed submenus
     filtered = []
-    for sub in admin_item.menu.items:
+    menu_obj = getattr(admin_item, "menu", None)
+    if menu_obj is None:
+        # nothing to do if there's no menu
+        menu_items[:] = [m for m in menu_items if m is not admin_item]
+        return
+
+    # support different Wagtail versions: try common attributes, fall back to iter
+    if hasattr(menu_obj, "items"):
+        sub_iter = menu_obj.items
+    elif hasattr(menu_obj, "menu_items"):
+        sub_iter = menu_obj.menu_items
+    else:
+        try:
+            sub_iter = list(menu_obj)
+        except Exception:
+            sub_iter = []
+
+    for sub in sub_iter:
         sublabel = getattr(sub, "label", "")
         if sublabel in allowed_labels:
             filtered.append(sub)

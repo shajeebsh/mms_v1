@@ -31,6 +31,7 @@ else:
 
 # Create test groups and users for each user type
 from django.contrib.auth.models import Group
+from home.models import UserProfile
 
 groups = ["membership", "finance", "education", "assets", "operations", "hr", "committee"]
 for g in groups:
@@ -61,3 +62,10 @@ for tu, group_name in test_users.items():
         print(f"Created test user {tu}")
     grp = Group.objects.get(name=group_name)
     user.groups.add(grp)
+    # create or update user profile mapping group -> user_type
+    # simple mapping: groups are department managers
+    profile, created = UserProfile.objects.get_or_create(user=user)
+    # map group to a user_type: managers for department groups
+    profile.user_type = 'manager'
+    profile.department = group_name
+    profile.save()

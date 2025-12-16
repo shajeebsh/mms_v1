@@ -2,12 +2,21 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from home.views import (
+    redirect_finance_donation_create,
+    redirect_finance_expense_create,
+    redirect_finance_reports,
+)
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("cms/", include("wagtail.admin.urls")),
     path("documents/", include("wagtail.documents.urls")),
     path("membership/", include("membership.urls")),
+    # Redirect legacy frontend finance URLs to the Wagtail ModelAdmin pages
+    path('finance/donation/create/', redirect_finance_donation_create),
+    path('finance/expense/create/', redirect_finance_expense_create),
+    path('finance/reports/', redirect_finance_reports),
     path("", include("home.urls")),
     path("hr/", include("hr.urls")),
     path("committee/", include("committee.urls")),
