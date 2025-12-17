@@ -362,9 +362,10 @@ def register_administration_menu():
 @hooks.register("register_admin_menu_item")
 def register_sample_data_management_menu():
     """Register Sample Data Management menu item (admin-only)"""
+    from django.urls import reverse
     return MenuItem(
         "📊 Sample Data Management",
-        reverse("admin:sample_data_management"),
+        reverse("home_admin:sample_data_management"),
         icon_name="cog",
         order=2000,
     )

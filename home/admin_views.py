@@ -1,10 +1,9 @@
 import logging
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from wagtail.admin.decorators import require_admin_access
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
@@ -52,14 +51,16 @@ MODULES = {
 }
 
 
-@require_admin_access
+def _is_superuser(user):
+    """Check if user is superuser"""
+    return user.is_authenticated and user.is_superuser
+
+
+@login_required
+@user_passes_test(_is_superuser)
 @require_http_methods(["GET", "POST"])
 def sample_data_management_view(request):
     """Admin view for managing sample data population and removal"""
-    
-    if not request.user.is_superuser:
-        messages.error(request, 'Only administrators can access sample data management.')
-        return redirect('wagtailadmin_home')
     
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -67,7 +68,7 @@ def sample_data_management_view(request):
         
         if not selected_modules:
             messages.warning(request, 'Please select at least one module.')
-            return redirect('admin:sample_data_management')
+            return redirect('home_admin:sample_data_management')
         
         if action == 'populate':
             return _populate_sample_data(request, selected_modules)
@@ -75,7 +76,7 @@ def sample_data_management_view(request):
             return _clear_sample_data(request, selected_modules)
         else:
             messages.error(request, 'Invalid action.')
-            return redirect('admin:sample_data_management')
+            return redirect('home_admin:sample_data_management')
     
     # GET request - show the form
     context = {
@@ -143,7 +144,7 @@ def _populate_sample_data(request, selected_modules):
         messages.error(request, f'An error occurred while populating sample data: {str(e)}')
         logger.error(f"Error in sample data population: {e}", exc_info=True)
     
-    return redirect('admin:sample_data_management')
+    return redirect('home_admin:sample_data_management')
 
 
 def _clear_sample_data(request, selected_modules):
@@ -236,7 +237,7 @@ def _clear_sample_data(request, selected_modules):
         messages.error(request, f'An error occurred while clearing sample data: {str(e)}')
         logger.error(f"Error in sample data clearing: {e}", exc_info=True)
     
-    return redirect('admin:sample_data_management')
+    return redirect('home_admin:sample_data_management')
 
 
 def _get_enabled_modules():
