@@ -1,5 +1,6 @@
 from wagtail import hooks
-from wagtail.admin.menu import Menu, SubmenuMenuItem
+from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
+from django.urls import reverse
 
 @hooks.register("construct_main_menu")
 def customize_main_menu(request, menu_items):
@@ -103,3 +104,15 @@ def customize_main_menu(request, menu_items):
     new_menu = Menu(items=filtered)
     new_admin_item = SubmenuMenuItem(label=admin_item.label, menu=new_menu, icon_name=getattr(admin_item, "icon_name", None), order=getattr(admin_item, "order", None))
     menu_items[admin_index] = new_admin_item
+
+
+@hooks.register("construct_main_menu")
+def filter_sample_data_menu(request, menu_items):
+    """Hide Sample Data Management menu for non-superusers"""
+    user = getattr(request, "user", None)
+    if not user or user.is_anonymous or not user.is_superuser:
+        # Remove Sample Data Management menu item
+        menu_items[:] = [
+            item for item in menu_items
+            if getattr(item, "label", "") != "📊 Sample Data Management"
+        ]

@@ -351,8 +351,22 @@ def register_administration_menu():
     
     administration_menu = Menu(items=menu_items)
 
+    # Add Sample Data Management menu item (only for superusers)
+    # This will be filtered in wagtail_hooks.py based on user permissions
+    
     return SubmenuMenuItem(
         label="⚙️ Administration", menu=administration_menu, icon_name="cog", order=1000
+    )
+
+
+@hooks.register("register_admin_menu_item")
+def register_sample_data_management_menu():
+    """Register Sample Data Management menu item (admin-only)"""
+    return MenuItem(
+        "📊 Sample Data Management",
+        reverse("admin:sample_data_management"),
+        icon_name="cog",
+        order=2000,
     )
 
 
