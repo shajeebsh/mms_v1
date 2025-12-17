@@ -13,6 +13,11 @@ from membership.models import (Family, Member, MembershipDues, Payment,
                                VitalRecord)
 from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                PrayerTime)
+from hr.models import (StaffPosition, StaffMember, Attendance, LeaveType,
+                       LeaveRequest, SalaryComponent, StaffSalary, Payroll)
+from committee.models import (CommitteeType, Committee, CommitteeMember,
+                              Meeting, MeetingAttendee, Trustee, TrusteeMeeting,
+                              TrusteeMeetingAttendee)
 
 
 class Command(BaseCommand):
@@ -27,6 +32,8 @@ class Command(BaseCommand):
         self.create_education_data()
         self.create_finance_data()
         self.create_operations_data()
+        self.create_hr_data()
+        self.create_committee_data()
 
         self.stdout.write(self.style.SUCCESS('Sample data population completed!'))
 
@@ -320,3 +327,267 @@ class Command(BaseCommand):
 
         for content_data in signage_data:
             DigitalSignageContent.objects.create(**content_data)
+
+    def create_hr_data(self):
+        self.stdout.write('Creating HR sample data...')
+
+        # Create staff positions
+        positions_data = [
+            {'name': 'imam', 'description': 'Lead prayer and religious guidance'},
+            {'name': 'assistant_imam', 'description': 'Assist with prayers and religious duties'},
+            {'name': 'muazzin', 'description': 'Call to prayer'},
+            {'name': 'administrator', 'description': 'Administrative staff'},
+            {'name': 'cleaner', 'description': 'Maintenance and cleaning staff'},
+        ]
+
+        positions = []
+        for pos_data in positions_data:
+            pos, created = StaffPosition.objects.get_or_create(
+                name=pos_data['name'],
+                defaults=pos_data
+            )
+            positions.append(pos)
+            if created:
+                self.stdout.write(f"Created staff position: {pos.get_name_display()}")
+
+        # Get members to make staff (exclude those already teachers or staff)
+        existing_staff_members = StaffMember.objects.values_list('member_id', flat=True)
+        existing_teacher_members = Teacher.objects.values_list('member_id', flat=True)
+        available_members = Member.objects.exclude(
+            id__in=list(existing_staff_members) + list(existing_teacher_members)
+        )[:5]
+
+        if len(available_members) < len(positions):
+            self.stdout.write(self.style.WARNING('Not enough members available to create all staff positions.'))
+            available_members = list(available_members)
+
+        # Create staff members
+        staff_members = []
+        for i, member in enumerate(available_members[:len(positions)]):
+            staff_member, created = StaffMember.objects.get_or_create(
+                member=member,
+                defaults={
+                    'position': positions[i],
+                    'employment_type': 'full_time' if i < 2 else 'part_time',
+                    'hire_date': date(2023, 1, 1) + timedelta(days=i*30),
+                    'base_salary': Decimal('3000.00') if i < 2 else Decimal('1500.00'),
+                    'working_hours_per_week': 40 if i < 2 else 20,
+                    'is_active': True
+                }
+            )
+            staff_members.append(staff_member)
+            if created:
+                self.stdout.write(f"Created staff member: {staff_member.member.full_name}")
+
+        # Create leave types
+        leave_types_data = [
+            {'name': 'Annual Leave', 'description': 'Annual vacation leave', 'days_allowed_per_year': 20, 'is_paid': True},
+            {'name': 'Sick Leave', 'description': 'Medical leave', 'days_allowed_per_year': 10, 'is_paid': True},
+            {'name': 'Personal Leave', 'description': 'Personal matters', 'days_allowed_per_year': 5, 'is_paid': False},
+        ]
+
+        leave_types = []
+        for lt_data in leave_types_data:
+            lt, created = LeaveType.objects.get_or_create(
+                name=lt_data['name'],
+                defaults=lt_data
+            )
+            leave_types.append(lt)
+            if created:
+                self.stdout.write(f"Created leave type: {lt.name}")
+
+        # Create sample attendance records for last 7 days
+        if staff_members:
+            base_date = date.today() - timedelta(days=7)
+            for i in range(7):
+                current_date = base_date + timedelta(days=i)
+                for staff in staff_members[:3]:  # Only for first 3 staff
+                    if current_date.weekday() < 5:  # Weekdays only
+                        Attendance.objects.get_or_create(
+                            staff_member=staff,
+                            date=current_date,
+                            defaults={
+                                'check_in_time': time(9, 0),
+                                'check_out_time': time(17, 0),
+                                'hours_worked': Decimal('8.00'),
+                                'status': 'present'
+                            }
+                        )
+
+        # Create salary components
+        salary_components_data = [
+            {'name': 'Basic Salary', 'component_type': 'basic', 'description': 'Base salary', 'is_taxable': True},
+            {'name': 'Housing Allowance', 'component_type': 'allowance', 'description': 'Housing allowance', 'is_taxable': True},
+            {'name': 'Transport Allowance', 'component_type': 'allowance', 'description': 'Transportation allowance', 'is_taxable': True},
+            {'name': 'Tax Deduction', 'component_type': 'deduction', 'description': 'Income tax', 'is_taxable': False},
+        ]
+
+        salary_components = []
+        for sc_data in salary_components_data:
+            sc, created = SalaryComponent.objects.get_or_create(
+                name=sc_data['name'],
+                defaults=sc_data
+            )
+            salary_components.append(sc)
+            if created:
+                self.stdout.write(f"Created salary component: {sc.name}")
+
+        # Create staff salaries
+        if staff_members and salary_components:
+            for staff in staff_members[:3]:
+                # Basic salary
+                basic_component = next((sc for sc in salary_components if sc.component_type == 'basic'), None)
+                if basic_component:
+                    StaffSalary.objects.get_or_create(
+                        staff_member=staff,
+                        salary_component=basic_component,
+                        defaults={
+                            'amount': staff.base_salary,
+                            'effective_date': staff.hire_date,
+                            'is_active': True
+                        }
+                    )
+
+    def create_committee_data(self):
+        self.stdout.write('Creating committee sample data...')
+
+        # Create committee types
+        committee_types_data = [
+            {'name': 'Executive Board', 'description': 'Main governing body'},
+            {'name': 'Education Committee', 'description': 'Oversees educational programs'},
+            {'name': 'Finance Committee', 'description': 'Manages financial matters'},
+            {'name': 'Maintenance Committee', 'description': 'Building and facility maintenance'},
+        ]
+
+        committee_types = []
+        for ct_data in committee_types_data:
+            ct, created = CommitteeType.objects.get_or_create(
+                name=ct_data['name'],
+                defaults=ct_data
+            )
+            committee_types.append(ct)
+            if created:
+                self.stdout.write(f"Created committee type: {ct.name}")
+
+        # Get members for committees
+        members = list(Member.objects.all()[:10])
+        if len(members) < 5:
+            self.stdout.write(self.style.WARNING('Not enough members available for committees.'))
+            return
+
+        # Create committees
+        committees_data = [
+            {'name': 'Executive Board', 'committee_type': committee_types[0], 'chairperson': members[0], 'secretary': members[1], 'established_date': date(2020, 1, 1)},
+            {'name': 'Education Committee', 'committee_type': committee_types[1], 'chairperson': members[2], 'secretary': members[3], 'established_date': date(2021, 3, 1)},
+            {'name': 'Finance Committee', 'committee_type': committee_types[2], 'chairperson': members[4], 'secretary': members[0], 'established_date': date(2021, 6, 1)},
+        ]
+
+        committees = []
+        for comm_data in committees_data:
+            comm, created = Committee.objects.get_or_create(
+                name=comm_data['name'],
+                defaults=comm_data
+            )
+            committees.append(comm)
+            if created:
+                self.stdout.write(f"Created committee: {comm.name}")
+
+        # Create committee members
+        if committees and members:
+            for i, committee in enumerate(committees):
+                # Add chairperson and secretary
+                CommitteeMember.objects.get_or_create(
+                    committee=committee,
+                    member=committee.chairperson,
+                    defaults={
+                        'role': 'Chairperson',
+                        'joined_date': committee.established_date,
+                        'is_active': True
+                    }
+                )
+                if committee.secretary:
+                    CommitteeMember.objects.get_or_create(
+                        committee=committee,
+                        member=committee.secretary,
+                        defaults={
+                            'role': 'Secretary',
+                            'joined_date': committee.established_date,
+                            'is_active': True
+                        }
+                    )
+                # Add a few more members
+                for member in members[5:8]:
+                    CommitteeMember.objects.get_or_create(
+                        committee=committee,
+                        member=member,
+                        defaults={
+                            'role': 'Member',
+                            'joined_date': committee.established_date,
+                            'is_active': True
+                        }
+                    )
+
+        # Create trustees
+        if members:
+            trustee_positions = ['president', 'vice_president', 'secretary', 'treasurer']
+            for i, position in enumerate(trustee_positions[:min(len(trustee_positions), len(members))]):
+                Trustee.objects.get_or_create(
+                    member=members[i],
+                    defaults={
+                        'position': position,
+                        'appointed_date': date(2023, 1, 1),
+                        'is_active': True
+                    }
+                )
+
+        # Create sample meetings
+        if committees:
+            from django.contrib.auth.models import User
+            admin_user = User.objects.filter(is_superuser=True).first()
+            if not admin_user:
+                admin_user = User.objects.first()
+
+            meetings_data = [
+                {
+                    'committee': committees[0],
+                    'meeting_type': 'regular',
+                    'title': 'Monthly Executive Board Meeting',
+                    'scheduled_date': date.today() + timedelta(days=7),
+                    'scheduled_time': time(18, 0),
+                    'agenda': 'Review monthly reports, budget approval, upcoming events',
+                    'status': 'scheduled',
+                    'created_by': admin_user
+                },
+                {
+                    'committee': committees[1],
+                    'meeting_type': 'regular',
+                    'title': 'Education Committee Meeting',
+                    'scheduled_date': date.today() + timedelta(days=14),
+                    'scheduled_time': time(17, 30),
+                    'agenda': 'Review class schedules, teacher assignments, student progress',
+                    'status': 'scheduled',
+                    'created_by': admin_user
+                },
+            ]
+
+            for meeting_data in meetings_data:
+                meeting, created = Meeting.objects.get_or_create(
+                    committee=meeting_data['committee'],
+                    title=meeting_data['title'],
+                    scheduled_date=meeting_data['scheduled_date'],
+                    defaults=meeting_data
+                )
+                if created:
+                    self.stdout.write(f"Created meeting: {meeting.title}")
+
+                    # Add attendees
+                    committee_members = CommitteeMember.objects.filter(
+                        committee=meeting.committee,
+                        is_active=True
+                    )[:5]
+                    for cm in committee_members:
+                        MeetingAttendee.objects.get_or_create(
+                            meeting=meeting,
+                            member=cm.member,
+                            defaults={'attended': False}
+                        )

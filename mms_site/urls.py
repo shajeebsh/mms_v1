@@ -11,6 +11,7 @@ from home.views import (
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("cms/", include("wagtail.admin.urls")),
+    path("cms/admin/", include("home.admin_urls")),  # Custom admin views
     path("documents/", include("wagtail.documents.urls")),
     path("membership/", include("membership.urls")),
     # Redirect legacy frontend finance URLs to the Wagtail ModelAdmin pages
