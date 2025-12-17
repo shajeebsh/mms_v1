@@ -281,37 +281,75 @@ def register_administration_menu():
             ),
         ]
     )
-    administration_menu = Menu(
-        items=[
+    # Check module configuration - only include enabled modules
+    from home.models import SystemSettings
+    
+    menu_items = []
+    order = 1
+    
+    if SystemSettings.is_module_enabled("membership"):
+        menu_items.append(
             SubmenuMenuItem(
-                label="🏠 Membership", menu=membership_menu, icon_name="group", order=1
-            ),
+                label="🏠 Membership", menu=membership_menu, icon_name="group", order=order
+            )
+        )
+        order += 1
+    
+    if SystemSettings.is_module_enabled("finance"):
+        menu_items.append(
             SubmenuMenuItem(
-                label="💰 Finance", menu=finance_menu, icon_name="money", order=2
-            ),
+                label="💰 Finance", menu=finance_menu, icon_name="money", order=order
+            )
+        )
+        order += 1
+    
+    if SystemSettings.is_module_enabled("education"):
+        menu_items.append(
             SubmenuMenuItem(
-                label="👨‍🏫 Education", menu=education_menu, icon_name="user", order=3
-            ),
+                label="👨‍🏫 Education", menu=education_menu, icon_name="user", order=order
+            )
+        )
+        order += 1
+    
+    if SystemSettings.is_module_enabled("assets"):
+        menu_items.append(
             SubmenuMenuItem(
-                label="🏢 Assets", menu=assets_menu, icon_name="home", order=4
-            ),
+                label="🏢 Assets", menu=assets_menu, icon_name="home", order=order
+            )
+        )
+        order += 1
+    
+    if SystemSettings.is_module_enabled("operations"):
+        menu_items.append(
             SubmenuMenuItem(
                 label="📅 Operations",
                 menu=operations_menu,
                 icon_name="calendar",
-                order=5,
-            ),
+                order=order,
+            )
+        )
+        order += 1
+    
+    if SystemSettings.is_module_enabled("hr"):
+        menu_items.append(
             SubmenuMenuItem(
-                label="👥 HR & Payroll", menu=hr_menu, icon_name="user", order=6
-            ),
+                label="👥 HR & Payroll", menu=hr_menu, icon_name="user", order=order
+            )
+        )
+        order += 1
+    
+    if SystemSettings.is_module_enabled("committee"):
+        menu_items.append(
             SubmenuMenuItem(
                 label="🏛️ Committee & Minutes",
                 menu=committee_menu,
                 icon_name="group",
-                order=7,
-            ),
-        ]
-    )
+                order=order,
+            )
+        )
+        order += 1
+    
+    administration_menu = Menu(items=menu_items)
 
     return SubmenuMenuItem(
         label="⚙️ Administration", menu=administration_menu, icon_name="cog", order=1000

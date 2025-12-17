@@ -31,6 +31,9 @@ def customize_main_menu(request, menu_items):
     if user.is_superuser:
         return
 
+    # Check module configuration first
+    from home.models import SystemSettings
+    
     # Map group names to submenu labels used in `home/admin_menu.py`
     group_to_label = {
         "membership": "🏠 Membership",
@@ -41,9 +44,27 @@ def customize_main_menu(request, menu_items):
         "hr": "👥 HR & Payroll",
         "committee": "🏛️ Committee & Minutes",
     }
+    
+    # Module name to label mapping for configuration check
+    module_to_label = {
+        "membership": "🏠 Membership",
+        "finance": "💰 Finance",
+        "education": "👨‍🏫 Education",
+        "assets": "🏢 Assets",
+        "operations": "📅 Operations",
+        "hr": "👥 HR & Payroll",
+        "committee": "🏛️ Committee & Minutes",
+    }
 
     user_groups = set(g.name.lower() for g in user.groups.all())
-    allowed_labels = set(group_to_label[g] for g in user_groups if g in group_to_label)
+    # Only include modules that are both enabled and user has access to
+    allowed_labels = set()
+    for group in user_groups:
+        if group in group_to_label:
+            module_name = group
+            # Check if module is enabled
+            if SystemSettings.is_module_enabled(module_name):
+                allowed_labels.add(group_to_label[group])
 
     if not allowed_labels:
         # If user has no matching group, hide the administration menu entirely

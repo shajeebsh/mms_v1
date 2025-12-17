@@ -148,7 +148,62 @@ class SystemSettings(BaseSiteSetting):
         help_text="Default monthly membership dues amount",
     )
 
+    # Module Configuration (Admin-only settings)
+    module_membership_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Membership Management module",
+    )
+    module_finance_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Finance module",
+    )
+    module_education_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Education module",
+    )
+    module_assets_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Assets module",
+    )
+    module_operations_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Operations module",
+    )
+    module_hr_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable HR & Payroll module",
+    )
+    module_committee_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Committee & Minutes module",
+    )
+
     panels = [
         FieldPanel("monthly_membership_dues"),
+        FieldPanel("module_membership_enabled"),
+        FieldPanel("module_finance_enabled"),
+        FieldPanel("module_education_enabled"),
+        FieldPanel("module_assets_enabled"),
+        FieldPanel("module_operations_enabled"),
+        FieldPanel("module_hr_enabled"),
+        FieldPanel("module_committee_enabled"),
     ]
+
+    @classmethod
+    def is_module_enabled(cls, module_name):
+        """Check if a module is enabled. Returns True if settings don't exist (default enabled)."""
+        try:
+            from wagtail.models import Site
+            site = Site.objects.filter(is_default_site=True).first()
+            if not site:
+                site = Site.objects.first()
+            
+            if site:
+                settings = cls.for_site(site)
+                attr_name = f"module_{module_name}_enabled"
+                return getattr(settings, attr_name, True)
+        except Exception:
+            # If settings don't exist or any error, default to enabled
+            return True
+        return True
 
