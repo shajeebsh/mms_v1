@@ -1,5 +1,6 @@
 import csv
 import json
+import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -11,6 +12,8 @@ from django.db.models import Count, Q, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
@@ -214,15 +217,15 @@ def get_admin_dashboard_data():
     data['monthly_trends'] = monthly_data
 
     # Recent activities
-    data['recent_donations'] = Donation.objects.select_related('member').order_by('-date')[:5]
-    data['recent_payments'] = Payment.objects.select_related('family').order_by('-payment_date')[:5]
+    data['recent_donations'] = Donation.objects.select_related('member', 'category').order_by('-date')[:5]
+    data['recent_payments'] = Payment.objects.select_related('family').prefetch_related('membership_dues').order_by('-payment_date')[:5]
     data['upcoming_bookings'] = AuditoriumBooking.objects.filter(
         booking_date__gte=today,
         status='approved'
     ).order_by('booking_date')[:5]
 
     # Chart Data: Expenses by Category
-    expenses_by_category = Expense.objects.values('category__name').annotate(
+    expenses_by_category = Expense.objects.select_related('category').values('category__name').annotate(
         total=Sum('amount')
     ).order_by('-total')
     data['expenses_by_category'] = list(expenses_by_category)
@@ -343,7 +346,7 @@ def get_manager_dashboard_data():
 
     # Add recent class enrollments
     recent_enrollments = StudentEnrollment.objects.select_related(
-        'student', 'class_instance'
+        'student', 'student__family', 'class_instance', 'class_instance__teacher'
     ).order_by('-enrollment_date')[:3]
     for enrollment in recent_enrollments:
         data['recent_activities'].append({
@@ -484,7 +487,11 @@ def redirect_finance_donation_create(request):
     """Redirect legacy frontend finance donation create URL to ModelAdmin index."""
     try:
         return redirect(get_finance_url('DonationAdmin'))
-    except Exception:
+    except (AttributeError, KeyError) as e:
+        logger.warning(f"Could not get finance URL for DonationAdmin: {e}")
+        return redirect('/cms/')
+    except Exception as e:
+        logger.error(f"Unexpected error redirecting to finance donation create: {e}", exc_info=True)
         return redirect('/cms/')
 
 
@@ -492,7 +499,11 @@ def redirect_finance_expense_create(request):
     """Redirect legacy frontend finance expense create URL to ModelAdmin index."""
     try:
         return redirect(get_finance_url('ExpenseAdmin'))
-    except Exception:
+    except (AttributeError, KeyError) as e:
+        logger.warning(f"Could not get finance URL for ExpenseAdmin: {e}")
+        return redirect('/cms/')
+    except Exception as e:
+        logger.error(f"Unexpected error redirecting to finance expense create: {e}", exc_info=True)
         return redirect('/cms/')
 
 
@@ -500,10 +511,12 @@ def redirect_finance_reports(request):
     """Redirect legacy frontend finance reports URL to ModelAdmin index."""
     try:
         return redirect(get_finance_url('FinancialReportAdmin'))
-    except Exception:
+    except (AttributeError, KeyError) as e:
+        logger.warning(f"Could not get finance URL for FinancialReportAdmin: {e}")
         return redirect('/cms/')
-
-    return JsonResponse({'error': 'Invalid format'}, status=400)
+    except Exception as e:
+        logger.error(f"Unexpected error redirecting to finance reports: {e}", exc_info=True)
+        return redirect('/cms/')
 
 
 def export_financial_summary_report(request):
@@ -580,7 +593,7 @@ def live_data_feed(request):
             'upcoming_bookings': AuditoriumBooking.objects.filter(
                 booking_date__gte=timezone.now().date(),
                 status='approved'
-            ).count(),
+            ).count(),  # Count query doesn't need select_related
             'timestamp': timezone.now().isoformat(),
         }
     elif data_type == 'financial':
