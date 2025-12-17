@@ -1,8 +1,11 @@
+import logging
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 
 class Family(models.Model):
@@ -84,11 +87,6 @@ class MembershipDues(models.Model):
         # Auto-calculate due date if not set
         if not self.due_date:
             from datetime import date
-
-            self.due_date = date(self.year, self.month, 1)
-        if not self.due_date:
-            from datetime import date
-
             self.due_date = date(self.year, self.month, 1)
 
         # Use system setting for default amount if new and amount is default
@@ -105,9 +103,17 @@ class MembershipDues(models.Model):
                 if site:
                     settings = SystemSettings.for_site(site)
                     self.amount_due = settings.monthly_membership_dues
-            except Exception:
+            except (SystemSettings.DoesNotExist, Site.DoesNotExist, AttributeError) as e:
                 # Fallback to hardcoded default if any issues with settings/site
-                pass
+                logger.warning(
+                    f"Could not load system settings for membership dues, using default: {e}"
+                )
+            except Exception as e:
+                # Catch any other unexpected errors
+                logger.error(
+                    f"Unexpected error loading system settings for membership dues: {e}",
+                    exc_info=True
+                )
 
         super().save(*args, **kwargs)
 
@@ -215,5 +221,4 @@ class VitalRecord(models.Model):
         return f"{self.record_type} - {self.member.full_name} ({self.date})"
 
     class Meta:
-        ordering = ["-date"]
         ordering = ["-date"]

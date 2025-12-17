@@ -47,7 +47,7 @@ class DashboardPage(Page):
 
         # Recent donations
         context["recent_donations"] = Donation.objects.select_related(
-            "member"
+            "member", "category"
         ).order_by("-date")[:5]
 
         # Upcoming events (upcoming bookings)

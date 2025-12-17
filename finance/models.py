@@ -96,4 +96,3 @@ class FinancialReport(models.Model):
 
     class Meta:
         ordering = ["-generated_at"]
-        ordering = ["-generated_at"]
