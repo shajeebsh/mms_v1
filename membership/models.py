@@ -37,8 +37,32 @@ class Member(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
     family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="members")
+    is_head_of_family = models.BooleanField(default=False, help_text="Is this person the head of the family?")
+    
+    MARITAL_STATUS_CHOICES = [
+        ("S", "Single"),
+        ("M", "Married"),
+        ("W", "Widowed"),
+        ("D", "Divorced"),
+    ]
+    marital_status = models.CharField(max_length=1, choices=MARITAL_STATUS_CHOICES, blank=True)
+    
+    aadhaar_no = models.CharField(max_length=12, blank=True, verbose_name="Aadhaar Card No")
     phone = models.CharField(max_length=20, blank=True)
+    whatsapp_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
+    
+    address = models.TextField(blank=True, help_text="Personal address if different from family")
+    postal_code = models.CharField(max_length=10, blank=True)
+    
+    photo = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+    
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

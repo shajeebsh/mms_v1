@@ -1,0 +1,182 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailimages_tags %}
+
+{% block titletag %}Preview ID Card - {{ member.full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .preview-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px;
+        background: #f4f4f4;
+        min-height: 80vh;
+    }
+
+    .id-card {
+        width: 342px;
+        /* 85.6mm */
+        height: 216px;
+        /* 54mm */
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-header {
+        text-align: center;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+
+    .card-header h2 {
+        margin: 0;
+        font-size: 14px;
+        color: #2c3e50;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .card-header p {
+        margin: 2px 0 0;
+        font-size: 10px;
+        color: #7f8c8d;
+        font-weight: bold;
+    }
+
+    .card-body {
+        display: flex;
+        gap: 15px;
+        flex: 1;
+    }
+
+    .photo-area {
+        width: 80px;
+        height: 100px;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .photo-area img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .info-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .info-area h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        color: #333;
+    }
+
+    .info-item {
+        font-size: 11px;
+        margin-bottom: 4px;
+        color: #555;
+    }
+
+    .info-item b {
+        color: #333;
+        width: 60px;
+        display: inline-block;
+    }
+
+    .qr-area {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: white;
+        padding: 5px;
+        border: 1px solid #eee;
+    }
+
+    .actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: #2c3e50;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #34495e;
+    }
+
+    .btn-secondary {
+        background: #ddd;
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include "wagtailadmin/shared/header.html" with title="Membership ID Card Preview" icon="user" %}
+
+<div class="preview-container">
+    <div class="id-card">
+        <div class="card-header">
+            <h2>Mosque Management System</h2>
+            <p>MEMBERSHIP CARD</p>
+        </div>
+        <div class="card-body">
+            <div class="photo-area">
+                {% if member.photo %}
+                {% image member.photo fill-100x120 %}
+                {% else %}
+                <span style="font-size: 10px; color: #999;">No Photo</span>
+                {% endif %}
+            </div>
+            <div class="info-area">
+                <h3>{{ member.full_name }}</h3>
+                <div class="info-item"><b>ID:</b> MMS-{{ member.id|stringformat:"04d" }}</div>
+                <div class="info-item"><b>Family:</b> {{ member.family.name }}</div>
+                <div class="info-item"><b>Phone:</b> {{ member.phone|default:"N/A" }}</div>
+            </div>
+        </div>
+        <div class="qr-area">
+            <!-- Preview QR (not real, just for layout) -->
+            <div
+                style="width: 100%; height: 100%; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999;">
+                QR</div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'membership:print_membership_card' member.id %}" class="btn btn-primary">Download PDF</a>
+        <a href="javascript:history.back()" class="btn btn-secondary">Back to Members</a>
+    </div>
+</div>
+{% endblock %}

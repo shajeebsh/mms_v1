@@ -1,7 +1,35 @@
-from wagtail.admin.panels import FieldPanel
+from django.utils.html import format_html
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
 from .models import Family, Member, MembershipDues, Payment, VitalRecord
+
+
+from wagtail_modeladmin.helpers import ButtonHelper
+from django.urls import reverse
+
+
+class MemberButtonHelper(ButtonHelper):
+    def get_buttons_for_obj(self, obj, exclude=None, classnames_add=None, classnames_exclude=None):
+        buttons = super().get_buttons_for_obj(obj, exclude, classnames_add, classnames_exclude)
+        return buttons
+
+    def add_button(self, classnames_add=None, classnames_exclude=None):
+        button = super().add_button(classnames_add, classnames_exclude)
+        # We can add more buttons here if needed
+        return button
+
+    def get_header_buttons_for_index(self, exclude=None, classnames_add=None, classnames_exclude=None):
+        buttons = super().get_header_buttons_for_index(exclude, classnames_add, classnames_exclude)
+        
+        # Add Questionnaire Button
+        buttons.append({
+            'url': reverse('membership:preview_questionnaire'),
+            'label': 'Membership Questionnaire',
+            'classname': 'button button-small button-secondary',
+            'title': 'Preview/Print Membership Questionnaire',
+        })
+        return buttons
 
 
 class FamilyAdmin(ModelAdmin):
@@ -21,22 +49,53 @@ class FamilyAdmin(ModelAdmin):
 
 class MemberAdmin(ModelAdmin):
     model = Member
+    button_helper_class = MemberButtonHelper
     menu_label = "Members"
     menu_icon = "user"
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ("full_name", "family", "date_of_birth", "gender", "is_active")
-    list_filter = ("gender", "is_active", "family")
+    list_display = ("full_name", "family", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
+    list_filter = ("gender", "is_active", "is_head_of_family", "family")
     search_fields = ("first_name", "last_name", "email", "phone")
     panels = [
-        FieldPanel("first_name"),
-        FieldPanel("last_name"),
-        FieldPanel("date_of_birth"),
-        FieldPanel("gender"),
-        FieldPanel("family"),
-        FieldPanel("phone"),
-        FieldPanel("email"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("first_name", classname="col6"),
+                FieldPanel("last_name", classname="col6"),
+            ]),
+            FieldRowPanel([
+                FieldPanel("date_of_birth", classname="col6"),
+                FieldPanel("gender", classname="col6"),
+            ]),
+            FieldRowPanel([
+                FieldPanel("family", classname="col6"),
+                FieldPanel("is_head_of_family", classname="col6"),
+            ]),
+            FieldPanel("marital_status"),
+        ], heading="Personal Information"),
+        
+        MultiFieldPanel([
+            FieldPanel("aadhaar_no"),
+            FieldRowPanel([
+                FieldPanel("phone", classname="col6"),
+                FieldPanel("whatsapp_number", classname="col6"),
+            ]),
+            FieldPanel("email"),
+        ], heading="Contact & Identification"),
+        
+        MultiFieldPanel([
+            FieldPanel("address"),
+            FieldPanel("postal_code"),
+        ], heading="Location Information"),
+        
+        FieldPanel("photo"),
         FieldPanel("is_active"),
     ]
+
+    def print_card_link(self, obj):
+        from django.urls import reverse
+        url = reverse('membership:preview_membership_card', args=[obj.id])
+        return format_html('<a class="button button-small" href="{}" target="_blank">Preview ID</a>', url)
+    print_card_link.short_description = 'Actions'
 
 
 class MembershipDuesAdmin(ModelAdmin):

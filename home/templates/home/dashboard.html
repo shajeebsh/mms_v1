@@ -384,16 +384,49 @@
         <div class="row">
             <!-- Sidebar -->
             <aside class="col-lg-3 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Actions</h5>
-                        <div class="d-grid gap-2">
-                            {% for action in sidebar_actions %}
-                            <a href="{{ action.url }}" class="btn btn-outline-primary text-start">
-                                <i class="fas fa-{{ action.icon }} me-2"></i> {{ action.name }}
-                            </a>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
+                        <h5 class="card-title mb-0" style="color: var(--secondary-color); font-weight: 600;">
+                            <i class="fas fa-th-large me-2 text-primary"></i> Modules
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="accordion accordion-flush" id="sidebarAccordion">
+                            {% for group in sidebar_actions %}
+                            <div class="accordion-item border-0">
+                                <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} py-3"
+                                        type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse{{ forloop.counter }}"
+                                        aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                                        aria-controls="collapse{{ forloop.counter }}"
+                                        style="font-size: 0.95rem; font-weight: 500; color: var(--secondary-color);">
+                                        <i class="fas fa-{{ group.icon }} me-3 text-muted"
+                                            style="width: 20px; text-align: center;"></i>
+                                        {{ group.category }}
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ forloop.counter }}"
+                                    class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                    aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#sidebarAccordion">
+                                    <div class="accordion-body p-0">
+                                        <div class="list-group list-group-flush">
+                                            {% for action in group.actions %}
+                                            <a href="{{ action.url }}"
+                                                class="list-group-item list-group-item-action border-0 py-2 ps-5"
+                                                style="font-size: 0.9rem; color: #555;">
+                                                <i class="fas fa-{{ action.icon }} me-2 text-muted"
+                                                    style="font-size: 0.8rem;"></i> {{ action.name }}
+                                            </a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             {% empty %}
-                            <span class="text-muted small">No actions available.</span>
+                            <div class="p-4 text-center">
+                                <span class="text-muted small">No modules available.</span>
+                            </div>
                             {% endfor %}
                         </div>
                     </div>
