@@ -26,7 +26,7 @@ from finance.models import Donation, DonationCategory, Expense, ExpenseCategory
 from membership.models import Family, Member, MembershipDues, Payment
 from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                PrayerTime)
-from home.admin_menu import get_finance_url, get_membership_url, get_education_url, get_assets_url, get_operations_url, get_hr_url, get_committee_url
+from home.admin_menu import get_modeladmin_url
 
 from .models import DashboardWidget, ReportExport, UserProfile
 
@@ -93,77 +93,111 @@ def dashboard_view(request):
 
 
 def get_dashboard_actions(user):
-    """Return a list of dashboard actions (name, url, icon) based on user roles."""
-    actions = []
+    """Return a list of dashboard action groups (category, icon, actions) based on user roles."""
+    action_groups = []
     if not user or user.is_anonymous:
-        return actions
+        return action_groups
 
     if user.is_superuser:
         return [
-            {'name': 'Site Admin', 'url': '/django-admin/', 'icon': 'cog'},
-            {'name': 'Wagtail CMS', 'url': '/cms/', 'icon': 'pencil'},
-            {'name': 'Run Migrations', 'url': '/admin/db/', 'icon': 'database'},
+            {
+                'category': 'System',
+                'icon': 'cog',
+                'actions': [
+                    {'name': 'Site Admin', 'url': '/django-admin/', 'icon': 'cog'},
+                    {'name': 'Wagtail CMS', 'url': '/cms/', 'icon': 'pencil'},
+                    {'name': 'Run Migrations', 'url': '/admin/db/', 'icon': 'database'},
+                ]
+            }
         ]
 
     group_names = set(g.name.lower() for g in user.groups.all())
 
     # Membership
     if 'membership' in group_names:
-        actions += [
-            {'name': 'Members', 'url': get_membership_url('MemberAdmin'), 'icon': 'user'},
-            {'name': 'Families', 'url': get_membership_url('FamilyAdmin'), 'icon': 'group'},
-            {'name': 'Overdue Dues', 'url': '/membership/overdue-report/', 'icon': 'warning'},
-        ]
+        action_groups.append({
+            'category': 'Membership',
+            'icon': 'group',
+            'actions': [
+                {'name': 'Members', 'url': get_modeladmin_url('membership', 'member'), 'icon': 'user'},
+                {'name': 'Families', 'url': get_modeladmin_url('membership', 'family'), 'icon': 'group'},
+                {'name': 'Registration Form', 'url': '/membership/download-questionnaire/', 'icon': 'file-pdf'},
+                {'name': 'Overdue Dues', 'url': '/membership/overdue-report/', 'icon': 'warning'},
+            ]
+        })
 
     # Finance
     if 'finance' in group_names:
-        actions += [
-            {'name': 'Donations', 'url': get_finance_url('DonationAdmin'), 'icon': 'money'},
-            {'name': 'Expenses', 'url': get_finance_url('ExpenseAdmin'), 'icon': 'minus'},
-            {'name': 'Financial Reports', 'url': get_finance_url('FinancialReportAdmin'), 'icon': 'chart-bar'},
-        ]
+        action_groups.append({
+            'category': 'Finance',
+            'icon': 'money-bill-wave',
+            'actions': [
+                {'name': 'Donations', 'url': get_modeladmin_url('finance', 'donation'), 'icon': 'money-bill'},
+                {'name': 'Expenses', 'url': get_modeladmin_url('finance', 'expense'), 'icon': 'minus-circle'},
+                {'name': 'Financial Reports', 'url': get_modeladmin_url('finance', 'financialreport'), 'icon': 'chart-bar'},
+            ]
+        })
 
     # Education
     if 'education' in group_names:
-        # Prefer ModelAdmin URLs where possible, but keep specific custom views if valuable
-        actions += [
-            {'name': 'Classes', 'url': get_education_url('ClassAdmin'), 'icon': 'book'},
-            {'name': 'Teachers', 'url': get_education_url('TeacherAdmin'), 'icon': 'user-tie'},
-            {'name': 'Enroll Student', 'url': '/education/enroll/', 'icon': 'user-plus'},
-        ]
+        action_groups.append({
+            'category': 'Education',
+            'icon': 'graduation-cap',
+            'actions': [
+                {'name': 'Classes', 'url': get_modeladmin_url('education', 'class'), 'icon': 'book'},
+                {'name': 'Teachers', 'url': get_modeladmin_url('education', 'teacher'), 'icon': 'user-tie'},
+                {'name': 'Enroll Student', 'url': '/education/enroll/', 'icon': 'user-plus'},
+            ]
+        })
 
     # Assets
     if 'assets' in group_names:
-        actions += [
-            {'name': 'Shops', 'url': get_assets_url('ShopAdmin'), 'icon': 'shopping-cart'},
-            {'name': 'Property Units', 'url': get_assets_url('PropertyUnitAdmin'), 'icon': 'home'},
-        ]
+        action_groups.append({
+            'category': 'Assets',
+            'icon': 'building',
+            'actions': [
+                {'name': 'Shops', 'url': get_modeladmin_url('assets', 'shop'), 'icon': 'shopping-cart'},
+                {'name': 'Property Units', 'url': get_modeladmin_url('assets', 'propertyunit'), 'icon': 'home'},
+            ]
+        })
 
     # Operations
     if 'operations' in group_names:
-        actions += [
-            {'name': 'Auditorium Bookings', 'url': get_operations_url('AuditoriumBookingAdmin'), 'icon': 'calendar'},
-            {'name': 'Digital Signage', 'url': '/operations/signage/', 'icon': 'tv'}, # Keep if custom
-            {'name': 'Prayer Times', 'url': get_operations_url('PrayerTimeAdmin'), 'icon': 'clock'},
-        ]
+        action_groups.append({
+            'category': 'Operations',
+            'icon': 'calendar-alt',
+            'actions': [
+                {'name': 'Auditorium Bookings', 'url': get_modeladmin_url('operations', 'auditoriumbooking'), 'icon': 'calendar-check'},
+                {'name': 'Digital Signage', 'url': '/operations/signage/', 'icon': 'tv'},
+                {'name': 'Prayer Times', 'url': get_modeladmin_url('operations', 'prayertime'), 'icon': 'clock'},
+            ]
+        })
 
     # HR
     if 'hr' in group_names:
-        actions += [
-            {'name': 'Staff Directory', 'url': get_hr_url('StaffMemberAdmin'), 'icon': 'users'},
-            {'name': 'Attendance', 'url': '/hr/attendance/', 'icon': 'clipboard'},
-            {'name': 'Payroll', 'url': get_hr_url('PayrollAdmin'), 'icon': 'money-bill'},
-        ]
+        action_groups.append({
+            'category': 'HR & Payroll',
+            'icon': 'users-cog',
+            'actions': [
+                {'name': 'Staff Directory', 'url': get_modeladmin_url('hr', 'staffmember'), 'icon': 'users'},
+                {'name': 'Attendance', 'url': '/hr/attendance/', 'icon': 'clipboard-check'},
+                {'name': 'Payroll', 'url': get_modeladmin_url('hr', 'payroll'), 'icon': 'money-check-alt'},
+            ]
+        })
 
     # Committee
     if 'committee' in group_names:
-        actions += [
-            {'name': 'Trustees', 'url': get_committee_url('TrusteeAdmin'), 'icon': 'user-shield'},
-            {'name': 'Meetings', 'url': get_committee_url('MeetingAdmin'), 'icon': 'calendar-alt'},
-            {'name': 'Attachments', 'url': '/committee/attachments/', 'icon': 'paperclip'},
-        ]
+        action_groups.append({
+            'category': 'Committee & Minutes',
+            'icon': 'university',
+            'actions': [
+                {'name': 'Trustees', 'url': get_modeladmin_url('committee', 'trustee'), 'icon': 'user-shield'},
+                {'name': 'Meetings', 'url': get_modeladmin_url('committee', 'meeting'), 'icon': 'calendar-alt'},
+                {'name': 'Attachments', 'url': '/committee/attachments/', 'icon': 'paperclip'},
+            ]
+        })
 
-    return actions
+    return action_groups
 
 
 
@@ -486,7 +520,7 @@ def export_overdue_dues_report(request):
 def redirect_finance_donation_create(request):
     """Redirect legacy frontend finance donation create URL to ModelAdmin index."""
     try:
-        return redirect(get_finance_url('DonationAdmin'))
+        return redirect(get_modeladmin_url('finance', 'donation'))
     except (AttributeError, KeyError) as e:
         logger.warning(f"Could not get finance URL for DonationAdmin: {e}")
         return redirect('/cms/')
@@ -498,7 +532,7 @@ def redirect_finance_donation_create(request):
 def redirect_finance_expense_create(request):
     """Redirect legacy frontend finance expense create URL to ModelAdmin index."""
     try:
-        return redirect(get_finance_url('ExpenseAdmin'))
+        return redirect(get_modeladmin_url('finance', 'expense'))
     except (AttributeError, KeyError) as e:
         logger.warning(f"Could not get finance URL for ExpenseAdmin: {e}")
         return redirect('/cms/')
@@ -510,7 +544,7 @@ def redirect_finance_expense_create(request):
 def redirect_finance_reports(request):
     """Redirect legacy frontend finance reports URL to ModelAdmin index."""
     try:
-        return redirect(get_finance_url('FinancialReportAdmin'))
+        return redirect(get_modeladmin_url('finance', 'financialreport'))
     except (AttributeError, KeyError) as e:
         logger.warning(f"Could not get finance URL for FinancialReportAdmin: {e}")
         return redirect('/cms/')

@@ -1,8 +1,13 @@
 from wagtail import hooks
 from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
+from django.urls import reverse_lazy
 
 
-@hooks.register("register_admin_menu_item")
+def get_modeladmin_url(app, model):
+    """Get the URL for a ModelAdmin index page lazily to avoid circular imports."""
+    return reverse_lazy(f"{app}_{model}_modeladmin_index")
+
+
 def register_administration_menu():
     """Register the main Administration menu with submenus"""
 
@@ -11,31 +16,31 @@ def register_administration_menu():
         items=[
             MenuItem(
                 label="👥 Members",
-                url=get_membership_url("MemberAdmin"),
+                url=get_modeladmin_url("membership", "member"),
                 icon_name="user",
                 order=1,
             ),
             MenuItem(
                 label="🏠 Families",
-                url=get_membership_url("FamilyAdmin"),
+                url=get_modeladmin_url("membership", "family"),
                 icon_name="group",
                 order=2,
             ),
             MenuItem(
-                label="� Membership Dues",
-                url=get_membership_url("MembershipDuesAdmin"),
+                label=" Membership Dues",
+                url=get_modeladmin_url("membership", "membershipdues"),
                 icon_name="money",
                 order=3,
             ),
             MenuItem(
                 label="💳 Payments",
-                url=get_membership_url("PaymentAdmin"),
+                url=get_modeladmin_url("membership", "payment"),
                 icon_name="credit-card",
                 order=4,
             ),
             MenuItem(
                 label="📋 Vital Records",
-                url=get_membership_url("VitalRecordAdmin"),
+                url=get_modeladmin_url("membership", "vitalrecord"),
                 icon_name="date",
                 order=5,
             ),
@@ -51,6 +56,12 @@ def register_administration_menu():
                 icon_name="calendar",
                 order=7,
             ),
+            MenuItem(
+                label="📄 Membership Questionnaire",
+                url=reverse_lazy("membership:download_questionnaire"),
+                icon_name="doc-full",
+                order=8,
+            ),
         ]
     )
 
@@ -59,31 +70,31 @@ def register_administration_menu():
         items=[
             MenuItem(
                 label="💰 Donations",
-                url=get_finance_url("DonationAdmin"),
+                url=get_modeladmin_url("finance", "donation"),
                 icon_name="money",
                 order=1,
             ),
             MenuItem(
                 label="💸 Expenses",
-                url=get_finance_url("ExpenseAdmin"),
+                url=get_modeladmin_url("finance", "expense"),
                 icon_name="minus",
                 order=2,
             ),
             MenuItem(
                 label="📊 Financial Reports",
-                url=get_finance_url("FinancialReportAdmin"),
+                url=get_modeladmin_url("finance", "financialreport"),
                 icon_name="chart-bar",
                 order=3,
             ),
             MenuItem(
                 label="🏷️ Donation Categories",
-                url=get_finance_url("DonationCategoryAdmin"),
+                url=get_modeladmin_url("finance", "donationcategory"),
                 icon_name="tag",
                 order=4,
             ),
             MenuItem(
                 label="🏷️ Expense Categories",
-                url=get_finance_url("ExpenseCategoryAdmin"),
+                url=get_modeladmin_url("finance", "expensecategory"),
                 icon_name="tag",
                 order=5,
             ),
@@ -101,19 +112,19 @@ def register_administration_menu():
         items=[
             MenuItem(
                 label="👨‍🏫 Teachers",
-                url=get_education_url("TeacherAdmin"),
+                url=get_modeladmin_url("education", "teacher"),
                 icon_name="user",
                 order=1,
             ),
             MenuItem(
                 label="📖 Classes",
-                url=get_education_url("ClassAdmin"),
+                url=get_modeladmin_url("education", "class"),
                 icon_name="book",
                 order=2,
             ),
             MenuItem(
                 label="🎓 Student Enrollments",
-                url=get_education_url("StudentEnrollmentAdmin"),
+                url=get_modeladmin_url("education", "studentenrollment"),
                 icon_name="user",
                 order=3,
             ),
@@ -125,13 +136,13 @@ def register_administration_menu():
         items=[
             MenuItem(
                 label="🏪 Shops",
-                url=get_assets_url("ShopAdmin"),
+                url=get_modeladmin_url("assets", "shop"),
                 icon_name="shopping-cart",
                 order=1,
             ),
             MenuItem(
                 label="🏠 Property Units",
-                url=get_assets_url("PropertyUnitAdmin"),
+                url=get_modeladmin_url("assets", "propertyunit"),
                 icon_name="home",
                 order=2,
             ),
@@ -143,19 +154,19 @@ def register_administration_menu():
         items=[
             MenuItem(
                 label="📅 Auditorium Bookings",
-                url=get_operations_url("AuditoriumBookingAdmin"),
+                url=get_modeladmin_url("operations", "auditoriumbooking"),
                 icon_name="calendar",
                 order=1,
             ),
             MenuItem(
                 label="🕌 Prayer Times",
-                url=get_operations_url("PrayerTimeAdmin"),
+                url=get_modeladmin_url("operations", "prayertime"),
                 icon_name="time",
                 order=2,
             ),
             MenuItem(
                 label="📺 Digital Signage",
-                url=get_operations_url("DigitalSignageContentAdmin"),
+                url=get_modeladmin_url("operations", "digitalsignagecontent"),
                 icon_name="media",
                 order=3,
             ),
@@ -167,49 +178,49 @@ def register_administration_menu():
         items=[
             MenuItem(
                 label="👥 Staff Directory",
-                url=get_hr_url("StaffMemberAdmin"),
+                url=get_modeladmin_url("hr", "staffmember"),
                 icon_name="user",
                 order=1,
             ),
             MenuItem(
                 label="📋 Staff Positions",
-                url=get_hr_url("StaffPositionAdmin"),
+                url=get_modeladmin_url("hr", "staffposition"),
                 icon_name="user",
                 order=2,
             ),
             MenuItem(
                 label="📅 Attendance Records",
-                url=get_hr_url("AttendanceAdmin"),
+                url=get_modeladmin_url("hr", "attendance"),
                 icon_name="date",
                 order=3,
             ),
             MenuItem(
                 label="🏖️ Leave Requests",
-                url=get_hr_url("LeaveRequestAdmin"),
+                url=get_modeladmin_url("hr", "leaverequest"),
                 icon_name="time",
                 order=4,
             ),
             MenuItem(
                 label="📝 Leave Types",
-                url=get_hr_url("LeaveTypeAdmin"),
+                url=get_modeladmin_url("hr", "leavetype"),
                 icon_name="doc-full",
                 order=5,
             ),
             MenuItem(
                 label="💰 Payroll Records",
-                url=get_hr_url("PayrollAdmin"),
+                url=get_modeladmin_url("hr", "payroll"),
                 icon_name="money",
                 order=6,
             ),
             MenuItem(
                 label="⚙️ Salary Components",
-                url=get_hr_url("SalaryComponentAdmin"),
+                url=get_modeladmin_url("hr", "salarycomponent"),
                 icon_name="cog",
                 order=7,
             ),
             MenuItem(
                 label="💵 Staff Salaries",
-                url=get_hr_url("StaffSalaryAdmin"),
+                url=get_modeladmin_url("hr", "staffsalary"),
                 icon_name="download",
                 order=8,
             ),
@@ -221,61 +232,61 @@ def register_administration_menu():
         items=[
             MenuItem(
                 label="🏛️ Trustees",
-                url=get_committee_url("TrusteeAdmin"),
+                url=get_modeladmin_url("committee", "trustee"),
                 icon_name="user",
                 order=1,
             ),
             MenuItem(
                 label="📋 Trustee Meetings",
-                url=get_committee_url("TrusteeMeetingAdmin"),
+                url=get_modeladmin_url("committee", "trusteemeeting"),
                 icon_name="date",
                 order=2,
             ),
             MenuItem(
                 label="👥 Committees",
-                url=get_committee_url("CommitteeAdmin"),
+                url=get_modeladmin_url("committee", "committee"),
                 icon_name="group",
                 order=3,
             ),
             MenuItem(
                 label="📅 Committee Meetings",
-                url=get_committee_url("MeetingAdmin"),
+                url=get_modeladmin_url("committee", "meeting"),
                 icon_name="calendar",
                 order=4,
             ),
             MenuItem(
                 label="📝 Committee Types",
-                url=get_committee_url("CommitteeTypeAdmin"),
+                url=get_modeladmin_url("committee", "committeetype"),
                 icon_name="tag",
                 order=5,
             ),
             MenuItem(
                 label="👤 Committee Members",
-                url=get_committee_url("CommitteeMemberAdmin"),
+                url=get_modeladmin_url("committee", "committeemember"),
                 icon_name="user",
                 order=6,
             ),
             MenuItem(
                 label="✅ Meeting Attendees",
-                url=get_committee_url("MeetingAttendeeAdmin"),
+                url=get_modeladmin_url("committee", "meetingattendee"),
                 icon_name="tick",
                 order=7,
             ),
             MenuItem(
                 label="📎 Meeting Attachments",
-                url=get_committee_url("MeetingAttachmentAdmin"),
+                url=get_modeladmin_url("committee", "meetingattachment"),
                 icon_name="doc-full",
                 order=8,
             ),
             MenuItem(
                 label="📋 Trustee Meeting Attendees",
-                url=get_committee_url("TrusteeMeetingAttendeeAdmin"),
+                url=get_modeladmin_url("committee", "trusteemeetingattendee"),
                 icon_name="tick",
                 order=9,
             ),
             MenuItem(
                 label="📎 Trustee Meeting Attachments",
-                url=get_committee_url("TrusteeMeetingAttachmentAdmin"),
+                url=get_modeladmin_url("committee", "trusteemeetingattachment"),
                 icon_name="doc-full",
                 order=10,
             ),
@@ -349,14 +360,19 @@ def register_administration_menu():
         )
         order += 1
     
-    administration_menu = Menu(items=menu_items)
-
-    # Add Sample Data Management menu item (only for superusers)
-    # This will be filtered in wagtail_hooks.py based on user permissions
+    # Separate registration for each module to ensure they are top-level
+    # and to comply with Wagtail's expectation of a single MenuItem from each hook function.
     
-    return SubmenuMenuItem(
-        label="⚙️ Administration", menu=administration_menu, icon_name="cog", order=1000
-    )
+    # We define a helper to register each submenu
+    def register_submenu(item):
+        def hook():
+            return item
+        hooks.register("register_admin_menu_item", hook)
+
+    for item in menu_items:
+        register_submenu(item)
+    
+    return None # The original hook function now returns nothing as it did the registration
 
 
 @hooks.register("register_admin_menu_item")
@@ -369,53 +385,3 @@ def register_sample_data_management_menu():
         icon_name="cog",
         order=2000,
     )
-
-
-# Helper functions to get URLs
-def get_membership_url(admin_class_name):
-    from membership import wagtail_hooks
-
-    admin_class = getattr(wagtail_hooks, admin_class_name)
-    return admin_class().url_helper.index_url
-
-
-def get_finance_url(admin_class_name):
-    from finance import wagtail_hooks
-
-    admin_class = getattr(wagtail_hooks, admin_class_name)
-    return admin_class().url_helper.index_url
-
-
-def get_education_url(admin_class_name):
-    from education import wagtail_hooks
-
-    admin_class = getattr(wagtail_hooks, admin_class_name)
-    return admin_class().url_helper.index_url
-
-
-def get_assets_url(admin_class_name):
-    from assets import wagtail_hooks
-
-    admin_class = getattr(wagtail_hooks, admin_class_name)
-    return admin_class().url_helper.index_url
-
-
-def get_operations_url(admin_class_name):
-    from operations import wagtail_hooks
-
-    admin_class = getattr(wagtail_hooks, admin_class_name)
-    return admin_class().url_helper.index_url
-
-
-def get_hr_url(admin_class_name):
-    from hr import wagtail_hooks
-
-    admin_class = getattr(wagtail_hooks, admin_class_name)
-    return admin_class().url_helper.index_url
-
-
-def get_committee_url(admin_class_name):
-    from committee import wagtail_hooks
-
-    admin_class = getattr(wagtail_hooks, admin_class_name)
-    return admin_class().url_helper.index_url

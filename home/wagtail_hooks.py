@@ -116,3 +116,8 @@ def filter_sample_data_menu(request, menu_items):
             item for item in menu_items
             if getattr(item, "label", "") != "📊 Sample Data Management"
         ]
+
+
+from home.admin_menu import register_administration_menu
+register_administration_menu()
+

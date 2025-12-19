@@ -8,7 +8,9 @@ from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .models import Family, MembershipDues, Payment
+from django.http import HttpResponse
+from .models import Family, Member, MembershipDues, Payment
+from .utils import generate_membership_questionnaire, generate_membership_card
 
 logger = logging.getLogger(__name__)
 
@@ -221,3 +223,34 @@ def generate_monthly_dues_view(request):
         "current_month": today.month,
     }
     return render(request, "membership/generate_monthly_dues.html", context)
+
+
+def download_questionnaire_view(request):
+    """View to download a blank membership questionnaire"""
+    buffer = generate_membership_questionnaire()
+    response = HttpResponse(buffer.read(), content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="membership_questionnaire.pdf"'
+    return response
+
+
+def preview_questionnaire_view(request):
+    """View to preview the membership questionnaire"""
+    return render(request, 'membership/preview_questionnaire.html')
+
+
+def print_membership_card_view(request, member_id):
+    """View to download/print a membership card for a specific member"""
+    member = get_object_or_404(Member, id=member_id)
+    buffer = generate_membership_card(member)
+    response = HttpResponse(buffer.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="membership_card_{member.id}.pdf"'
+    return response
+
+
+def preview_membership_card_view(request, member_id):
+    """View to preview a membership card for a specific member"""
+    member = get_object_or_404(Member, id=member_id)
+    context = {
+        'member': member,
+    }
+    return render(request, 'membership/preview_card.html', context)
