@@ -354,14 +354,40 @@
                 Mosque Management System
             </a>
 
-            <div class="d-flex align-items-center">
-                <div class="user-info me-3">
-                    <small>Welcome, {{ user_profile.user.get_full_name|default:user_profile.user.username }}</small><br>
-                    <span class="user-badge badge-{{ user_type }}">{{ user_profile.get_user_type_display }}</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="modulesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-th-large me-1"></i> Modules
+                        </a>
+                        <ul class="dropdown-menu shadow border-0" aria-labelledby="modulesDropdown">
+                            {% for group in sidebar_actions %}
+                            <li><h6 class="dropdown-header">{{ group.category }}</h6></li>
+                            {% for action in group.actions %}
+                            <li>
+                                <a class="dropdown-item" href="{{ action.url }}">
+                                    <i class="fas fa-{{ action.icon }} me-2 text-muted" style="width: 20px;"></i> {{ action.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% if not forloop.last %}<li><hr class="dropdown-divider"></li>{% endif %}
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="user-info me-3 text-end d-none d-lg-block">
+                        <small>Welcome, {{ user_profile.user.get_full_name|default:user_profile.user.username }}</small><br>
+                        <span class="user-badge badge-{{ user_type }}">{{ user_profile.get_user_type_display }}</span>
+                    </div>
+                    <a href="{% url 'home:logout' %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
-                <a href="{% url 'home:logout' %}" class="btn btn-outline-light btn-sm">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
             </div>
         </div>
     </nav>
