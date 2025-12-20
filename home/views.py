@@ -649,3 +649,39 @@ def live_data_feed(request):
         return JsonResponse({'error': 'Invalid data type'}, status=400)
 
     return JsonResponse(data)
+
+
+@login_required
+def wagtail_dashboard_view(request):
+    """Wagtail admin home page with dashboard data"""
+    user_profile = getattr(request.user, 'profile', None)
+    if not user_profile:
+        # Create default profile for existing users
+        user_profile = UserProfile.objects.create(
+            user=request.user,
+            user_type='staff'
+        )
+
+    user_type = user_profile.user_type
+
+    # Get dashboard data based on user type
+    context = {
+        'user_profile': user_profile,
+        'user_type': user_type,
+        'now': timezone.now(),
+    }
+
+    if user_type == 'admin':
+        context.update(get_admin_dashboard_data())
+    elif user_type == 'executive':
+        context.update(get_executive_dashboard_data())
+    elif user_type == 'manager':
+        context.update(get_manager_dashboard_data())
+    else:  # staff or volunteer
+        context.update(get_staff_dashboard_data())
+
+    # Add quick actions
+    context['sidebar_actions'] = get_dashboard_actions(request.user)
+    context['quick_actions'] = context['sidebar_actions']
+    
+    return render(request, 'home/wagtail_dashboard.html', context)

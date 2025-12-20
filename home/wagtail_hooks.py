@@ -121,3 +121,12 @@ def filter_sample_data_menu(request, menu_items):
 from home.admin_menu import register_administration_menu
 register_administration_menu()
 
+# Register custom admin home page
+from django.urls import path
+from . import views
+
+@hooks.register('register_admin_urls')
+def register_dashboard_url():
+    return [
+        path('', views.wagtail_dashboard_view, name='wagtailadmin_home'),
+    ]

@@ -1,0 +1,618 @@
+{% extends "wagtailadmin/base.html" %}
+{% load static %}
+
+{% block titletag %}Dashboard - {{ user_profile.get_user_type_display }}{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-header {
+        background: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .welcome-message h1 {
+        color: var(--secondary-color);
+        font-weight: 300;
+        margin-bottom: 10px;
+    }
+
+    .user-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-admin {
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        color: white;
+    }
+
+    .badge-executive {
+        background: linear-gradient(45deg, #f39c12, #e67e22);
+        color: white;
+    }
+
+    .badge-manager {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+    }
+
+    .badge-staff {
+        background: linear-gradient(45deg, #27ae60, #229954);
+        color: white;
+    }
+
+    .badge-volunteer {
+        background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        color: white;
+    }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .kpi-card {
+        background: white;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: var(--card-shadow);
+        border-left: 3px solid var(--primary-color);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .kpi-icon {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-bottom: 5px;
+    }
+
+    .kpi-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 2px;
+        line-height: 1.2;
+    }
+
+    .kpi-label {
+        color: #6c757d;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chart-container {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: var(--card-shadow);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--secondary-color);
+        margin: 0;
+    }
+
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-export {
+        padding: 8px 16px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background: white;
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-export:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .action-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--secondary-color);
+        box-shadow: var(--card-shadow);
+        transition: transform 0.2s ease;
+    }
+
+    .action-card:hover {
+        transform: translateY(-3px);
+        color: var(--secondary-color);
+    }
+
+    .action-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .action-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .action-desc {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        font-size: 12px;
+        color: var(--success-color);
+        font-weight: 600;
+    }
+
+    .live-indicator::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: var(--success-color);
+        border-radius: 50%;
+        margin-right: 5px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .chart-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nice-padding">
+    <div class="dashboard-header" style="margin: -20px -20px 20px -20px;">
+        <div class="container">
+            <div class="welcome-message">
+                <h1>Dashboard Overview</h1>
+                <p class="text-muted">
+                    <span class="live-indicator">Live Data</span>
+                    Last updated: <span id="last-updated">{{ now|date:"M j, Y g:i A" }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        {% if user_type == 'executive' %}
+        <!-- Executive Dashboard -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                <div class="kpi-value">{{ kpis.total_members|floatformat:0 }}</div>
+                <div class="kpi-label">Total Members</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-home"></i></div>
+                <div class="kpi-value">{{ kpis.total_families|floatformat:0 }}</div>
+                <div class="kpi-label">Total Families</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="kpi-value">₹{{ kpis.total_income|floatformat:0 }}</div>
+                <div class="kpi-label">Total Income</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-building"></i></div>
+                <div class="kpi-value">{{ kpis.occupancy_rate|floatformat:1 }}%</div>
+                <div class="kpi-label">Occupancy Rate</div>
+            </div>
+        </div>
+
+        <!-- Executive Charts -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Income Trends (Last 12 Months)</h3>
+                        <div class="export-buttons">
+                            <a href="{% url 'home:export_report' 'financial_summary' %}?format=csv" class="btn-export">
+                                <i class="fas fa-download"></i> CSV
+                            </a>
+                            <a href="{% url 'home:export_report' 'financial_summary' %}?format=pdf" class="btn-export">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                    <canvas id="incomeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Monthly Dues vs Target</h3>
+                    </div>
+                    <div class="text-center p-4">
+                        <div
+                            style="font-size: 3rem; color: {% if dues_achievement >= 100 %}#27ae60{% else %}#f39c12{% endif %}">
+                            {{ dues_achievement|floatformat:1 }}%
+                        </div>
+                        <p class="mb-2">Achievement Rate</p>
+                        <small class="text-muted">
+                            ₹{{ current_month_dues|floatformat:0 }} / ₹{{ monthly_dues_target|floatformat:0 }}
+                        </small>
+                    </div>
+                    <canvas id="duesChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {% elif user_type == 'admin' %}
+        <!-- Admin Dashboard -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                <div class="kpi-value">{{ total_members|floatformat:0 }}</div>
+                <div class="kpi-label">Active Members</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-home"></i></div>
+                <div class="kpi-value">{{ total_families|floatformat:0 }}</div>
+                <div class="kpi-label">Families</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="kpi-value">{{ active_classes|floatformat:0 }}</div>
+                <div class="kpi-label">Active Classes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="kpi-value">{{ total_shops|floatformat:0 }}</div>
+                <div class="kpi-label">Shops</div>
+            </div>
+        </div>
+
+        <!-- Admin Charts -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Monthly Trends</h3>
+                        <div class="export-buttons">
+                            <a href="{% url 'home:export_report' 'membership_summary' %}?format=csv" class="btn-export">
+                                <i class="fas fa-download"></i> CSV
+                            </a>
+                        </div>
+                    </div>
+                    <canvas id="adminChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <!-- Revenue Sources -->
+                <div class="chart-container mb-4">
+                    <h3 class="chart-title mb-3">Revenue Sources</h3>
+                    <canvas id="revenueSourcesChart" width="200" height="200"></canvas>
+                </div>
+                <!-- Expense Breakdown -->
+                <div class="chart-container">
+                    <h3 class="chart-title mb-3">Expense Breakdown</h3>
+                    <canvas id="expensesChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {% elif user_type == 'manager' %}
+        <!-- Manager Dashboard -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="kpi-value">{{ department_overview.active_classes|floatformat:0 }}</div>
+                <div class="kpi-label">Active Classes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="kpi-value">{{ department_overview.total_students|floatformat:0 }}</div>
+                <div class="kpi-label">Total Students</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="kpi-value">{{ department_overview.active_teachers|floatformat:0 }}</div>
+                <div class="kpi-label">Active Teachers</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="kpi-value">{{ department_overview.total_bookings|floatformat:0 }}</div>
+                <div class="kpi-label">Upcoming Bookings</div>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Staff/Volunteer Dashboard -->
+        <div class="quick-actions">
+            {% for action in quick_actions %}
+            <a href="{{ action.url }}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-{{ action.icon }}"></i>
+                </div>
+                <div class="action-title">{{ action.name }}</div>
+                <div class="action-desc">Quick access to {{ action.name|lower }}</div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                <div class="kpi-value">{{ today_overview.total_members|floatformat:0 }}</div>
+                <div class="kpi-label">Total Members</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="kpi-value">{{ today_overview.active_classes|floatformat:0 }}</div>
+                <div class="kpi-label">Active Classes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="kpi-value">{{ today_overview.today_bookings|floatformat:0 }}</div>
+                <div class="kpi-label">Today's Bookings</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Live data updates
+    function updateLiveData() {
+        fetch('{% url "home:live_data_feed" %}?type={% if user_type == "executive" %}financial{% else %}summary{% endif %}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('last-updated').textContent = new Date().toLocaleString();
+                // Update KPIs if needed
+                console.log('Live data updated:', data);
+            })
+            .catch(error => console.error('Error fetching live data:', error));
+    }
+
+    // Update live data every 30 seconds
+    setInterval(updateLiveData, 30000);
+
+    // Initialize charts
+    {% if user_type == 'executive' %}
+    // Income Trends Chart
+    const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+    const incomeData = {{ monthly_income_trends| safe }};
+    new Chart(incomeCtx, {
+        type: 'line',
+        data: {
+            labels: incomeData.map(item => item.month),
+            datasets: [{
+                label: 'Income',
+                data: incomeData.map(item => item.income),
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Target',
+                data: incomeData.map(item => item.target),
+                borderColor: '#e74c3c',
+                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                borderDash: [5, 5],
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Dues Achievement Chart
+    const duesCtx = document.getElementById('duesChart').getContext('2d');
+    new Chart(duesCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Collected', 'Remaining'],
+            datasets: [{
+                data: [{{ current_month_dues }}, {{ remaining_dues }}],
+        backgroundColor: ['#27ae60', '#ecf0f1'],
+        borderWidth: 0
+    }]
+            },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        }
+    }
+        });
+
+    {% elif user_type == 'admin' %}
+    // Admin Monthly Trends Chart
+    const adminCtx = document.getElementById('adminChart').getContext('2d');
+    const adminData = {{ monthly_trends| safe }};
+    new Chart(adminCtx, {
+        type: 'bar',
+        data: {
+            labels: adminData.map(item => item.month),
+            datasets: [{
+                label: 'Donations',
+                data: adminData.map(item => item.donations),
+                backgroundColor: '#27ae60'
+            }, {
+                label: 'Expenses',
+                data: adminData.map(item => item.expenses),
+                backgroundColor: '#e74c3c'
+            }, {
+                label: 'Dues',
+                data: adminData.map(item => item.dues),
+                backgroundColor: '#3498db'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return '₹' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Revenue Sources Chart
+    const revenueCtx = document.getElementById('revenueSourcesChart').getContext('2d');
+    const donationTypes = {{ donations_by_type| safe }};
+    const paymentMethods = {{ payments_by_method| safe }};
+
+    // Combine data for display
+    const revenueLabels = [...donationTypes.map(d => 'Donation: ' + d.type), ...paymentMethods.map(p => 'Payment: ' + p.method)];
+    const revenueValues = [...donationTypes.map(d => d.total), ...paymentMethods.map(p => p.total)];
+    const revenueColors = [
+        ...donationTypes.map((_, i) => `hsl(${120 + i * 20}, 70%, 50%)`), // Greens for donations
+        ...paymentMethods.map((_, i) => `hsl(${200 + i * 20}, 70%, 50%)`)  // Blues for payments
+    ];
+
+    new Chart(revenueCtx, {
+        type: 'pie',
+        data: {
+            labels: revenueLabels,
+            datasets: [{
+                data: revenueValues,
+                backgroundColor: revenueColors,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+            }
+        }
+    });
+
+    // Expense Breakdown Chart
+    const expenseCtx = document.getElementById('expensesChart').getContext('2d');
+    const expenseData = {{ expenses_by_category| safe }};
+    new Chart(expenseCtx, {
+        type: 'doughnut',
+        data: {
+            labels: expenseData.map(item => item.category__name),
+            datasets: [{
+                data: expenseData.map(item => item.total),
+                backgroundColor: [
+                    '#e74c3c', '#e67e22', '#f1c40f', '#9b59b6', '#34495e', '#95a5a6'
+                ],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}
