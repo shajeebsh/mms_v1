@@ -354,14 +354,48 @@
                 Mosque Management System
             </a>
 
-            <div class="d-flex align-items-center">
-                <div class="user-info me-3">
-                    <small>Welcome, {{ user_profile.user.get_full_name|default:user_profile.user.username }}</small><br>
-                    <span class="user-badge badge-{{ user_type }}">{{ user_profile.get_user_type_display }}</span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="modulesDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-th-large me-1"></i> Modules
+                        </a>
+                        <ul class="dropdown-menu shadow border-0" aria-labelledby="modulesDropdown">
+                            {% for group in sidebar_actions %}
+                            <li>
+                                <h6 class="dropdown-header">{{ group.category }}</h6>
+                            </li>
+                            {% for action in group.actions %}
+                            <li>
+                                <a class="dropdown-item" href="{{ action.url }}">
+                                    <i class="fas fa-{{ action.icon }} me-2 text-muted" style="width: 20px;"></i> {{
+                                    action.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                            {% if not forloop.last %}<li>
+                                <hr class="dropdown-divider">
+                            </li>{% endif %}
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="user-info me-3 text-end d-none d-lg-block">
+                        <small>Welcome, {{ user_profile.user.get_full_name|default:user_profile.user.username
+                            }}</small><br>
+                        <span class="user-badge badge-{{ user_type }}">{{ user_profile.get_user_type_display }}</span>
+                    </div>
+                    <a href="{% url 'home:logout' %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
-                <a href="{% url 'home:logout' %}" class="btn btn-outline-light btn-sm">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
             </div>
         </div>
     </nav>
@@ -381,289 +415,180 @@
     </div>
 
     <div class="container">
-        <div class="row">
-            <!-- Sidebar -->
-            <aside class="col-lg-3 mb-4">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white border-bottom-0 pt-4 pb-2">
-                        <h5 class="card-title mb-0" style="color: var(--secondary-color); font-weight: 600;">
-                            <i class="fas fa-th-large me-2 text-primary"></i> Modules
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="accordion accordion-flush" id="sidebarAccordion">
-                            {% for group in sidebar_actions %}
-                            <div class="accordion-item border-0">
-                                <h2 class="accordion-header" id="heading{{ forloop.counter }}">
-                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} py-3"
-                                        type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapse{{ forloop.counter }}"
-                                        aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
-                                        aria-controls="collapse{{ forloop.counter }}"
-                                        style="font-size: 0.95rem; font-weight: 500; color: var(--secondary-color);">
-                                        <i class="fas fa-{{ group.icon }} me-3 text-muted"
-                                            style="width: 20px; text-align: center;"></i>
-                                        {{ group.category }}
-                                    </button>
-                                </h2>
-                                <div id="collapse{{ forloop.counter }}"
-                                    class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
-                                    aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#sidebarAccordion">
-                                    <div class="accordion-body p-0">
-                                        <div class="list-group list-group-flush">
-                                            {% for action in group.actions %}
-                                            <a href="{{ action.url }}"
-                                                class="list-group-item list-group-item-action border-0 py-2 ps-5"
-                                                style="font-size: 0.9rem; color: #555;">
-                                                <i class="fas fa-{{ action.icon }} me-2 text-muted"
-                                                    style="font-size: 0.8rem;"></i> {{ action.name }}
-                                            </a>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="p-4 text-center">
-                                <span class="text-muted small">No modules available.</span>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Activity Feed (Sidebar) -->
-                {% if user_type == 'admin' or user_type == 'executive' %}
-                <div class="activity-feed mt-4">
-                    <h6 class="text-uppercase text-muted mb-3" style="font-size: 0.8rem; letter-spacing: 1px;">Recent
-                        Activity</h6>
-
-                    {% if recent_donations %}
-                    {% for donation in recent_donations %}
-                    <div class="activity-item"
-                        title="Donation: ₹{{ donation.amount }} from {{ donation.member }} on {{ donation.date }}">
-                        <div class="activity-icon donation"><i class="fas fa-hand-holding-heart"></i></div>
-                        <div class="activity-content">
-                            <span class="activity-text">
-                                <strong>₹{{ donation.amount }}</strong> - {{ donation.member.first_name }}
-                            </span>
-                        </div>
-                        <span class="activity-date">{{ donation.date|date:"M j" }}</span>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-
-                    {% if recent_payments %}
-                    {% for payment in recent_payments %}
-                    <div class="activity-item" title="Payment: ₹{{ payment.amount }} from {{ payment.family.name }}">
-                        <div class="activity-icon payment"><i class="fas fa-credit-card"></i></div>
-                        <div class="activity-content">
-                            <span class="activity-text">
-                                <strong>₹{{ payment.amount }}</strong> - {{ payment.family.name|truncatechars:15 }}
-                            </span>
-                        </div>
-                        <span class="activity-date">{{ payment.payment_date|date:"M j" }}</span>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-
-                    {% if upcoming_bookings %}
-                    {% for booking in upcoming_bookings %}
-                    <div class="activity-item" title="Booking: {{ booking.event_name }}">
-                        <div class="activity-icon booking"><i class="fas fa-calendar-alt"></i></div>
-                        <div class="activity-content">
-                            <span class="activity-text">{{ booking.event_name|truncatechars:20 }}</span>
-                        </div>
-                        <span class="activity-date">{{ booking.booking_date|date:"M j" }}</span>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-                </div>
-                {% endif %}
-            </aside>
-
-            <!-- Main Content -->
-            <main class="col-lg-9">
-                {% if user_type == 'executive' %}
-                <!-- Executive Dashboard -->
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                        <div class="kpi-value">{{ kpis.total_members|floatformat:0 }}</div>
-                        <div class="kpi-label">Total Members</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-home"></i></div>
-                        <div class="kpi-value">{{ kpis.total_families|floatformat:0 }}</div>
-                        <div class="kpi-label">Total Families</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
-                        <div class="kpi-value">₹{{ kpis.total_income|floatformat:0 }}</div>
-                        <div class="kpi-label">Total Income</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-building"></i></div>
-                        <div class="kpi-value">{{ kpis.occupancy_rate|floatformat:1 }}%</div>
-                        <div class="kpi-label">Occupancy Rate</div>
-                    </div>
-                </div>
-
-                <!-- Executive Charts -->
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="chart-container">
-                            <div class="chart-header">
-                                <h3 class="chart-title">Income Trends (Last 12 Months)</h3>
-                                <div class="export-buttons">
-                                    <a href="{% url 'home:export_report' 'financial_summary' %}?format=csv"
-                                        class="btn-export">
-                                        <i class="fas fa-download"></i> CSV
-                                    </a>
-                                    <a href="{% url 'home:export_report' 'financial_summary' %}?format=pdf"
-                                        class="btn-export">
-                                        <i class="fas fa-file-pdf"></i> PDF
-                                    </a>
-                                </div>
-                            </div>
-                            <canvas id="incomeChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="chart-container">
-                            <div class="chart-header">
-                                <h3 class="chart-title">Monthly Dues vs Target</h3>
-                            </div>
-                            <div class="text-center p-4">
-                                <div
-                                    style="font-size: 3rem; color: {% if dues_achievement >= 100 %}#27ae60{% else %}#f39c12{% endif %}">
-                                    {{ dues_achievement|floatformat:1 }}%
-                                </div>
-                                <p class="mb-2">Achievement Rate</p>
-                                <small class="text-muted">
-                                    ₹{{ current_month_dues|floatformat:0 }} / ₹{{ monthly_dues_target|floatformat:0 }}
-                                </small>
-                            </div>
-                            <canvas id="duesChart" width="200" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                {% elif user_type == 'admin' %}
-                <!-- Admin Dashboard -->
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                        <div class="kpi-value">{{ total_members|floatformat:0 }}</div>
-                        <div class="kpi-label">Active Members</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-home"></i></div>
-                        <div class="kpi-value">{{ total_families|floatformat:0 }}</div>
-                        <div class="kpi-label">Families</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <div class="kpi-value">{{ active_classes|floatformat:0 }}</div>
-                        <div class="kpi-label">Active Classes</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
-                        <div class="kpi-value">{{ total_shops|floatformat:0 }}</div>
-                        <div class="kpi-label">Shops</div>
-                    </div>
-                </div>
-
-                <!-- Admin Charts -->
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="chart-container">
-                            <div class="chart-header">
-                                <h3 class="chart-title">Monthly Trends</h3>
-                                <div class="export-buttons">
-                                    <a href="{% url 'home:export_report' 'membership_summary' %}?format=csv"
-                                        class="btn-export">
-                                        <i class="fas fa-download"></i> CSV
-                                    </a>
-                                </div>
-                            </div>
-                            <canvas id="adminChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <!-- Revenue Sources -->
-                        <div class="chart-container mb-4">
-                            <h3 class="chart-title mb-3">Revenue Sources</h3>
-                            <canvas id="revenueSourcesChart" width="200" height="200"></canvas>
-                        </div>
-                        <!-- Expense Breakdown -->
-                        <div class="chart-container">
-                            <h3 class="chart-title mb-3">Expense Breakdown</h3>
-                            <canvas id="expensesChart" width="200" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                {% elif user_type == 'manager' %}
-                <!-- Manager Dashboard -->
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <div class="kpi-value">{{ department_overview.active_classes|floatformat:0 }}</div>
-                        <div class="kpi-label">Active Classes</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-user-graduate"></i></div>
-                        <div class="kpi-value">{{ department_overview.total_students|floatformat:0 }}</div>
-                        <div class="kpi-label">Total Students</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                        <div class="kpi-value">{{ department_overview.active_teachers|floatformat:0 }}</div>
-                        <div class="kpi-label">Active Teachers</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
-                        <div class="kpi-value">{{ department_overview.total_bookings|floatformat:0 }}</div>
-                        <div class="kpi-label">Upcoming Bookings</div>
-                    </div>
-                </div>
-
-                {% else %}
-                <!-- Staff/Volunteer Dashboard -->
-                <div class="quick-actions">
-                    {% for action in quick_actions %}
-                    <a href="{{ action.url }}" class="action-card">
-                        <div class="action-icon">
-                            <i class="fas fa-{{ action.icon }}"></i>
-                        </div>
-                        <div class="action-title">{{ action.name }}</div>
-                        <div class="action-desc">Quick access to {{ action.name|lower }}</div>
-                    </a>
-                    {% endfor %}
-                </div>
-
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                        <div class="kpi-value">{{ today_overview.total_members|floatformat:0 }}</div>
-                        <div class="kpi-label">Total Members</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <div class="kpi-value">{{ today_overview.active_classes|floatformat:0 }}</div>
-                        <div class="kpi-label">Active Classes</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon"><i class="fas fa-calendar-day"></i></div>
-                        <div class="kpi-value">{{ today_overview.today_bookings|floatformat:0 }}</div>
-                        <div class="kpi-label">Today's Bookings</div>
-                    </div>
-                </div>
-                {% endif %}
-
-            </main>
+        {% if user_type == 'executive' %}
+        <!-- Executive Dashboard -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                <div class="kpi-value">{{ kpis.total_members|floatformat:0 }}</div>
+                <div class="kpi-label">Total Members</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-home"></i></div>
+                <div class="kpi-value">{{ kpis.total_families|floatformat:0 }}</div>
+                <div class="kpi-label">Total Families</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="kpi-value">₹{{ kpis.total_income|floatformat:0 }}</div>
+                <div class="kpi-label">Total Income</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-building"></i></div>
+                <div class="kpi-value">{{ kpis.occupancy_rate|floatformat:1 }}%</div>
+                <div class="kpi-label">Occupancy Rate</div>
+            </div>
         </div>
+
+        <!-- Executive Charts -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Income Trends (Last 12 Months)</h3>
+                        <div class="export-buttons">
+                            <a href="{% url 'home:export_report' 'financial_summary' %}?format=csv" class="btn-export">
+                                <i class="fas fa-download"></i> CSV
+                            </a>
+                            <a href="{% url 'home:export_report' 'financial_summary' %}?format=pdf" class="btn-export">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                    <canvas id="incomeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Monthly Dues vs Target</h3>
+                    </div>
+                    <div class="text-center p-4">
+                        <div
+                            style="font-size: 3rem; color: {% if dues_achievement >= 100 %}#27ae60{% else %}#f39c12{% endif %}">
+                            {{ dues_achievement|floatformat:1 }}%
+                        </div>
+                        <p class="mb-2">Achievement Rate</p>
+                        <small class="text-muted">
+                            ₹{{ current_month_dues|floatformat:0 }} / ₹{{ monthly_dues_target|floatformat:0 }}
+                        </small>
+                    </div>
+                    <canvas id="duesChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {% elif user_type == 'admin' %}
+        <!-- Admin Dashboard -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                <div class="kpi-value">{{ total_members|floatformat:0 }}</div>
+                <div class="kpi-label">Active Members</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-home"></i></div>
+                <div class="kpi-value">{{ total_families|floatformat:0 }}</div>
+                <div class="kpi-label">Families</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="kpi-value">{{ active_classes|floatformat:0 }}</div>
+                <div class="kpi-label">Active Classes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="kpi-value">{{ total_shops|floatformat:0 }}</div>
+                <div class="kpi-label">Shops</div>
+            </div>
+        </div>
+
+        <!-- Admin Charts -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Monthly Trends</h3>
+                        <div class="export-buttons">
+                            <a href="{% url 'home:export_report' 'membership_summary' %}?format=csv" class="btn-export">
+                                <i class="fas fa-download"></i> CSV
+                            </a>
+                        </div>
+                    </div>
+                    <canvas id="adminChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <!-- Revenue Sources -->
+                <div class="chart-container mb-4">
+                    <h3 class="chart-title mb-3">Revenue Sources</h3>
+                    <canvas id="revenueSourcesChart" width="200" height="200"></canvas>
+                </div>
+                <!-- Expense Breakdown -->
+                <div class="chart-container">
+                    <h3 class="chart-title mb-3">Expense Breakdown</h3>
+                    <canvas id="expensesChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {% elif user_type == 'manager' %}
+        <!-- Manager Dashboard -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="kpi-value">{{ department_overview.active_classes|floatformat:0 }}</div>
+                <div class="kpi-label">Active Classes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="kpi-value">{{ department_overview.total_students|floatformat:0 }}</div>
+                <div class="kpi-label">Total Students</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="kpi-value">{{ department_overview.active_teachers|floatformat:0 }}</div>
+                <div class="kpi-label">Active Teachers</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="kpi-value">{{ department_overview.total_bookings|floatformat:0 }}</div>
+                <div class="kpi-label">Upcoming Bookings</div>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Staff/Volunteer Dashboard -->
+        <div class="quick-actions">
+            {% for action in quick_actions %}
+            <a href="{{ action.url }}" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-{{ action.icon }}"></i>
+                </div>
+                <div class="action-title">{{ action.name }}</div>
+                <div class="action-desc">Quick access to {{ action.name|lower }}</div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                <div class="kpi-value">{{ today_overview.total_members|floatformat:0 }}</div>
+                <div class="kpi-label">Total Members</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="kpi-value">{{ today_overview.active_classes|floatformat:0 }}</div>
+                <div class="kpi-label">Active Classes</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-calendar-day"></i></div>
+                <div class="kpi-value">{{ today_overview.today_bookings|floatformat:0 }}</div>
+                <div class="kpi-label">Today's Bookings</div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
