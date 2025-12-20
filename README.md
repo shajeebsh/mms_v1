@@ -9,6 +9,31 @@ A comprehensive management system for mosques, built with Django and Wagtail.
 - **Operations**: Prayer times, auditorium bookings, and digital signage.
 - **Home/Dashboard**: Executive dashboard with key metrics.
 
+## User Roles
+The system categorizes users into several roles across different modules:
+
+### System User Types
+Primary roles for dashboard and module management:
+- **Administrator**: Full system access.
+- **Executive Board Member**: High-level oversight and reporting.
+- **Department Manager**: Specific module management (Finance, HR, etc.).
+- **Staff Member**: Standard operational access.
+- **Volunteer**: Restricted access for specific tasks.
+
+### Staff Positions (HR)
+Specific roles for mosque employees:
+- **Imam / Assistant Imam**
+- **Muazzin**
+- **Teacher**
+- **Administrator**
+- **Maintenance / Cleaner**
+- **Security Guard**
+
+### Trustee & Committee Roles
+Leadership and governance roles:
+- **Trustees**: President, Vice President, Secretary, Treasurer.
+- **Committee**: Chairperson, Secretary, Minute Taker.
+
 ## Setup Instructions
 
 Follow these steps to set up the project on a new machine.
