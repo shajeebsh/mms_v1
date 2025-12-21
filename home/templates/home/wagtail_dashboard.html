@@ -488,8 +488,8 @@
             datasets: [{
                 label: 'Income',
                 data: incomeData.map(item => item.income),
-                borderColor: '#3498db',
-                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderColor: '#27ae60', // Green
+                backgroundColor: 'rgba(39, 174, 96, 0.1)',
                 tension: 0.4
             }, {
                 label: 'Target',
@@ -528,7 +528,7 @@
             labels: ['Collected', 'Remaining'],
             datasets: [{
                 data: [{{ current_month_dues }}, {{ remaining_dues }}],
-        backgroundColor: ['#27ae60', '#ecf0f1'],
+        backgroundColor: ['#27ae60', '#f1f8e9'], /* Green and very light green */
         borderWidth: 0
     }]
             },
@@ -561,7 +561,7 @@
             }, {
                 label: 'Dues',
                 data: adminData.map(item => item.dues),
-                backgroundColor: '#3498db'
+                backgroundColor: '#2ecc71' // Light Green
             }]
         },
         options: {
@@ -587,10 +587,7 @@
     // Combine data for display
     const revenueLabels = [...donationTypes.map(d => 'Donation: ' + d.type), ...paymentMethods.map(p => 'Payment: ' + p.method)];
     const revenueValues = [...donationTypes.map(d => d.total), ...paymentMethods.map(p => p.total)];
-    const revenueColors = [
-        ...donationTypes.map((_, i) => `hsl(${120 + i * 20}, 70%, 50%)`), // Greens for donations
-        ...paymentMethods.map((_, i) => `hsl(${200 + i * 20}, 70%, 50%)`)  // Blues for payments
-    ];
+    // Colors removed here, defined directly in dataset
 
     new Chart(revenueCtx, {
         type: 'pie',
@@ -598,7 +595,10 @@
             labels: revenueLabels,
             datasets: [{
                 data: revenueValues,
-                backgroundColor: revenueColors,
+                backgroundColor: [
+                    ...donationTypes.map((_, i) => `hsl(${140 + i * 15}, 70%, 50%)`), // Varied Greens
+                    ...paymentMethods.map((_, i) => `hsl(${160 + i * 15}, 60%, 45%)`)  // Blue-Greens
+                ],
             }]
         },
         options: {
