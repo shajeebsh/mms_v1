@@ -4,8 +4,15 @@ from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 from .models import Teacher, Class, StudentEnrollment
 
 
+from home.permission_helpers import ACLPermissionHelper
+
+
+from home.permission_helpers import ACLPermissionHelper
+
 class TeacherAdmin(ModelAdmin):
     model = Teacher
+    permission_helper_class = ACLPermissionHelper
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Teachers'
     menu_icon = 'user'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -23,6 +30,8 @@ class TeacherAdmin(ModelAdmin):
 
 class ClassAdmin(ModelAdmin):
     model = Class
+    permission_helper_class = ACLPermissionHelper
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Classes'
     menu_icon = 'group'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -45,6 +54,8 @@ class ClassAdmin(ModelAdmin):
 
 class StudentEnrollmentAdmin(ModelAdmin):
     model = StudentEnrollment
+    permission_helper_class = ACLPermissionHelper
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Student Enrollments'
     menu_icon = 'tick'
     add_to_admin_menu = False  # Will be included in grouped menu

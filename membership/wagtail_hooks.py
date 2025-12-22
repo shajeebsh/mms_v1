@@ -32,8 +32,11 @@ class MemberButtonHelper(ButtonHelper):
         return buttons
 
 
+from home.permission_helpers import ACLPermissionHelper
+
 class FamilyAdmin(ModelAdmin):
     model = Family
+    permission_helper_class = ACLPermissionHelper
     menu_label = "Families"
     menu_icon = "group"
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -49,6 +52,7 @@ class FamilyAdmin(ModelAdmin):
 
 class MemberAdmin(ModelAdmin):
     model = Member
+    permission_helper_class = ACLPermissionHelper
     button_helper_class = MemberButtonHelper
     menu_label = "Members"
     menu_icon = "user"
@@ -100,6 +104,7 @@ class MemberAdmin(ModelAdmin):
 
 class MembershipDuesAdmin(ModelAdmin):
     model = MembershipDues
+    permission_helper_class = ACLPermissionHelper
     menu_label = "Membership Dues"
     menu_icon = "money"
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -130,6 +135,7 @@ class MembershipDuesAdmin(ModelAdmin):
 
 class PaymentAdmin(ModelAdmin):
     model = Payment
+    permission_helper_class = ACLPermissionHelper
     menu_label = "Payments"
     menu_icon = "credit-card"
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -163,6 +169,7 @@ class PaymentAdmin(ModelAdmin):
 
 class VitalRecordAdmin(ModelAdmin):
     model = VitalRecord
+    permission_helper_class = ACLPermissionHelper
     menu_label = "Vital Records"
     menu_icon = "date"
     add_to_admin_menu = False  # Will be included in grouped menu

@@ -4,8 +4,11 @@ from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 from .models import Donation, Expense, FinancialReport, DonationCategory, ExpenseCategory
 
 
+from home.permission_helpers import ACLPermissionHelper
+
 class DonationCategoryAdmin(ModelAdmin):
     model = DonationCategory
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Donation Categories'
     menu_icon = 'tag'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -15,6 +18,7 @@ class DonationCategoryAdmin(ModelAdmin):
 
 class ExpenseCategoryAdmin(ModelAdmin):
     model = ExpenseCategory
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Expense Categories'
     menu_icon = 'tag'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -24,6 +28,7 @@ class ExpenseCategoryAdmin(ModelAdmin):
 
 class DonationAdmin(ModelAdmin):
     model = Donation
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Donations'
     menu_icon = 'money'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -43,6 +48,7 @@ class DonationAdmin(ModelAdmin):
 
 class ExpenseAdmin(ModelAdmin):
     model = Expense
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Expenses'
     menu_icon = 'minus'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -62,6 +68,7 @@ class ExpenseAdmin(ModelAdmin):
 
 class FinancialReportAdmin(ModelAdmin):
     model = FinancialReport
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Financial Reports'
     menu_icon = 'chart-bar'
     add_to_admin_menu = False  # Will be included in grouped menu

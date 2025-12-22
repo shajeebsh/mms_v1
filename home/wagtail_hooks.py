@@ -33,20 +33,10 @@ def customize_main_menu(request, menu_items):
         return
 
     # Check module configuration first
-    from home.models import SystemSettings
+    from home.models import SystemSettings, AccessControlSettings
     
     # Map group names to submenu labels used in `home/admin_menu.py`
-    group_to_label = {
-        "membership": "🏠 Membership",
-        "finance": "💰 Finance",
-        "education": "👨‍🏫 Education",
-        "assets": "🏢 Assets",
-        "operations": "📅 Operations",
-        "hr": "👥 HR & Payroll",
-        "committee": "🏛️ Committee & Minutes",
-    }
-    
-    # Module name to label mapping for configuration check
+    # Also doubles as module_name -> label mapping
     module_to_label = {
         "membership": "🏠 Membership",
         "finance": "💰 Finance",
@@ -57,18 +47,48 @@ def customize_main_menu(request, menu_items):
         "committee": "🏛️ Committee & Minutes",
     }
 
-    user_groups = set(g.name.lower() for g in user.groups.all())
-    # Only include modules that are both enabled and user has access to
+    # Determine allowed modules for this user based on AccessControlSettings
     allowed_labels = set()
-    for group in user_groups:
-        if group in group_to_label:
-            module_name = group
-            # Check if module is enabled
-            if SystemSettings.is_module_enabled(module_name):
-                allowed_labels.add(group_to_label[group])
-
+    
+    # Get user profile to determine user type
+    try:
+        profile = user.profile
+        user_type = profile.user_type
+    except Exception:
+        # Fallback if no profile exists (e.g. specialized admin accounts without profiles)
+        user_type = "staff"
+    
+    # Get settings for the current site
+    try:
+        # AccessControlSettings is a site setting, so we get it for the current site
+        # We need to handle the case where request might not be available or associated with a site correctly in some edge cases
+        # But for construct_main_menu, request is standard.
+        from wagtail.models import Site
+        site = Site.find_for_request(request)
+        if site:
+            settings = AccessControlSettings.for_site(site)
+        else:
+            settings = AccessControlSettings.objects.first() # specific fallback
+        
+        if settings:
+            if user_type == "admin":
+                allowed_modules = settings.admin_modules or []
+            elif user_type == "executive":
+                allowed_modules = settings.executive_modules or []
+            else: # staff
+                allowed_modules = settings.staff_modules or []
+                
+            # Filter allowed modules: must be in allowed list AND enabled system-wide
+            for module_name in allowed_modules:
+                if module_name in module_to_label:
+                    if SystemSettings.is_module_enabled(module_name):
+                        allowed_labels.add(module_to_label[module_name])
+    except Exception:
+        # In case of any error (settings not initialized, etc.), fall back to showing nothing or safe defaults
+        pass
+    
     if not allowed_labels:
-        # If user has no matching group, hide the administration menu entirely
+        # If user has no access, hide the administration menu entirely
         menu_items[:] = [m for m in menu_items if m is not admin_item]
         return
 
@@ -90,7 +110,7 @@ def customize_main_menu(request, menu_items):
             sub_iter = list(menu_obj)
         except Exception:
             sub_iter = []
-
+            
     for sub in sub_iter:
         sublabel = getattr(sub, "label", "")
         if sublabel in allowed_labels:

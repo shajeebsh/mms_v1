@@ -11,8 +11,11 @@ from .models import (
 )
 
 
+from home.permission_helpers import ACLPermissionHelper
+
 class CommitteeTypeAdmin(ModelAdmin):
     model = CommitteeType
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Committee Types'
     menu_icon = 'group'
     add_to_admin_menu = False
@@ -23,6 +26,7 @@ class CommitteeTypeAdmin(ModelAdmin):
 
 class CommitteeAdmin(ModelAdmin):
     model = Committee
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Committees'
     menu_icon = 'group'
     add_to_admin_menu = False
@@ -34,6 +38,7 @@ class CommitteeAdmin(ModelAdmin):
 
 class CommitteeMemberAdmin(ModelAdmin):
     model = CommitteeMember
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Committee Members'
     menu_icon = 'user'
     add_to_admin_menu = False
@@ -45,6 +50,7 @@ class CommitteeMemberAdmin(ModelAdmin):
 
 class MeetingAdmin(ModelAdmin):
     model = Meeting
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Committee Meetings'
     menu_icon = 'date'
     add_to_admin_menu = False
@@ -56,6 +62,7 @@ class MeetingAdmin(ModelAdmin):
 
 class MeetingAttendeeAdmin(ModelAdmin):
     model = MeetingAttendee
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Meeting Attendees'
     menu_icon = 'tick'
     add_to_admin_menu = False
@@ -67,6 +74,7 @@ class MeetingAttendeeAdmin(ModelAdmin):
 
 class MeetingAttachmentAdmin(ModelAdmin):
     model = MeetingAttachment
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Meeting Attachments'
     menu_icon = 'doc-full'
     add_to_admin_menu = False
@@ -78,6 +86,7 @@ class MeetingAttachmentAdmin(ModelAdmin):
 
 class TrusteeAdmin(ModelAdmin):
     model = Trustee
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Trustees'
     menu_icon = 'user'
     add_to_admin_menu = False
@@ -89,6 +98,7 @@ class TrusteeAdmin(ModelAdmin):
 
 class TrusteeMeetingAdmin(ModelAdmin):
     model = TrusteeMeeting
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Trustee Meetings'
     menu_icon = 'date'
     add_to_admin_menu = False
@@ -100,6 +110,7 @@ class TrusteeMeetingAdmin(ModelAdmin):
 
 class TrusteeMeetingAttendeeAdmin(ModelAdmin):
     model = TrusteeMeetingAttendee
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Trustee Meeting Attendees'
     menu_icon = 'tick'
     add_to_admin_menu = False
@@ -111,6 +122,7 @@ class TrusteeMeetingAttendeeAdmin(ModelAdmin):
 
 class TrusteeMeetingAttachmentAdmin(ModelAdmin):
     model = TrusteeMeetingAttachment
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Trustee Meeting Attachments'
     menu_icon = 'doc-full'
     add_to_admin_menu = False
