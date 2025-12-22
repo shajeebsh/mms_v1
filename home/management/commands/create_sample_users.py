@@ -40,24 +40,6 @@ class Command(BaseCommand):
                 'phone': '+1-555-0003',
             },
             {
-                'username': 'manager1',
-                'email': 'education@mosque.org',
-                'first_name': 'Omar',
-                'last_name': 'Al-Hassan',
-                'user_type': 'manager',
-                'department': 'Education',
-                'phone': '+1-555-0004',
-            },
-            {
-                'username': 'manager2',
-                'email': 'finance@mosque.org',
-                'first_name': 'Aisha',
-                'last_name': 'Al-Khalid',
-                'user_type': 'manager',
-                'department': 'Finance',
-                'phone': '+1-555-0005',
-            },
-            {
                 'username': 'staff1',
                 'email': 'reception@mosque.org',
                 'first_name': 'Mohammed',
@@ -74,15 +56,6 @@ class Command(BaseCommand):
                 'user_type': 'staff',
                 'department': 'Maintenance',
                 'phone': '+1-555-0007',
-            },
-            {
-                'username': 'volunteer1',
-                'email': 'volunteer1@mosque.org',
-                'first_name': 'Ibrahim',
-                'last_name': 'Al-Mansoori',
-                'user_type': 'volunteer',
-                'department': 'Community Service',
-                'phone': '+1-555-0008',
             },
         ]
 
@@ -138,4 +111,4 @@ class Command(BaseCommand):
             self.stdout.write(f'{username:12} ({user_type:10}) - {user_data.get("email")}')
         self.stdout.write('')
         self.stdout.write('Access the dashboard at: http://127.0.0.1:8000/dashboard/')
-        self.stdout.write('Login page at: http://127.0.0.1:8000/login/')        self.stdout.write('Login page at: http://127.0.0.1:8000/login/')
+        self.stdout.write('Login page at: http://127.0.0.1:8000/login/')

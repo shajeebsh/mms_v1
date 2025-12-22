@@ -31,65 +31,7 @@ from home.admin_menu import get_modeladmin_url
 from .models import DashboardWidget, ReportExport, UserProfile
 
 
-def login_view(request):
-    """Custom login view with user type selection"""
-    if request.user.is_authenticated:
-        return redirect('home:dashboard')
 
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            next_url = request.GET.get('next', 'home:dashboard')
-            return redirect(next_url)
-        else:
-            messages.error(request, 'Invalid username or password.')
-
-    return render(request, 'home/login.html')
-
-
-def logout_view(request):
-    """Custom logout view"""
-    logout(request)
-    return redirect('home:login')
-
-
-@login_required
-def dashboard_view(request):
-    """Main dashboard view based on user type"""
-    user_profile = getattr(request.user, 'profile', None)
-    if not user_profile:
-        # Create default profile for existing users
-        user_profile = UserProfile.objects.create(
-            user=request.user,
-            user_type='staff'
-        )
-
-    user_type = user_profile.user_type
-
-    # Get dashboard data based on user type
-    context = {
-        'user_profile': user_profile,
-        'user_type': user_type,
-    }
-
-    if user_type == 'admin':
-        context.update(get_admin_dashboard_data())
-    elif user_type == 'executive':
-        context.update(get_executive_dashboard_data())
-    elif user_type == 'manager':
-        context.update(get_manager_dashboard_data())
-    else:  # staff or volunteer
-        context.update(get_staff_dashboard_data())
-
-    # Add quick actions / widgets depending on the user's groups or role
-    context['sidebar_actions'] = get_dashboard_actions(request.user)
-    context['quick_actions'] = context['sidebar_actions'] # Keep for backward compat if template needs it
-    
-    return render(request, 'home/dashboard.html', context)
 
 
 def get_dashboard_actions(user):
@@ -675,9 +617,7 @@ def wagtail_dashboard_view(request):
         context.update(get_admin_dashboard_data())
     elif user_type == 'executive':
         context.update(get_executive_dashboard_data())
-    elif user_type == 'manager':
-        context.update(get_manager_dashboard_data())
-    else:  # staff or volunteer
+    else:  # staff
         context.update(get_staff_dashboard_data())
 
     # Add quick actions

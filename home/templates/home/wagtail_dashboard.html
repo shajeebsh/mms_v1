@@ -53,18 +53,8 @@
         color: white;
     }
 
-    .badge-manager {
-        background: linear-gradient(45deg, #3498db, #2980b9);
-        color: white;
-    }
-
     .badge-staff {
         background: linear-gradient(45deg, #27ae60, #229954);
-        color: white;
-    }
-
-    .badge-volunteer {
-        background: linear-gradient(45deg, #9b59b6, #8e44ad);
         color: white;
     }
 
@@ -395,33 +385,8 @@
             </div>
         </div>
 
-        {% elif user_type == 'manager' %}
-        <!-- Manager Dashboard -->
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                <div class="kpi-value">{{ department_overview.active_classes|floatformat:0 }}</div>
-                <div class="kpi-label">Active Classes</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-icon"><i class="fas fa-user-graduate"></i></div>
-                <div class="kpi-value">{{ department_overview.total_students|floatformat:0 }}</div>
-                <div class="kpi-label">Total Students</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                <div class="kpi-value">{{ department_overview.active_teachers|floatformat:0 }}</div>
-                <div class="kpi-label">Active Teachers</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="kpi-value">{{ department_overview.total_bookings|floatformat:0 }}</div>
-                <div class="kpi-label">Upcoming Bookings</div>
-            </div>
-        </div>
-
         {% else %}
-        <!-- Staff/Volunteer Dashboard -->
+        <!-- Staff Dashboard -->
         <div class="quick-actions">
             {% for action in quick_actions %}
             <a href="{{ action.url }}" class="action-card">

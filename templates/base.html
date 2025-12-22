@@ -163,9 +163,6 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarMain">
           <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'home:dashboard' %}">Dashboard</a>
-            </li>
             {% if user.is_superuser %}
             <li class="nav-item">
               <a class="nav-link" href="/cms/">CMS</a>
@@ -181,11 +178,11 @@
               <span class="nav-link">Welcome, {{ user.get_username }}</span>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'home:logout' %}">Logout</a>
+              <a class="nav-link" href="/cms/logout/">Logout</a>
             </li>
             {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'home:login' %}">Login</a>
+              <a class="nav-link" href="/cms/login/">Login</a>
             </li>
             {% endif %}
           </ul>

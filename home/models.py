@@ -64,9 +64,7 @@ class UserProfile(models.Model):
     USER_TYPES = [
         ("admin", "Administrator"),
         ("executive", "Executive Board Member"),
-        ("manager", "Department Manager"),
         ("staff", "Staff Member"),
-        ("volunteer", "Volunteer"),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
