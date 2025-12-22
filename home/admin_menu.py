@@ -295,74 +295,109 @@ def register_administration_menu():
     # Check module configuration - only include enabled modules
     from home.models import SystemSettings
     
+    # Separate registration for each module to ensure they are top-level
+    # and to comply with Wagtail's expectation of a single MenuItem from each hook function.
+    
+    class GroupRestrictedSubmenuMenuItem(SubmenuMenuItem):
+        def __init__(self, label, menu, name=None, icon_name=None, classname=None, order=1000, required_groups=None):
+            self.required_groups = required_groups or []
+            super().__init__(label, menu, name=name, icon_name=icon_name, classname=classname, order=order)
+
+        def is_shown(self, request):
+            user = request.user
+            if user.is_superuser:
+                return True
+            if not self.required_groups:
+                 return True
+            return user.groups.filter(name__in=self.required_groups).exists()
+
     menu_items = []
     order = 1
     
     if SystemSettings.is_module_enabled("membership"):
         menu_items.append(
-            SubmenuMenuItem(
-                label="🏠 Membership", menu=membership_menu, icon_name="group", order=order
+            GroupRestrictedSubmenuMenuItem(
+                label="🏠 Membership", 
+                menu=membership_menu, 
+                icon_name="group", 
+                order=order,
+                required_groups=['membership']
             )
         )
         order += 1
     
     if SystemSettings.is_module_enabled("finance"):
         menu_items.append(
-            SubmenuMenuItem(
-                label="💰 Finance", menu=finance_menu, icon_name="money", order=order
+            GroupRestrictedSubmenuMenuItem(
+                label="💰 Finance", 
+                menu=finance_menu, 
+                icon_name="money", 
+                order=order,
+                required_groups=['finance']
             )
         )
         order += 1
     
     if SystemSettings.is_module_enabled("education"):
         menu_items.append(
-            SubmenuMenuItem(
-                label="👨‍🏫 Education", menu=education_menu, icon_name="user", order=order
+            GroupRestrictedSubmenuMenuItem(
+                label="👨‍🏫 Education", 
+                menu=education_menu, 
+                icon_name="user", 
+                order=order,
+                required_groups=['education']
             )
         )
         order += 1
     
     if SystemSettings.is_module_enabled("assets"):
         menu_items.append(
-            SubmenuMenuItem(
-                label="🏢 Assets", menu=assets_menu, icon_name="home", order=order
+            GroupRestrictedSubmenuMenuItem(
+                label="🏢 Assets", 
+                menu=assets_menu, 
+                icon_name="home", 
+                order=order,
+                required_groups=['assets']
             )
         )
         order += 1
     
     if SystemSettings.is_module_enabled("operations"):
         menu_items.append(
-            SubmenuMenuItem(
+            GroupRestrictedSubmenuMenuItem(
                 label="📅 Operations",
                 menu=operations_menu,
                 icon_name="calendar",
                 order=order,
+                required_groups=['operations']
             )
         )
         order += 1
     
     if SystemSettings.is_module_enabled("hr"):
         menu_items.append(
-            SubmenuMenuItem(
-                label="👥 HR & Payroll", menu=hr_menu, icon_name="user", order=order
+            GroupRestrictedSubmenuMenuItem(
+                label="👥 HR & Payroll", 
+                menu=hr_menu, 
+                icon_name="user", 
+                order=order,
+                required_groups=['hr']
             )
         )
         order += 1
     
     if SystemSettings.is_module_enabled("committee"):
         menu_items.append(
-            SubmenuMenuItem(
+            GroupRestrictedSubmenuMenuItem(
                 label="🏛️ Committee & Minutes",
                 menu=committee_menu,
                 icon_name="group",
                 order=order,
+                required_groups=['committee']
             )
         )
         order += 1
-    
-    # Separate registration for each module to ensure they are top-level
-    # and to comply with Wagtail's expectation of a single MenuItem from each hook function.
-    
+
     # We define a helper to register each submenu
     def register_submenu(item):
         def hook():

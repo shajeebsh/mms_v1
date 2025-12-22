@@ -37,7 +37,6 @@ class StaffMember(models.Model):
         ('full_time', 'Full Time'),
         ('part_time', 'Part Time'),
         ('contract', 'Contract'),
-        ('volunteer', 'Volunteer'),
     ]
 
     member = models.OneToOneField(Member, on_delete=models.CASCADE, related_name='staff_profile')

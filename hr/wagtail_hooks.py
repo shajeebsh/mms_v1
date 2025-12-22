@@ -18,6 +18,7 @@ class StaffPositionAdmin(ModelAdmin):
     list_display = ('name', 'is_active')
     list_filter = ('is_active',)
     search_fields = ('name', 'description')
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 class StaffMemberAdmin(ModelAdmin):
@@ -29,6 +30,7 @@ class StaffMemberAdmin(ModelAdmin):
     list_filter = ('position', 'employment_type', 'is_active')
     search_fields = ('member__first_name', 'member__last_name', 'position__name')
     raw_id_fields = ('member',)
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 class AttendanceAdmin(ModelAdmin):
@@ -40,6 +42,7 @@ class AttendanceAdmin(ModelAdmin):
     list_filter = ('status', 'date')
     search_fields = ('staff_member__member__first_name', 'staff_member__member__last_name')
     raw_id_fields = ('staff_member',)
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 class LeaveTypeAdmin(ModelAdmin):
@@ -49,6 +52,7 @@ class LeaveTypeAdmin(ModelAdmin):
     add_to_admin_menu = False
     list_display = ('name', 'days_allowed_per_year', 'is_paid', 'requires_approval')
     list_filter = ('is_paid', 'requires_approval')
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 class LeaveRequestAdmin(ModelAdmin):
@@ -60,6 +64,7 @@ class LeaveRequestAdmin(ModelAdmin):
     list_filter = ('status', 'leave_type', 'start_date')
     search_fields = ('staff_member__member__first_name', 'staff_member__member__last_name')
     raw_id_fields = ('staff_member', 'approved_by')
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 class SalaryComponentAdmin(ModelAdmin):
@@ -69,6 +74,7 @@ class SalaryComponentAdmin(ModelAdmin):
     add_to_admin_menu = False
     list_display = ('name', 'component_type', 'is_taxable', 'is_active')
     list_filter = ('component_type', 'is_taxable', 'is_active')
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 class StaffSalaryAdmin(ModelAdmin):
@@ -80,6 +86,7 @@ class StaffSalaryAdmin(ModelAdmin):
     list_filter = ('salary_component', 'is_active', 'effective_date')
     search_fields = ('staff_member__member__first_name', 'staff_member__member__last_name')
     raw_id_fields = ('staff_member',)
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 class PayrollAdmin(ModelAdmin):
@@ -91,6 +98,7 @@ class PayrollAdmin(ModelAdmin):
     list_filter = ('payment_status', 'pay_period_start')
     search_fields = ('staff_member__member__first_name', 'staff_member__member__last_name')
     raw_id_fields = ('staff_member', 'processed_by')
+    index_template_name = 'modeladmin/hr/index.html'
 
 
 # Register all ModelAdmin classes
@@ -104,9 +112,15 @@ modeladmin_register(StaffSalaryAdmin)
 modeladmin_register(PayrollAdmin)
 
 
+class HRMenuItem(MenuItem):
+    def is_shown(self, request):
+        user = request.user
+        # Only show to superusers or users in the 'hr' group
+        return user.is_superuser or user.groups.filter(name='hr').exists()
+
 @hooks.register('register_admin_menu_item')
 def register_hr_menu():
-    return MenuItem(
+    return HRMenuItem(
         _('HR & Payroll'),
         reverse('wagtailadmin_home'),
         icon_name='user',
