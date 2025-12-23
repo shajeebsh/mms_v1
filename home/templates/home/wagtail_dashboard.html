@@ -345,6 +345,16 @@
                 <div class="kpi-label">Families</div>
             </div>
             <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="kpi-value">₹{{ total_donations|add:total_dues_collected|floatformat:0 }}</div>
+                <div class="kpi-label">Total Revenue</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon"><i class="fas fa-minus-circle"></i></div>
+                <div class="kpi-value">₹{{ total_expenses|floatformat:0 }}</div>
+                <div class="kpi-label">Expenses</div>
+            </div>
+            <div class="kpi-card">
                 <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
                 <div class="kpi-value">{{ active_classes|floatformat:0 }}</div>
                 <div class="kpi-label">Active Classes</div>
@@ -358,29 +368,61 @@
 
         <!-- Admin Charts -->
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-6">
                 <div class="chart-container">
                     <div class="chart-header">
-                        <h3 class="chart-title">Monthly Trends</h3>
+                        <h3 class="chart-title">Financial Trends (MOM)</h3>
                         <div class="export-buttons">
-                            <a href="{% url 'home:export_report' 'membership_summary' %}?format=csv" class="btn-export">
-                                <i class="fas fa-download"></i> CSV
+                            <a href="{% url 'home:export_report' 'financial_summary' %}?format=csv" class="btn-export">
+                                <i class="fas fa-download"></i>
                             </a>
                         </div>
                     </div>
-                    <canvas id="adminChart" width="400" height="200"></canvas>
+                    <canvas id="adminChart" width="400" height="250"></canvas>
                 </div>
             </div>
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Member Growth (MOM)</h3>
+                        <div class="export-buttons">
+                            <a href="{% url 'home:export_report' 'membership_summary' %}?format=csv" class="btn-export">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <canvas id="memberGrowthChart" width="400" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
             <div class="col-lg-4">
                 <!-- Revenue Sources -->
                 <div class="chart-container mb-4">
                     <h3 class="chart-title mb-3">Revenue Sources</h3>
                     <canvas id="revenueSourcesChart" width="200" height="200"></canvas>
                 </div>
+            </div>
+            <div class="col-lg-4">
                 <!-- Expense Breakdown -->
-                <div class="chart-container">
+                <div class="chart-container mb-4">
                     <h3 class="chart-title mb-3">Expense Breakdown</h3>
                     <canvas id="expensesChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <h3 class="chart-title mb-3">Recent Activity</h3>
+                    <ul class="list-group list-group-flush">
+                        {% for donation in recent_donations %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center p-2"
+                            style="font-size: 0.85rem;">
+                            {{ donation.member.first_name }}
+                            <span class="badge bg-success rounded-pill">₹{{ donation.amount|floatformat:0 }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
@@ -508,93 +550,122 @@
         });
 
     {% elif user_type == 'admin' %}
-    // Admin Monthly Trends Chart
-    const adminCtx = document.getElementById('adminChart').getContext('2d');
-    const adminData = {{ monthly_trends| safe }};
-    new Chart(adminCtx, {
-        type: 'bar',
-        data: {
-            labels: adminData.map(item => item.month),
-            datasets: [{
-                label: 'Donations',
-                data: adminData.map(item => item.donations),
-                backgroundColor: '#27ae60'
-            }, {
-                label: 'Expenses',
-                data: adminData.map(item => item.expenses),
-                backgroundColor: '#e74c3c'
-            }, {
-                label: 'Dues',
-                data: adminData.map(item => item.dues),
-                backgroundColor: '#2ecc71' // Light Green
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function (value) {
-                            return '₹' + value.toLocaleString();
-                        }
+    // Admin Dashboard Logic
+    const safeParse = (data, fallback = []) => {
+        if (!data) return fallback;
+        try {
+            return typeof data === 'string' ? JSON.parse(data) : data;
+        } catch (e) {
+            console.error("Error parsing dashboard data:", e);
+            return fallback;
+        }
+    };
+
+    const adminData = safeParse({{ monthly_trends|default:"[]"|safe }});
+    const revenueData = safeParse({{ revenue_sources|default:"[]"|safe }});
+    const expenseData = safeParse({{ expenses_by_category|default:"[]"|safe }});
+
+    if (adminData.length > 0) {
+        // Financial Trends Chart
+        const adminCtx = document.getElementById('adminChart').getContext('2d');
+        new Chart(adminCtx, {
+            type: 'line',
+            data: {
+                labels: adminData.map(item => item.month),
+                datasets: [{
+                    label: 'Income (Donations + Dues)',
+                    data: adminData.map(item => (item.donations || 0) + (item.dues || 0)),
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Expenses',
+                    data: adminData.map(item => item.expenses || 0),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.05)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: value => '₹' + value.toLocaleString() }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
-    // Revenue Sources Chart
-    const revenueCtx = document.getElementById('revenueSourcesChart').getContext('2d');
-    const donationTypes = {{ donations_by_type| safe }};
-    const paymentMethods = {{ payments_by_method| safe }};
-
-    // Combine data for display
-    const revenueLabels = [...donationTypes.map(d => 'Donation: ' + d.type), ...paymentMethods.map(p => 'Payment: ' + p.method)];
-    const revenueValues = [...donationTypes.map(d => d.total), ...paymentMethods.map(p => p.total)];
-    // Colors removed here, defined directly in dataset
-
-    new Chart(revenueCtx, {
-        type: 'pie',
-        data: {
-            labels: revenueLabels,
-            datasets: [{
-                data: revenueValues,
-                backgroundColor: [
-                    ...donationTypes.map((_, i) => `hsl(${140 + i * 15}, 70%, 50%)`), // Varied Greens
-                    ...paymentMethods.map((_, i) => `hsl(${160 + i * 15}, 60%, 45%)`)  // Blue-Greens
-                ],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+    if (adminData.length > 0) {
+        // Member Growth Chart
+        const memberCtx = document.getElementById('memberGrowthChart').getContext('2d');
+        new Chart(memberCtx, {
+            type: 'line',
+            data: {
+                labels: adminData.map(item => item.month),
+                datasets: [{
+                    label: 'Total Members',
+                    data: adminData.map(item => item.members || 0),
+                    borderColor: '#2980b9',
+                    backgroundColor: 'rgba(41, 128, 185, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: false } }
             }
-        }
-    });
+        });
+    }
 
-    // Expense Breakdown Chart
-    const expenseCtx = document.getElementById('expensesChart').getContext('2d');
-    const expenseData = {{ expenses_by_category| safe }};
-    new Chart(expenseCtx, {
-        type: 'doughnut',
-        data: {
-            labels: expenseData.map(item => item.category__name),
-            datasets: [{
-                data: expenseData.map(item => item.total),
-                backgroundColor: [
-                    '#e74c3c', '#e67e22', '#f1c40f', '#9b59b6', '#34495e', '#95a5a6'
-                ],
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+    if (revenueData.length > 0) {
+        // Revenue Sources Chart
+        const revenueCtx = document.getElementById('revenueSourcesChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'pie',
+            data: {
+                labels: revenueData.map(d => d.label),
+                datasets: [{
+                    data: revenueData.map(d => d.total),
+                    backgroundColor: revenueData.map((_, i) => `hsl(${140 + i * 20}, 70%, 50%)`),
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                }
             }
-        }
-    });
+        });
+    }
+
+    if (expenseData.length > 0) {
+        // Expense Breakdown Chart
+        const expenseCtx = document.getElementById('expensesChart').getContext('2d');
+        new Chart(expenseCtx, {
+            type: 'doughnut',
+            data: {
+                labels: expenseData.map(item => item.category__name),
+                datasets: [{
+                    data: expenseData.map(item => item.total),
+                    backgroundColor: ['#e74c3c', '#e67e22', '#f1c40f', '#9b59b6', '#34495e', '#95a5a6'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                }
+            }
+        });
+    }
     {% endif %}
 </script>
 {% endblock %}

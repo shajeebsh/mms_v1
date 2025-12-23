@@ -63,36 +63,49 @@ class MemberAdmin(ModelAdmin):
     panels = [
         MultiFieldPanel([
             FieldRowPanel([
-                FieldPanel("first_name", classname="col6"),
-                FieldPanel("last_name", classname="col6"),
+                FieldPanel("first_name", classname="col4"),
+                FieldPanel("last_name", classname="col4"),
+                FieldPanel("date_of_birth", classname="col4"),
             ]),
             FieldRowPanel([
-                FieldPanel("date_of_birth", classname="col6"),
-                FieldPanel("gender", classname="col6"),
+                FieldPanel("gender", classname="col4"),
+                FieldPanel("blood_group", classname="col4"),
+                FieldPanel("marital_status", classname="col4"),
             ]),
             FieldRowPanel([
-                FieldPanel("family", classname="col6"),
-                FieldPanel("is_head_of_family", classname="col6"),
+                FieldPanel("family", classname="col4"),
+                FieldPanel("is_head_of_family", classname="col4"),
+                FieldPanel("is_active", classname="col4"),
             ]),
-            FieldPanel("marital_status"),
         ], heading="Personal Information"),
         
         MultiFieldPanel([
-            FieldPanel("aadhaar_no"),
             FieldRowPanel([
-                FieldPanel("phone", classname="col6"),
-                FieldPanel("whatsapp_number", classname="col6"),
+                FieldPanel("phone", classname="col4"),
+                FieldPanel("whatsapp_number", classname="col4"),
+                FieldPanel("email", classname="col4"),
             ]),
-            FieldPanel("email"),
+            FieldRowPanel([
+                FieldPanel("aadhaar_no", classname="col4"),
+                FieldPanel("photo", classname="col8"),
+            ]),
         ], heading="Contact & Identification"),
         
         MultiFieldPanel([
-            FieldPanel("address"),
-            FieldPanel("postal_code"),
+            FieldRowPanel([
+                FieldPanel("ward_no", classname="col4"),
+                FieldPanel("address", classname="col8"),
+            ]),
+            FieldRowPanel([
+                FieldPanel("taluk", classname="col4"),
+                FieldPanel("city", classname="col4"),
+                FieldPanel("postal_code", classname="col4"),
+            ]),
+            FieldRowPanel([
+                FieldPanel("state", classname="col6"),
+                FieldPanel("country", classname="col6"),
+            ]),
         ], heading="Location Information"),
-        
-        FieldPanel("photo"),
-        FieldPanel("is_active"),
     ]
 
     def print_card_link(self, obj):
