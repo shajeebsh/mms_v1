@@ -145,20 +145,7 @@ modeladmin_register(TrusteeMeetingAttendeeAdmin)
 modeladmin_register(TrusteeMeetingAttachmentAdmin)
 
 
-class CommitteeMenuItem(MenuItem):
-    def is_shown(self, request):
-        user = request.user
-        # Only show to superusers or users in the 'committee' group
-        return user.is_superuser or user.groups.filter(name='committee').exists()
 
-@hooks.register('register_admin_menu_item')
-def register_committee_menu():
-    return CommitteeMenuItem(
-        _('Committee & Minutes'),
-        reverse('wagtailadmin_home'),
-        icon_name='group',
-        order=1100
-    )
 
 
 @hooks.register('register_admin_search_area')

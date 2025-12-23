@@ -322,18 +322,26 @@ def register_administration_menu():
             from home.models import AccessControlSettings
             from wagtail.models import Site
             
+            settings = None
             try:
                 site = Site.find_for_request(request)
                 if site:
                     settings = AccessControlSettings.for_site(site)
-                else:
-                    settings = AccessControlSettings.objects.first()
             except Exception:
-                # Fallback if site framework issues
-                settings = AccessControlSettings.objects.first()
-
+                pass
+            
             if not settings:
-                # If no settings exist, fallback to group check (legacy behavior)
+                # Try getting the first site or any settings object
+                try:
+                    settings = AccessControlSettings.objects.first()
+                except Exception:
+                    pass
+
+            # If still no settings, we can either default to ALLOWING nothing or defaulting to legacy groups.
+            # Given the user wants ACL Control, defaulting to legacy groups as fallback seems reasonable 
+            # OR finding a way to force-create settings? 
+            # For now, if no settings exist at all, we fall back to groups.
+            if not settings:
                 if not self.required_groups:
                     return True
                 return user.groups.filter(name__in=self.required_groups).exists()
@@ -348,7 +356,6 @@ def register_administration_menu():
                 allowed_modules = settings.staff_modules or []
             
             # Check if this menu item's module is allowed
-            # We use the first required group as the module identifier (e.g., 'membership')
             if self.required_groups:
                 module_name = self.required_groups[0]
                 if module_name in allowed_modules:

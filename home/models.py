@@ -240,8 +240,27 @@ class AccessControlSettings(BaseSiteSetting):
     )
 
     panels = [
-        FieldPanel("admin_modules", widget=forms.CheckboxSelectMultiple(choices=MODULE_CHOICES)),
-        FieldPanel("executive_modules", widget=forms.CheckboxSelectMultiple(choices=MODULE_CHOICES)),
-        FieldPanel("staff_modules", widget=forms.CheckboxSelectMultiple(choices=MODULE_CHOICES)),
+        FieldPanel("admin_modules"),
+        FieldPanel("executive_modules"),
+        FieldPanel("staff_modules"),
     ]
+
+    class AccessControlSettingsForm(forms.ModelForm):
+        admin_modules = forms.MultipleChoiceField(
+            choices=MODULE_CHOICES,
+            widget=forms.CheckboxSelectMultiple,
+            required=False
+        )
+        executive_modules = forms.MultipleChoiceField(
+            choices=MODULE_CHOICES,
+            widget=forms.CheckboxSelectMultiple,
+            required=False
+        )
+        staff_modules = forms.MultipleChoiceField(
+            choices=MODULE_CHOICES,
+            widget=forms.CheckboxSelectMultiple,
+            required=False
+        )
+
+    base_form_class = AccessControlSettingsForm
 

@@ -122,20 +122,7 @@ modeladmin_register(StaffSalaryAdmin)
 modeladmin_register(PayrollAdmin)
 
 
-class HRMenuItem(MenuItem):
-    def is_shown(self, request):
-        user = request.user
-        # Only show to superusers or users in the 'hr' group
-        return user.is_superuser or user.groups.filter(name='hr').exists()
 
-@hooks.register('register_admin_menu_item')
-def register_hr_menu():
-    return HRMenuItem(
-        _('HR & Payroll'),
-        reverse('wagtailadmin_home'),
-        icon_name='user',
-        order=1000
-    )
 
 
 @hooks.register('register_admin_search_area')
