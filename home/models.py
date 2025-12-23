@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum
@@ -204,4 +205,62 @@ class SystemSettings(BaseSiteSetting):
             # If settings don't exist or any error, default to enabled
             return True
         return True
+
+
+MODULE_CHOICES = [
+    ("membership", "Membership Management"),
+    ("finance", "Finance & Donations"),
+    ("education", "Education & Classes"),
+    ("assets", "Assets & Properties"),
+    ("operations", "Operations & Facilities"),
+    ("hr", "HR & Payroll"),
+    ("committee", "Committee & Minutes"),
+]
+
+
+@register_setting
+class AccessControlSettings(BaseSiteSetting):
+    admin_modules = models.JSONField(
+        default=list,
+        help_text="Modules accessible to Administrators (in addition to CMS)",
+        blank=True,
+        null=True
+    )
+    executive_modules = models.JSONField(
+        default=list,
+        help_text="Modules accessible to Executive Board Members",
+        blank=True,
+        null=True
+    )
+    staff_modules = models.JSONField(
+        default=list,
+        help_text="Modules accessible to Staff Members",
+        blank=True,
+        null=True
+    )
+
+    panels = [
+        FieldPanel("admin_modules"),
+        FieldPanel("executive_modules"),
+        FieldPanel("staff_modules"),
+    ]
+
+    class AccessControlSettingsForm(forms.ModelForm):
+        admin_modules = forms.MultipleChoiceField(
+            choices=MODULE_CHOICES,
+            widget=forms.CheckboxSelectMultiple,
+            required=False
+        )
+        executive_modules = forms.MultipleChoiceField(
+            choices=MODULE_CHOICES,
+            widget=forms.CheckboxSelectMultiple,
+            required=False
+        )
+        staff_modules = forms.MultipleChoiceField(
+            choices=MODULE_CHOICES,
+            widget=forms.CheckboxSelectMultiple,
+            required=False
+        )
+
+    base_form_class = AccessControlSettingsForm
 

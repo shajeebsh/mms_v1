@@ -4,8 +4,11 @@ from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 from .models import AuditoriumBooking, PrayerTime, DigitalSignageContent
 
 
+from home.permission_helpers import ACLPermissionHelper
+
 class AuditoriumBookingAdmin(ModelAdmin):
     model = AuditoriumBooking
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Auditorium Bookings'
     menu_icon = 'date'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -31,6 +34,7 @@ class AuditoriumBookingAdmin(ModelAdmin):
 
 class PrayerTimeAdmin(ModelAdmin):
     model = PrayerTime
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Prayer Times'
     menu_icon = 'time'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -48,6 +52,7 @@ class PrayerTimeAdmin(ModelAdmin):
 
 class DigitalSignageContentAdmin(ModelAdmin):
     model = DigitalSignageContent
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Digital Signage'
     menu_icon = 'media'
     add_to_admin_menu = False  # Will be included in grouped menu

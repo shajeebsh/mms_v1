@@ -4,8 +4,11 @@ from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 from .models import Shop, PropertyUnit
 
 
+from home.permission_helpers import ACLPermissionHelper
+
 class ShopAdmin(ModelAdmin):
     model = Shop
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Shops'
     menu_icon = 'shop'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -27,6 +30,7 @@ class ShopAdmin(ModelAdmin):
 
 class PropertyUnitAdmin(ModelAdmin):
     model = PropertyUnit
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Property Units'
     menu_icon = 'home'
     add_to_admin_menu = False  # Will be included in grouped menu

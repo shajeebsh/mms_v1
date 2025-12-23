@@ -307,9 +307,61 @@ def register_administration_menu():
             user = request.user
             if user.is_superuser:
                 return True
-            if not self.required_groups:
-                 return True
-            return user.groups.filter(name__in=self.required_groups).exists()
+                
+            # Determine user type
+            try:
+                # Handle case where user might not have a profile
+                if hasattr(user, 'profile'):
+                    user_type = user.profile.user_type
+                else:
+                    user_type = "staff"
+            except Exception:
+                user_type = "staff"
+
+            # Get Access Control Settings
+            from home.models import AccessControlSettings
+            from wagtail.models import Site
+            
+            settings = None
+            try:
+                site = Site.find_for_request(request)
+                if site:
+                    settings = AccessControlSettings.for_site(site)
+            except Exception:
+                pass
+            
+            if not settings:
+                # Try getting the first site or any settings object
+                try:
+                    settings = AccessControlSettings.objects.first()
+                except Exception:
+                    pass
+
+            # If still no settings, we can either default to ALLOWING nothing or defaulting to legacy groups.
+            # Given the user wants ACL Control, defaulting to legacy groups as fallback seems reasonable 
+            # OR finding a way to force-create settings? 
+            # For now, if no settings exist at all, we fall back to groups.
+            if not settings:
+                if not self.required_groups:
+                    return True
+                return user.groups.filter(name__in=self.required_groups).exists()
+
+            # Determine allowed modules for this user type
+            allowed_modules = []
+            if user_type == "admin":
+                allowed_modules = settings.admin_modules or []
+            elif user_type == "executive":
+                allowed_modules = settings.executive_modules or []
+            else: # staff
+                allowed_modules = settings.staff_modules or []
+            
+            # Check if this menu item's module is allowed
+            if self.required_groups:
+                module_name = self.required_groups[0]
+                if module_name in allowed_modules:
+                    return True
+            
+            return False
 
     menu_items = []
     order = 1

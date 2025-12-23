@@ -10,8 +10,11 @@ from .models import (
 )
 
 
+from home.permission_helpers import ACLPermissionHelper
+
 class StaffPositionAdmin(ModelAdmin):
     model = StaffPosition
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Staff Positions'
     menu_icon = 'user'
     add_to_admin_menu = False
@@ -23,6 +26,7 @@ class StaffPositionAdmin(ModelAdmin):
 
 class StaffMemberAdmin(ModelAdmin):
     model = StaffMember
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Staff Directory'
     menu_icon = 'group'
     add_to_admin_menu = False
@@ -35,6 +39,7 @@ class StaffMemberAdmin(ModelAdmin):
 
 class AttendanceAdmin(ModelAdmin):
     model = Attendance
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Attendance Records'
     menu_icon = 'date'
     add_to_admin_menu = False
@@ -47,6 +52,7 @@ class AttendanceAdmin(ModelAdmin):
 
 class LeaveTypeAdmin(ModelAdmin):
     model = LeaveType
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Leave Types'
     menu_icon = 'time'
     add_to_admin_menu = False
@@ -57,6 +63,7 @@ class LeaveTypeAdmin(ModelAdmin):
 
 class LeaveRequestAdmin(ModelAdmin):
     model = LeaveRequest
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Leave Requests'
     menu_icon = 'doc-full'
     add_to_admin_menu = False
@@ -69,6 +76,7 @@ class LeaveRequestAdmin(ModelAdmin):
 
 class SalaryComponentAdmin(ModelAdmin):
     model = SalaryComponent
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Salary Components'
     menu_icon = 'cog'
     add_to_admin_menu = False
@@ -79,6 +87,7 @@ class SalaryComponentAdmin(ModelAdmin):
 
 class StaffSalaryAdmin(ModelAdmin):
     model = StaffSalary
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Staff Salaries'
     menu_icon = 'money'
     add_to_admin_menu = False
@@ -91,6 +100,7 @@ class StaffSalaryAdmin(ModelAdmin):
 
 class PayrollAdmin(ModelAdmin):
     model = Payroll
+    permission_helper_class = ACLPermissionHelper
     menu_label = 'Payroll Records'
     menu_icon = 'download'
     add_to_admin_menu = False
@@ -112,20 +122,7 @@ modeladmin_register(StaffSalaryAdmin)
 modeladmin_register(PayrollAdmin)
 
 
-class HRMenuItem(MenuItem):
-    def is_shown(self, request):
-        user = request.user
-        # Only show to superusers or users in the 'hr' group
-        return user.is_superuser or user.groups.filter(name='hr').exists()
 
-@hooks.register('register_admin_menu_item')
-def register_hr_menu():
-    return HRMenuItem(
-        _('HR & Payroll'),
-        reverse('wagtailadmin_home'),
-        icon_name='user',
-        order=1000
-    )
 
 
 @hooks.register('register_admin_search_area')
