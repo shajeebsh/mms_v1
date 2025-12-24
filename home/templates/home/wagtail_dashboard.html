@@ -465,110 +465,117 @@
 
 {% block extra_js %}
 {{ block.super }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Live data updates
-    function updateLiveData() {
-        fetch('{% url "home:live_data_feed" %}?type={% if user_type == "executive" %}financial{% else %}summary{% endif %}')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('last-updated').textContent = new Date().toLocaleString();
-                // Update KPIs if needed
-                console.log('Live data updated:', data);
-            })
-            .catch(error => console.error('Error fetching live data:', error));
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Dashboard DOM fully loaded. User type: {{ user_type }}");
 
-    // Update live data every 30 seconds
-    setInterval(updateLiveData, 30000);
+        // Live data updates
+        function updateLiveData() {
+            fetch('{% url "home:live_data_feed" %}?type={% if user_type == "executive" %}financial{% else %}summary{% endif %}')
+                .then(response => response.json())
+                .then(data => {
+                    const lastUpdated = document.getElementById('last-updated');
+                    if (lastUpdated) lastUpdated.textContent = new Date().toLocaleString();
+                    console.log('Live data updated:', data);
+                })
+                .catch(error => console.error('Error fetching live data:', error));
+        }
 
-    // Initialize charts
-    {% if user_type == 'executive' %}
-    // Income Trends Chart
-    const incomeCtx = document.getElementById('incomeChart').getContext('2d');
-    const incomeData = {{ monthly_income_trends| safe }};
-    new Chart(incomeCtx, {
-        type: 'line',
-        data: {
-            labels: incomeData.map(item => item.month),
-            datasets: [{
-                label: 'Income',
-                data: incomeData.map(item => item.income),
-                borderColor: '#27ae60', // Green
-                backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                tension: 0.4
-            }, {
-                label: 'Target',
-                data: incomeData.map(item => item.target),
-                borderColor: '#e74c3c',
-                backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                borderDash: [5, 5],
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
+        // Update live data every 30 seconds
+        setInterval(updateLiveData, 30000);
+
+        const safeParse = (data, fallback = []) => {
+            if (!data) return fallback;
+            try {
+                return typeof data === 'string' ? JSON.parse(data) : data;
+            } catch (e) {
+                console.error("Error parsing dashboard data:", e);
+                return fallback;
+            }
+        };
+
+        const initChart = (canvasId, config) => {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.warn(`Canvas element #${canvasId} not found.`);
+                return;
+            }
+            try {
+                new Chart(canvas.getContext('2d'), config);
+                console.log(`Successfully initialized chart: ${canvasId}`);
+            } catch (e) {
+                console.error(`Error initializing chart ${canvasId}:`, e);
+            }
+        };
+
+        {% if user_type == 'executive' %}
+        const incomeData = safeParse({{ monthly_income_trends|default:"[]"|safe }});
+    if (incomeData.length > 0) {
+        initChart('incomeChart', {
+            type: 'line',
+            data: {
+                labels: incomeData.map(item => item.month),
+                datasets: [{
+                    label: 'Income',
+                    data: incomeData.map(item => item.income),
+                    borderColor: '#27ae60',
+                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Target',
+                    data: incomeData.map(item => item.target),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderDash: [5, 5],
+                    tension: 0.4
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function (value) {
-                            return '₹' + value.toLocaleString();
-                        }
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: value => '₹' + value.toLocaleString() }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
-    // Dues Achievement Chart
-    const duesCtx = document.getElementById('duesChart').getContext('2d');
-    new Chart(duesCtx, {
+    const currentDues = parseFloat('{{ current_month_dues|default:0 }}');
+    const remDues = parseFloat('{{ remaining_dues|default:0 }}');
+    initChart('duesChart', {
         type: 'doughnut',
         data: {
             labels: ['Collected', 'Remaining'],
             datasets: [{
-                data: [{{ current_month_dues }}, {{ remaining_dues }}],
-        backgroundColor: ['#27ae60', '#f1f8e9'], /* Green and very light green */
-        borderWidth: 0
-    }]
-            },
+                data: [currentDues, remDues],
+                backgroundColor: ['#27ae60', '#f1f8e9'],
+                borderWidth: 0
+            }]
+        },
         options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom',
-            }
+            responsive: true,
+            plugins: { legend: { position: 'bottom' } }
         }
-    }
-        });
+    });
 
     {% elif user_type == 'admin' %}
-    // Admin Dashboard Logic
-    const safeParse = (data, fallback = []) => {
-        if (!data) return fallback;
-        try {
-            return typeof data === 'string' ? JSON.parse(data) : data;
-        } catch (e) {
-            console.error("Error parsing dashboard data:", e);
-            return fallback;
-        }
-    };
-
     const adminData = safeParse({{ monthly_trends|default:"[]"|safe }});
     const revenueData = safeParse({{ revenue_sources|default:"[]"|safe }});
     const expenseData = safeParse({{ expenses_by_category|default:"[]"|safe }});
 
+    console.log("Admin Dashboard Data Lengths:", {
+        trends: adminData.length,
+        revenue: revenueData.length,
+        expenses: expenseData.length
+    });
+
     if (adminData.length > 0) {
-        // Financial Trends Chart
-        const adminCtx = document.getElementById('adminChart').getContext('2d');
-        new Chart(adminCtx, {
+        initChart('adminChart', {
             type: 'line',
             data: {
                 labels: adminData.map(item => item.month),
@@ -599,12 +606,8 @@
                 }
             }
         });
-    }
 
-    if (adminData.length > 0) {
-        // Member Growth Chart
-        const memberCtx = document.getElementById('memberGrowthChart').getContext('2d');
-        new Chart(memberCtx, {
+        initChart('memberGrowthChart', {
             type: 'line',
             data: {
                 labels: adminData.map(item => item.month),
@@ -626,9 +629,7 @@
     }
 
     if (revenueData.length > 0) {
-        // Revenue Sources Chart
-        const revenueCtx = document.getElementById('revenueSourcesChart').getContext('2d');
-        new Chart(revenueCtx, {
+        initChart('revenueSourcesChart', {
             type: 'pie',
             data: {
                 labels: revenueData.map(d => d.label),
@@ -647,9 +648,7 @@
     }
 
     if (expenseData.length > 0) {
-        // Expense Breakdown Chart
-        const expenseCtx = document.getElementById('expensesChart').getContext('2d');
-        new Chart(expenseCtx, {
+        initChart('expensesChart', {
             type: 'doughnut',
             data: {
                 labels: expenseData.map(item => item.category__name),
@@ -667,5 +666,6 @@
         });
     }
     {% endif %}
+    });
 </script>
 {% endblock %}
