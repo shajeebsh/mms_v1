@@ -182,15 +182,15 @@ def get_admin_dashboard_data():
         donations = Donation.objects.filter(date__range=[month_start, month_end]).aggregate(total=Sum('amount'))['total'] or 0
         expenses = Expense.objects.filter(date__range=[month_start, month_end]).aggregate(total=Sum('amount'))['total'] or 0
         dues = Payment.objects.filter(payment_date__range=[month_start, month_end]).aggregate(total=Sum('amount'))['total'] or 0
+        member_count = Member.objects.filter(created_at__lte=month_end, is_active=True).count()
 
         monthly_data.append({
             'month': month_date.strftime('%b %Y'),
             'donations': float(donations),
             'expenses': float(expenses),
             'dues': float(dues),
+            'members': member_count,
         })
-
-    data['monthly_trends'] = monthly_data
 
     # Recent activities
     data['recent_donations'] = Donation.objects.select_related('member', 'category').order_by('-date')[:5]
@@ -201,31 +201,39 @@ def get_admin_dashboard_data():
     ).order_by('booking_date')[:5]
 
     # Chart Data: Expenses by Category
-    expenses_by_category = Expense.objects.select_related('category').values('category__name').annotate(
+    expenses_by_category_raw = Expense.objects.select_related('category').values('category__name').annotate(
         total=Sum('amount')
     ).order_by('-total')
-    data['expenses_by_category'] = list(expenses_by_category)
+    expenses_by_category = [
+        {'category__name': e['category__name'], 'total': float(e['total'] or 0)} 
+        for e in expenses_by_category_raw
+    ]
+    data['expenses_by_category'] = json.dumps(expenses_by_category)
 
     # Chart Data: Revenue Sources
     donations_by_type = Donation.objects.values('donation_type').annotate(
         total=Sum('amount')
     ).order_by('-total')
-    # Map display names for donation types
+    # Map display names
     donation_type_display = dict(Donation.DONATION_TYPES)
-    data['donations_by_type'] = [
-        {'type': donation_type_display.get(d['donation_type'], d['donation_type']), 'total': float(d['total'])}
+    payment_method_display = dict(Payment.PAYMENT_METHOD_CHOICES)
+
+    revenue_sources = [
+        {'label': donation_type_display.get(d['donation_type'], d['donation_type']), 'total': float(d['total'])}
         for d in donations_by_type
     ]
-
+    
     payments_by_method = Payment.objects.values('payment_method').annotate(
         total=Sum('amount')
     ).order_by('-total')
-    # Map display names for payment methods
-    payment_method_display = dict(Payment.PAYMENT_METHOD_CHOICES)
-    data['payments_by_method'] = [
-        {'method': payment_method_display.get(p['payment_method'], p['payment_method']), 'total': float(p['total'])}
+    
+    revenue_sources.extend([
+        {'label': f"Payment: {payment_method_display.get(p['payment_method'], p['payment_method'])}", 'total': float(p['total'])}
         for p in payments_by_method
-    ]
+    ])
+
+    data['monthly_trends'] = json.dumps(monthly_data)
+    data['revenue_sources'] = json.dumps(revenue_sources)
 
     return data
 
@@ -285,7 +293,7 @@ def get_executive_dashboard_data():
             'target': monthly_dues_target,
         })
 
-    data['monthly_income_trends'] = monthly_income_data
+    data['monthly_income_trends'] = json.dumps(monthly_income_data)
 
     # Auditorium revenue (from bookings)
     auditorium_bookings = AuditoriumBooking.objects.filter(
@@ -599,9 +607,11 @@ def wagtail_dashboard_view(request):
     user_profile = getattr(request.user, 'profile', None)
     if not user_profile:
         # Create default profile for existing users
+        # Default superusers to admin, others to staff
+        u_type = 'admin' if request.user.is_superuser else 'staff'
         user_profile = UserProfile.objects.create(
             user=request.user,
-            user_type='staff'
+            user_type=u_type
         )
 
     user_type = user_profile.user_type

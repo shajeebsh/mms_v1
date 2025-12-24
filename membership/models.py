@@ -47,10 +47,24 @@ class Member(models.Model):
     ]
     marital_status = models.CharField(max_length=1, choices=MARITAL_STATUS_CHOICES, blank=True)
     
+    BLOOD_GROUP_CHOICES = [
+        ("A+", "A+"), ("A-", "A-"),
+        ("B+", "B+"), ("B-", "B-"),
+        ("AB+", "AB+"), ("AB-", "AB-"),
+        ("O+", "O+"), ("O-", "O-"),
+    ]
+    blood_group = models.CharField(max_length=5, choices=BLOOD_GROUP_CHOICES, blank=True, verbose_name="Blood Group")
+    
     aadhaar_no = models.CharField(max_length=12, blank=True, verbose_name="Aadhaar Card No")
     phone = models.CharField(max_length=20, blank=True)
     whatsapp_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
+    
+    ward_no = models.CharField(max_length=20, blank=True, verbose_name="Ward No")
+    taluk = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True, default="India")
     
     address = models.TextField(blank=True, help_text="Personal address if different from family")
     postal_code = models.CharField(max_length=10, blank=True)
