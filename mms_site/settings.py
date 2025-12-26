@@ -1,31 +1,36 @@
 import os
+import environ
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, ["127.0.0.1", "localhost"]),
+    CSRF_TRUSTED_ORIGINS=(list, []),
+)
+
+# Read environment variables from .env file if it exists
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
 # Quick-start development settings - unsuitable for production
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
-if not SECRET_KEY:
-    if os.environ.get("DJANGO_ENV") == "production":
-        raise ValueError("SECRET_KEY must be set in production environment")
-    SECRET_KEY = "replace-me-for-production-dev-only"
+SECRET_KEY = env("DJANGO_SECRET_KEY", default="replace-me-for-production-dev-only")
 
 # DEBUG should be False in production
-DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
+DEBUG = env("DEBUG")
 
-# ALLOWED_HOSTS - allow environment variable override
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
-ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()]
+# ALLOWED_HOSTS
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
-# Add this below your ALLOWED_HOSTS logic
-CSRF_TRUSTED_ORIGINS = [
-    "https://*.a.run.app",  # Trusts the default Google Cloud Run domain
-]
+# CSRF Trusted Origins for Cloud Run URL
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
 # Base URL for Wagtail admin (used in notification emails)
-WAGTAILADMIN_BASE_URL = os.environ.get("WAGTAILADMIN_BASE_URL", "http://127.0.0.1:8000")
+WAGTAILADMIN_BASE_URL = env("WAGTAILADMIN_BASE_URL", default="http://127.0.0.1:8000")
+
 # Site name for Wagtail admin
 WAGTAIL_SITE_NAME = "MMS Site"
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -60,7 +65,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # For static files
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -90,11 +95,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "mms_site.wsgi.application"
 
+# Database
+# Use DATABASE_URL environment variable (e.g. postgres://user:password@host:port/dbname)
+# Default to local sqlite for development
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -121,19 +126,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-# STATIC_ROOT = BASE_DIR / "static"
-# For Django 4.2 and newer
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+STATIC_ROOT = BASE_DIR / "static"
 
-# Ensure STATIC_ROOT is defined (this is where files are collected)
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Use WhiteNoise for efficient static file serving
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

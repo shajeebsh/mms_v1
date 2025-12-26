@@ -27,5 +27,4 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # Run the application using Gunicorn
-# Replace 'myproject' with the name of your folder containing wsgi.py
-CMD exec gunicorn myproject.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0
+CMD exec gunicorn mms_site.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0
