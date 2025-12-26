@@ -15,4 +15,6 @@ static/
 media/
 .DS_Store
 .vscode/
-*.log
+*.logstaticfiles/
+.env
+.python-version

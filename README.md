@@ -67,26 +67,53 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 4. Setup Database
-Initialize the SQLite database and apply migrations.
+### 4. Environment Configuration
+The project uses `django-environ` for configuration. Create a `.env` file in the project root:
+
 ```bash
-python manage.py migrate
+cp .env.example .env  # Or create it manually
 ```
 
-### 5. Create Admin User
-Create a superuser to access the admin panel.
+Update your [`.env`](file:///Users/shajeebs/PythonProjects/mms_v1/.env) with your local database credentials.
+
+### 5. Setup Database
+The system supports both PostgreSQL (local/production) and SQLite (fallback).
+
+**Local PostgreSQL (Recommended):**
+1. Ensure PostgreSQL is running.
+2. Create the database: `CREATE DATABASE mms_v1;`
+3. Update `DATABASE_URL` in `.env`:
+   ```bash
+   DATABASE_URL=postgres://postgres:Password1!@127.0.0.1:5432/mms_v1
+   ```
+4. Apply migrations:
+   ```bash
+   python manage.py migrate
+   ```
+
+**Seed Sample Data:**
 ```bash
-python manage.py createsuperuser
+python manage.py populate_sample_data
 ```
 
-### 6. Run the Server
+### 6. Create Admin User
+```bash
+# Superuser credentials are pre-configured if using sample data:
+# Username: admin / Password: adminpassword
+python manage.py createsuperuser  # To create a new one
+```
+
+### 7. Run the Server
 ```bash
 python manage.py runserver
 ```
 
+## Deployment & Production
+For detailed instructions on deploying to **Google Cloud Run** and **Cloud SQL**, refer to the [walkthrough.md](file:///Users/shajeebs/.gemini/antigravity/brain/e3b9ea35-d83b-484f-9530-3b975abbc9f7/walkthrough.md).
+
 ## Accessing the Application
 - **Website**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-- **Admin Panel**: [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin)
+- **Admin Panel**: [http://127.0.0.1:8000/cms/](http://127.0.0.1:8000/cms/)
 
 ## Running Tests
 
