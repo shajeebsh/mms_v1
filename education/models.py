@@ -58,7 +58,7 @@ class Class(models.Model):
 
     @property
     def current_enrollment(self):
-        return self.enrollments.filter(is_active=True).count()
+        return self.enrollments.filter(status='active').count()
 
     class Meta:
         verbose_name = 'Class'

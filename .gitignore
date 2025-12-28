@@ -11,10 +11,11 @@ env.bak/
 venv.bak/
 db.sqlite3
 db.sqlite3-journal
-static/
+db_test.sqlite3
+staticfiles/
 media/
 .DS_Store
 .vscode/
-*.logstaticfiles/
+*.log
 .env
 .python-version

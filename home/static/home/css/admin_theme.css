@@ -1,0 +1,189 @@
+/* Premium Wagtail Admin Theme */
+:root {
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --bg-glass: rgba(255, 255, 255, 0.7);
+    --border-glass: rgba(255, 255, 255, 0.3);
+    --accent-vibrant: #f43f5e;
+    --sidebar-bg: #1e1e2d;
+    --sidebar-item-active: rgba(99, 102, 241, 0.2);
+    --text-slate: #475569;
+}
+
+/* Global Reset & Typography */
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+/* Sidebar Styling */
+[data-wagtail-sidebar] {
+    --w-sidebar-bg: var(--sidebar-bg) !important;
+}
+
+.sidebar-menu-item--active {
+    background: var(--sidebar-item-active) !important;
+}
+
+/* Fix for ModelAdmin and Listings */
+.nice-padding {
+    padding: 3rem !important;
+    /* Generous padding for premium feel */
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.listing {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 24px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.02) !important;
+    overflow: hidden !important;
+    margin-top: 2rem !important;
+    padding: 0 !important;
+}
+
+/* Modern Listing Table */
+.listing table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+}
+
+.listing thead th {
+    background: #f8fafc !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    padding: 1.5rem !important;
+    font-weight: 700 !important;
+    color: var(--text-slate) !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.1em !important;
+}
+
+.listing tbody td {
+    padding: 1.5rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle !important;
+    font-size: 0.95rem !important;
+}
+
+.listing tbody tr:hover td {
+    background-color: #f8fafc !important;
+    cursor: pointer;
+}
+
+/* Action Buttons In Header */
+header .header-col,
+.modeladmin-container header {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 2rem 0 !important;
+}
+
+header h1 {
+    font-size: 2.5rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.05em !important;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 !important;
+}
+
+/* Premium Buttons Everywhere */
+.button,
+.button-longrunning,
+.w-button,
+.w-button--primary {
+    background: var(--primary-gradient) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    padding: 0.8rem 1.8rem !important;
+    font-weight: 800 !important;
+    font-size: 0.9rem !important;
+    color: white !important;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.25) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.button:hover,
+.w-button:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.35) !important;
+}
+
+/* Search and Filters */
+.search-form {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 10px 20px !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.search-form input {
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+/* Dashboard Specifics */
+.wagtail-dashboard__welcome {
+    background: var(--primary-gradient) !important;
+    color: white !important;
+    border-radius: 24px !important;
+    padding: 4rem !important;
+    margin-bottom: 3rem !important;
+    box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.3) !important;
+}
+
+.wagtail-dashboard__welcome h1 {
+    font-size: 3rem !important;
+    font-weight: 900 !important;
+    margin-bottom: 1rem !important;
+    color: white !important;
+    background: none !important;
+    -webkit-text-fill-color: white !important;
+}
+
+/* ModelAdmin Specific Overrides */
+.modeladmin .main-content {
+    background: transparent !important;
+}
+
+.modeladmin .result-list {
+    background: white !important;
+    border-radius: 20px !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    overflow: hidden !important;
+    margin-bottom: 2rem !important;
+}
+
+.modeladmin .changelist-filter {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    margin-right: 1.5rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.modeladmin .changelist-filter h2 {
+    font-size: 0.9rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: #475569 !important;
+    margin-bottom: 1.25rem !important;
+    border-bottom: 2px solid #f1f5f9 !important;
+    padding-bottom: 0.5rem !important;
+}
+
+/* Accents */
+.w-status--live {
+    background: #10b981 !important;
+    border-radius: 8px !important;
+}

@@ -104,6 +104,30 @@ def register_administration_menu():
                 icon_name="warning",
                 order=6,
             ),
+            MenuItem(
+                label="📂 Chart of Accounts",
+                url=get_modeladmin_url("accounting", "account"),
+                icon_name="list-ul",
+                order=7,
+            ),
+            MenuItem(
+                label="📈 Ledger Transactions",
+                url=get_modeladmin_url("accounting", "transaction"),
+                icon_name="transfer",
+                order=8,
+            ),
+            MenuItem(
+                label="🧾 Invoices",
+                url=get_modeladmin_url("billing", "invoice"),
+                icon_name="doc-full",
+                order=9,
+            ),
+            MenuItem(
+                label="💳 Billing Payments",
+                url=get_modeladmin_url("billing", "billingpayment"),
+                icon_name="pick",
+                order=10,
+            ),
         ]
     )
 
@@ -381,7 +405,7 @@ def register_administration_menu():
     if SystemSettings.is_module_enabled("finance"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
-                label="💰 Finance", 
+                label="💰 FINANCE & ACCOUNTS", 
                 menu=finance_menu, 
                 icon_name="money", 
                 order=order,
