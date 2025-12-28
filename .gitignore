@@ -13,6 +13,7 @@ db.sqlite3
 db.sqlite3-journal
 db_test.sqlite3
 staticfiles/
+static/
 media/
 .DS_Store
 .vscode/
