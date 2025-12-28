@@ -1,6 +1,8 @@
 from wagtail import hooks
 from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
 from django.urls import reverse
+from django.utils.html import format_html
+from django.templatetags.static import static
 
 @hooks.register("construct_main_menu")
 def customize_main_menu(request, menu_items):
@@ -150,3 +152,11 @@ def register_dashboard_url():
     return [
         path('', views.wagtail_dashboard_view, name='wagtailadmin_home'),
     ]
+
+@hooks.register('insert_global_admin_css')
+def global_admin_css():
+    return format_html('<link rel="stylesheet" href="{}?v=3">', static('home/css/admin_theme.css'))
+
+@hooks.register('insert_global_admin_js')
+def global_admin_js():
+    return format_html('<script>console.log("MMS Premium Theme Loaded");</script>')

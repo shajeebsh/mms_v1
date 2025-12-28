@@ -65,14 +65,12 @@ extra_actions=extra_actions extra_rows=extra_rows %}
                     {% for type in required_parent_types %}<li><b>{{ type|title }}</b></li>{% endfor %}
                 </ul>
                 {% else %}
-                <p>
-                    {% blocktrans trimmed with view.verbose_name_plural as name %}No {{ name }} have been created yet.{%
-                    endblocktrans %}
-                    {% if user_can_create %}
-                    {% blocktrans trimmed with view.create_url as url %}Why not <a href="{{ url }}">add one</a>?{%
-                    endblocktrans %}
-                    {% endif %}
-                </p>
+                <p>{% blocktrans trimmed with view.verbose_name_plural as name %}No {{ name }} have been created yet.{%
+                    endblocktrans %}</p>
+                {% if user_can_create %}
+                <p>{% blocktrans trimmed with view.create_url as url %}Why not <a href="{{ url }}">add one</a>?{%
+                    endblocktrans %}</p>
+                {% endif %}
                 {% endif %}
             </div>
             {% else %}

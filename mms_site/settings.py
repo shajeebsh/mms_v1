@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     "operations",
     "hr",
     "committee",
+    "accounting",
+    "billing",
 ]
 
 MIDDLEWARE = [
@@ -126,10 +128,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Use WhiteNoise for efficient static file serving
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Use a simple staticfiles storage locally (WhiteNoise in production)
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -138,3 +140,10 @@ LOGIN_URL = "/cms/login/"
 LOGIN_REDIRECT_URL = "/cms/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# django-tasks configuration to avoid hangs with Wagtail signal handlers
+DJANGO_TASKS = {
+    "default": {
+        "BACKEND": "django_tasks.backends.dummy.DummyBackend",
+    }
+}
