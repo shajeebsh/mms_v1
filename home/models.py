@@ -176,6 +176,14 @@ class SystemSettings(BaseSiteSetting):
         default=True,
         help_text="Enable Committee & Minutes module",
     )
+    module_accounting_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Accounting & Ledger module",
+    )
+    module_billing_enabled = models.BooleanField(
+        default=True,
+        help_text="Enable Billing & Invoices module",
+    )
 
     panels = [
         FieldPanel("monthly_membership_dues"),
@@ -186,6 +194,8 @@ class SystemSettings(BaseSiteSetting):
         FieldPanel("module_operations_enabled"),
         FieldPanel("module_hr_enabled"),
         FieldPanel("module_committee_enabled"),
+        FieldPanel("module_accounting_enabled"),
+        FieldPanel("module_billing_enabled"),
     ]
 
     @classmethod
@@ -215,6 +225,8 @@ MODULE_CHOICES = [
     ("operations", "Operations & Facilities"),
     ("hr", "HR & Payroll"),
     ("committee", "Committee & Minutes"),
+    ("accounting", "Accounting & Ledger"),
+    ("billing", "Billing & Invoices"),
 ]
 
 
