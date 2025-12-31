@@ -1,4 +1,7 @@
 import random
+from accounting.models import Account, AccountCategory, Transaction, JournalEntry
+from billing.models import Invoice, InvoiceLineItem, BillingPayment
+from wagtail.signal_handlers import disable_reference_index_auto_update
 from datetime import date, time, timedelta
 from decimal import Decimal
 
@@ -24,18 +27,21 @@ class Command(BaseCommand):
     help = 'Populate database with sample data for all MMS modules'
 
     def handle(self, *args, **options):
-        self.stdout.write('Starting sample data population...')
+        with disable_reference_index_auto_update():
+            self.stdout.write('Starting sample data population...')
 
-        # Create sample data for each module
-        self.create_membership_data()
-        self.create_assets_data()
-        self.create_education_data()
-        self.create_finance_data()
-        self.create_operations_data()
-        self.create_hr_data()
-        self.create_committee_data()
+            # Create sample data for each module
+            self.create_membership_data()
+            self.create_assets_data()
+            self.create_education_data()
+            self.create_finance_data()
+            self.create_operations_data()
+            self.create_hr_data()
+            self.create_committee_data()
+            self.create_accounting_data()
+            self.create_billing_data()
 
-        self.stdout.write(self.style.SUCCESS('Sample data population completed!'))
+            self.stdout.write(self.style.SUCCESS('Sample data population completed!'))
 
 
     def create_membership_data(self):
@@ -591,3 +597,93 @@ class Command(BaseCommand):
                             member=cm.member,
                             defaults={'attended': False}
                         )
+    def create_accounting_data(self):
+        self.stdout.write('Creating accounting sample data...')
+        
+        # 1. Categories
+        assets, _ = AccountCategory.objects.get_or_create(name='Assets', category_type='asset')
+        liabi, _ = AccountCategory.objects.get_or_create(name='Liabilities', category_type='liability')
+        equity, _ = AccountCategory.objects.get_or_create(name='Equity', category_type='equity')
+        revenue, _ = AccountCategory.objects.get_or_create(name='Revenue', category_type='revenue')
+        expense, _ = AccountCategory.objects.get_or_create(name='Expenses', category_type='expense')
+
+        # 2. Accounts
+        accounts_data = [
+            {'code': '1001', 'name': 'Main Cash', 'category': assets},
+            {'code': '1002', 'name': 'Bank Account', 'category': assets},
+            {'code': '4001', 'name': 'Donations Revenue', 'category': revenue},
+            {'code': '4002', 'name': 'Membership Dues Revenue', 'category': revenue},
+            {'code': '4003', 'name': 'Asset Rental Revenue', 'category': revenue},
+            {'code': '5001', 'name': 'General Expenses', 'category': expense},
+            {'code': '5002', 'name': 'Utility Expenses', 'category': expense},
+            {'code': '5003', 'name': 'Salary Expenses', 'category': expense},
+        ]
+
+        accounts = {}
+        for acc_data in accounts_data:
+            acc, created = Account.objects.get_or_create(code=acc_data['code'], defaults=acc_data)
+            accounts[acc_data['code']] = acc
+            if created:
+                self.stdout.write(f"Created account: {acc}")
+
+        # 3. Some sample transactions
+        tx1 = Transaction.objects.create(
+            date=date.today() - timedelta(days=5),
+            description="Initial Cash Deposit",
+            reference="DEP001"
+        )
+        JournalEntry.objects.create(transaction=tx1, account=accounts['1001'], debit=Decimal('5000.00'))
+        JournalEntry.objects.create(transaction=tx1, account=accounts['1002'], credit=Decimal('5000.00'))
+
+    def create_billing_data(self):
+        self.stdout.write('Creating billing sample data...')
+        
+        # Ensure accounts exist first
+        self.create_accounting_data()
+        
+        families = list(Family.objects.all())
+        if not families:
+            self.stdout.write(self.style.WARNING('No families available for billing. Skipping.'))
+            return
+
+        shops = list(Shop.objects.all())
+
+        # Create some invoices
+        for i, family in enumerate(families[:3]):
+            invoice = Invoice.objects.create(
+                invoice_number=f"INV-FAM-{family.id}-{random.randint(1000, 9999)}",
+                family=family,
+                date_issued=date.today() - timedelta(days=10),
+                due_date=date.today() + timedelta(days=20),
+                status='sent',
+                total_amount=Decimal('50.00')
+            )
+            InvoiceLineItem.objects.create(
+                invoice=invoice,
+                description="Monthly Membership Dues - Jan 2024",
+                amount=Decimal('50.00')
+            )
+
+        for i, shop in enumerate(shops[:2]):
+            invoice = Invoice.objects.create(
+                invoice_number=f"INV-SHP-{shop.id}-{random.randint(1000, 9999)}",
+                shop=shop,
+                date_issued=date.today() - timedelta(days=5),
+                due_date=date.today() + timedelta(days=25),
+                status='sent',
+                total_amount=shop.monthly_rent
+            )
+            InvoiceLineItem.objects.create(
+                invoice=invoice,
+                description=f"Monthly Rent - {shop.name}",
+                amount=shop.monthly_rent
+            )
+            
+            # Create a partial payment
+            BillingPayment.objects.create(
+                invoice=invoice,
+                amount=Decimal('500.00'),
+                payment_date=date.today(),
+                payment_method='cash',
+                transaction_id=f"PAY-{random.randint(100000, 999999)}"
+            )

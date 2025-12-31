@@ -141,6 +141,9 @@ LOGIN_REDIRECT_URL = "/cms/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Wagtail reference indexing can cause crashes in some environments with django-tasks
+WAGTAIL_ENABLE_UPDATE_REFERENCE_INDEX = False
+
 # django-tasks configuration to avoid hangs with Wagtail signal handlers
 DJANGO_TASKS = {
     "default": {

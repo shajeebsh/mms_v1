@@ -48,6 +48,16 @@ MODULES = {
         'icon': 'group',
         'description': 'Committees, meetings, trustees, and minutes',
     },
+    'accounting': {
+        'name': 'Accounting & Ledger',
+        'icon': 'list-ul',
+        'description': 'Chart of accounts, transactions, and ledger',
+    },
+    'billing': {
+        'name': 'Billing & Invoices',
+        'icon': 'doc-full',
+        'description': 'Invoices, billing payments, and consolidated bills',
+    },
 }
 
 
@@ -89,6 +99,7 @@ def sample_data_management_view(request):
 def _populate_sample_data(request, selected_modules):
     """Populate sample data for selected modules"""
     from membership.management.commands.populate_sample_data import Command
+    from wagtail.signal_handlers import disable_reference_index_auto_update
     
     try:
         command = Command()
@@ -101,7 +112,7 @@ def _populate_sample_data(request, selected_modules):
         populated_modules = []
         errors = []
         
-        with transaction.atomic():
+        with disable_reference_index_auto_update(), transaction.atomic():
             for module in selected_modules:
                 if module not in MODULES:
                     errors.append(f"Unknown module: {module}")
@@ -122,6 +133,10 @@ def _populate_sample_data(request, selected_modules):
                         command.create_hr_data()
                     elif module == 'committee':
                         command.create_committee_data()
+                    elif module == 'accounting':
+                        command.create_accounting_data()
+                    elif module == 'billing':
+                        command.create_billing_data()
                     
                     populated_modules.append(MODULES[module]['name'])
                     logger.info(f"Sample data populated for {module} module by {request.user.username}")
@@ -149,6 +164,7 @@ def _populate_sample_data(request, selected_modules):
 
 def _clear_sample_data(request, selected_modules):
     """Clear sample data for selected modules"""
+    from wagtail.signal_handlers import disable_reference_index_auto_update
     from assets.models import PropertyUnit, Shop
     from education.models import Class, StudentEnrollment, Teacher
     from finance.models import (Donation, DonationCategory, Expense,
@@ -162,12 +178,15 @@ def _clear_sample_data(request, selected_modules):
     from committee.models import (CommitteeType, Committee, CommitteeMember,
                                    Meeting, MeetingAttendee, Trustee,
                                    TrusteeMeeting, TrusteeMeetingAttendee)
+    from accounting.models import (Account, AccountCategory, Transaction,
+                                    JournalEntry)
+    from billing.models import (Invoice, InvoiceLineItem, BillingPayment)
     
     cleared_modules = []
     errors = []
     
     try:
-        with transaction.atomic():
+        with disable_reference_index_auto_update(), transaction.atomic():
             for module in selected_modules:
                 if module not in MODULES:
                     errors.append(f"Unknown module: {module}")
@@ -215,6 +234,15 @@ def _clear_sample_data(request, selected_modules):
                         Trustee.objects.all().delete()
                         Committee.objects.all().delete()
                         CommitteeType.objects.all().delete()
+                    elif module == 'accounting':
+                        JournalEntry.objects.all().delete()
+                        Transaction.objects.all().delete()
+                        Account.objects.all().delete()
+                        AccountCategory.objects.all().delete()
+                    elif module == 'billing':
+                        BillingPayment.objects.all().delete()
+                        InvoiceLineItem.objects.all().delete()
+                        Invoice.objects.all().delete()
                     
                     cleared_modules.append(MODULES[module]['name'])
                     logger.info(f"Sample data cleared for {module} module by {request.user.username}")

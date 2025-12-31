@@ -41,12 +41,14 @@ def customize_main_menu(request, menu_items):
     # Also doubles as module_name -> label mapping
     module_to_label = {
         "membership": "🏠 Membership",
-        "finance": "💰 Finance",
+        "finance": "💰 FINANCE & ACCOUNTS",
         "education": "👨‍🏫 Education",
         "assets": "🏢 Assets",
         "operations": "📅 Operations",
         "hr": "👥 HR & Payroll",
         "committee": "🏛️ Committee & Minutes",
+        "accounting": "📂 Chart of Accounts",
+        "billing": "🧾 Invoices",
     }
 
     # Determine allowed modules for this user based on AccessControlSettings
@@ -149,8 +151,10 @@ from . import views
 
 @hooks.register('register_admin_urls')
 def register_dashboard_url():
+    from django.urls import include
     return [
         path('', views.wagtail_dashboard_view, name='wagtailadmin_home'),
+        path('admin/', include('home.admin_urls')),
     ]
 
 @hooks.register('insert_global_admin_css')
