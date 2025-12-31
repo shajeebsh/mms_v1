@@ -184,6 +184,23 @@ The test suite includes:
 - **Unit Tests** (`membership/tests.py`, `finance/tests.py`): Test individual model functionality, validations, and properties
 - **Integration Tests** (`membership/test_views.py`): Test view functionality, HTTP requests, and user interactions
 - **Business Logic Tests** (`membership/test_business_logic.py`): Test critical business logic like payment processing and dues calculations
+- **Automated E2E Tests** (`tests/e2e/`): Browser-based testing using Playwright and Pytest
+
+### Running Automated E2E Tests (Playwright)
+
+The system includes automated browser tests for end-to-end verification.
+
+1. **Install Test Dependencies**:
+   ```bash
+   pip install pytest-playwright
+   playwright install chromium
+   ```
+
+2. **Run E2E Tests**:
+   Ensure the development server is running in another terminal (`python manage.py runserver`), then run:
+   ```bash
+   pytest tests/
+   ```
 
 ## Configuration
 - **Membership Dues**: Go to **Settings > System settings** in the admin panel to configure the default monthly dues amount.
