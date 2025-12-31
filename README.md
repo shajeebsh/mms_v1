@@ -188,7 +188,17 @@ The test suite includes:
 
 ### Running Automated E2E Tests (Playwright)
 
-The system includes automated browser tests for end-to-end verification.
+The system includes automated browser tests for end-to-end verification covering CRUD operations for all major modules:
+- Membership (Families, Members)
+- Finance (Donations, Expenses)
+- Accounting (Chart of Accounts, Ledger)
+- Billing (Invoices, Payments)
+- Education (Teachers, Classes)
+- Assets (Shops, Property Units)
+- Operations (Bookings, Prayer Times)
+- HR (Staff, Positions)
+- Committee (Committees, Trustees)
+- Sample Data
 
 1. **Install Test Dependencies**:
    ```bash
@@ -197,9 +207,16 @@ The system includes automated browser tests for end-to-end verification.
    ```
 
 2. **Run E2E Tests**:
-   Ensure the development server is running in another terminal (`python manage.py runserver`), then run:
+   Ensure the development server is running in another terminal (`python manage.py runserver`), then run the full suite:
    ```bash
-   pytest tests/
+   pytest tests/e2e/
+   ```
+
+   Or run specific module tests:
+   ```bash
+   pytest tests/e2e/test_membership.py
+   pytest tests/e2e/test_finance.py
+   # ...and so on for other modules
    ```
 
 ## Configuration
