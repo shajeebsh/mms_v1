@@ -219,5 +219,12 @@ The system includes automated browser tests for end-to-end verification covering
    # ...and so on for other modules
    ```
 
+### 3. Generate Test Report
+To generate a comprehensive HTML report of the test results:
+```bash
+pytest tests/e2e/ --html=report.html
+```
+This will create a `report.html` file in the project directory which you can open in your browser.
+
 ## Configuration
 - **Membership Dues**: Go to **Settings > System settings** in the admin panel to configure the default monthly dues amount.
