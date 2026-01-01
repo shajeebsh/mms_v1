@@ -20,3 +20,5 @@ media/
 *.log
 .env
 .python-version
+report.html
+assets/style.css
