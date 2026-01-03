@@ -77,19 +77,31 @@ cp .env.example .env  # Or create it manually
 Update your [`.env`](file:///Users/shajeebs/PythonProjects/mms_v1/.env) with your local database credentials.
 
 ### 5. Setup Database
-The system supports both PostgreSQL (local/production) and SQLite (fallback).
+The system uses PostgreSQL for both local development and production. It supports switching between multiple database environments (e.g., `local-dev`, `remote-dev1`).
 
-**Local PostgreSQL (Recommended):**
-1. Ensure PostgreSQL is running.
-2. Create the database: `CREATE DATABASE mms_v1;`
-3. Update `DATABASE_URL` in `.env`:
-   ```bash
-   DATABASE_URL=postgres://postgres:Password1!@127.0.0.1:5432/mms_v1
-   ```
-4. Apply migrations:
-   ```bash
-   python manage.py migrate
-   ```
+**1. Configure Database Credentials:**
+Update `DATABASE_URL` in `.env` for your local database:
+```bash
+DATABASE_URL=postgres://postgres:Password1!@127.0.0.1:5432/mms_v1
+```
+
+**2. Switching Environments:**
+The application defaults to `local-dev`. To switch to a different database (e.g., `remote-dev1`), set the `SELECTED_DATABASE` environment variable in your `.env` file or shell:
+
+```bash
+# In .env file
+SELECTED_DATABASE=remote-dev1
+```
+
+**3. Apply Migrations:**
+Ensure you apply migrations to the selected database:
+```bash
+# Example: Apply migrations to the currently selected database (from .env)
+python manage.py migrate
+
+# Example: One-off command for a specific database
+SELECTED_DATABASE=remote-dev1 python manage.py migrate
+```
 
 **Seed Sample Data:**
 ```bash
