@@ -100,9 +100,20 @@ WSGI_APPLICATION = "mms_site.wsgi.application"
 # Database
 # Use DATABASE_URL environment variable (e.g. postgres://user:password@host:port/dbname)
 # Default to local sqlite for development
+
 DATABASES = {
-    "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+    # Ensure DATABASE_URL is set in .env to a PostgreSQL connection
+    # e.g., postgres://user:password@localhost:5432/mms_v1
+    "local-dev": env.db("DATABASE_URL"), 
+    "remote-dev1": env.db(
+        "REMOTE_DEV1_URL",
+        default="postgresql://neondb_owner:npg_8armhCE2voTt@ep-lively-sound-ahzl5trp-pooler.c-3.us-east-1.aws.neon.tech/mmsv1db?sslmode=require&channel_binding=require"
+    ),
 }
+
+# Set default database based on environment variable (default to local-dev)
+selected_db = env("SELECTED_DATABASE", default="local-dev")
+DATABASES["default"] = DATABASES.get(selected_db, DATABASES["local-dev"])
 
 AUTH_PASSWORD_VALIDATORS = [
     {
