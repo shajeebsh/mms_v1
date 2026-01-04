@@ -103,6 +103,29 @@ python manage.py migrate
 SELECTED_DATABASE=remote-dev1 python manage.py migrate
 ```
 
+**4. MySQL Configuration (Optional):**
+To use MySQL instead of PostgreSQL:
+
+1. Install MySQL server and create a database:
+   ```sql
+   CREATE DATABASE mms_v1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+2. Add `MYSQL_DB_URL` to your `.env` file:
+   ```bash
+   MYSQL_DB_URL=mysql://username:password@localhost:3306/mms_v1
+   ```
+
+3. Switch to MySQL by setting:
+   ```bash
+   SELECTED_DATABASE=mysql-dev
+   ```
+
+4. Install the MySQL client library:
+   ```bash
+   pip install mysqlclient
+   ```
+
 **Seed Sample Data:**
 ```bash
 python manage.py populate_sample_data
