@@ -113,7 +113,7 @@ DATABASES = {
     # Can be overridden by setting MYSQL_DB_URL in .env
     "mysql-dev": env.db(
         "MYSQL_DB_URL",
-        default="mysql://shajeebsh:MyHomeMms123!@shajeebsh.mysql.pythonanywhere-services.com/shajeebsh$mms_v1"
+        default="mysql://shajeebsh:MyHomeMms123!@shajeebsh.mysql.pythonanywhere-services.com/shajeebsh$mmdb_mysql"
     ),
 }
 
