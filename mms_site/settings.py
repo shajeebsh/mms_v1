@@ -109,9 +109,12 @@ DATABASES = {
         "REMOTE_DEV1_URL",
         default="postgresql://neondb_owner:npg_8armhCE2voTt@ep-lively-sound-ahzl5trp-pooler.c-3.us-east-1.aws.neon.tech/mmsv1db?sslmode=require&channel_binding=require"
     ),
-    # MySQL database configuration
-    # e.g., mysql://user:password@localhost:3306/mms_v1
-    "mysql-dev": env.db("MYSQL_DB_URL", default=""),
+    # MySQL database configuration (PythonAnywhere)
+    # Can be overridden by setting MYSQL_DB_URL in .env
+    "mysql-dev": env.db(
+        "MYSQL_DB_URL",
+        default="mysql://shajeebsh:MyHomeMms123!@shajeebsh.mysql.pythonanywhere-services.com/shajeebsh$mms_v1"
+    ),
 }
 
 # Set default database based on environment variable (default to local-dev)
