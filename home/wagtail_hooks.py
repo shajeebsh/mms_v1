@@ -159,7 +159,9 @@ def register_dashboard_url():
 
 @hooks.register('insert_global_admin_css')
 def global_admin_css():
-    return format_html('<link rel="stylesheet" href="{}?v=3">', static('home/css/admin_theme.css'))
+    # Temporarily disabled to test default Wagtail styling
+    # return format_html('<link rel="stylesheet" href="{}?v=3">', static('home/css/admin_theme.css'))
+    return ''
 
 @hooks.register('insert_global_admin_js')
 def global_admin_js():
