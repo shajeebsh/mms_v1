@@ -1,0 +1,52 @@
+{% extends "wagtailadmin/account/account.html" %}
+{% load static wagtailadmin_tags %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <style>
+        /* Override user avatar with Masjid theme */
+        .avatar img {
+            background-image: url('{% static "home/images/masjid-avatar.svg" %}') !important;
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            border-radius: 50% !important;
+        }
+        
+        .avatar .avatar-placeholder {
+            background-image: url('{% static "home/images/masjid-avatar.svg" %}') !important;
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            border-radius: 50% !important;
+        }
+        
+        /* Masjid-themed account page */
+        .account-container {
+            background: linear-gradient(135deg, #F5F5DC 0%, #DEB887 100%) !important;
+            border: 2px solid #8B4513 !important;
+            border-radius: 15px !important;
+        }
+        
+        .account-header {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%) !important;
+            color: white !important;
+            border-radius: 13px 13px 0 0 !important;
+        }
+        
+        /* Islamic pattern border */
+        .islamic-border {
+            border-image: linear-gradient(45deg, #8B4513, #D2691E, #FFD700) 1 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    
+    <!-- Add Islamic greeting -->
+    <div style="text-align: center; margin: 20px 0; color: #8B4513; font-style: italic;">
+        <p>السلام عليكم ورحمة الله وبركاته</p>
+        <p>Peace be upon you and the mercy of Allah and His blessings</p>
+    </div>
+{% endblock %}

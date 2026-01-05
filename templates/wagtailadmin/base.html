@@ -1,0 +1,58 @@
+{% extends "wagtailadmin/base.html" %}
+{% load static wagtailadmin_tags %}
+
+{% block branding_logo %}
+    {# Custom Masjid logo for admin #}
+    <style>
+        .wagtail-logo {
+            background-image: url('{% static "home/images/masjid-icon.svg" %}') !important;
+            background-size: contain !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            width: 40px !important;
+            height: 40px !important;
+        }
+        
+        .wagtail-logo-container {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%) !important;
+        }
+    </style>
+    
+    <div class="wagtail-logo-container">
+        <div class="wagtail-logo"></div>
+    </div>
+{% endblock %}
+
+{% block branding_title %}
+    MMS Masjid Management System
+{% endblock %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'home/css/masjid-admin-theme.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        // Custom Masjid theme JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MMS Masjid Management System - Admin Theme Loaded');
+            
+            // Add Masjid icon to admin menu if not already present
+            const adminMenu = document.querySelector('.sidebar-menu');
+            if (adminMenu) {
+                const masjidIcon = document.createElement('div');
+                masjidIcon.className = 'masjid-icon';
+                masjidIcon.title = 'Masjid Management System';
+                masjidIcon.style.position = 'absolute';
+                masjidIcon.style.bottom = '10px';
+                masjidIcon.style.right = '10px';
+                masjidIcon.style.width = '30px';
+                masjidIcon.style.height = '30px';
+                masjidIcon.style.opacity = '0.3';
+                adminMenu.appendChild(masjidIcon);
+            }
+        });
+    </script>
+{% endblock %}

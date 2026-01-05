@@ -159,9 +159,8 @@ def register_dashboard_url():
 
 @hooks.register('insert_global_admin_css')
 def global_admin_css():
-    # Temporarily disabled to test default Wagtail styling
-    # return format_html('<link rel="stylesheet" href="{}?v=3">', static('home/css/admin_theme.css'))
-    return ''
+    # Load Masjid-themed admin styling
+    return format_html('<link rel="stylesheet" href="{}?v=1">', static('home/css/masjid-admin-theme.css'))
 
 @hooks.register('insert_global_admin_js')
 def global_admin_js():
