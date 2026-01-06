@@ -20,7 +20,7 @@ class MemberButtonHelper(ButtonHelper):
         return button
 
     def get_header_buttons_for_index(self, exclude=None, classnames_add=None, classnames_exclude=None):
-        buttons = super().get_header_buttons_for_index(exclude, classnames_add, classnames_exclude)
+        buttons = []
         
         # Add Questionnaire Button
         buttons.append({
