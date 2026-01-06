@@ -25,7 +25,7 @@ class MemberButtonHelper(ButtonHelper):
         # Add Questionnaire Button - using same structure as add_button
         questionnaire_button = {
             'url': reverse('membership:preview_questionnaire'),
-            'label': 'Membership Questionnaire',
+            'label': 'Questionnaire Form',
             'classname': 'button',
             'title': 'Preview/Print Membership Questionnaire',
         }
