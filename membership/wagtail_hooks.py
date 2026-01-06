@@ -26,7 +26,7 @@ class MemberButtonHelper(ButtonHelper):
         buttons.append({
             'url': reverse('membership:preview_questionnaire'),
             'label': 'Membership Questionnaire',
-            'classname': 'button button-small',
+            'classname': 'button button-small button-primary',
             'title': 'Preview/Print Membership Questionnaire',
         })
         return buttons
