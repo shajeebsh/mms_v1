@@ -22,13 +22,14 @@ class MemberButtonHelper(ButtonHelper):
     def get_header_buttons_for_index(self, exclude=None, classnames_add=None, classnames_exclude=None):
         buttons = []
         
-        # Add Questionnaire Button
-        buttons.append({
+        # Add Questionnaire Button - using same structure as add_button
+        questionnaire_button = {
             'url': reverse('membership:preview_questionnaire'),
             'label': 'Membership Questionnaire',
-            'classname': 'button button-small button-primary',
+            'classname': 'button',
             'title': 'Preview/Print Membership Questionnaire',
-        })
+        }
+        buttons.append(questionnaire_button)
         return buttons
 
 
