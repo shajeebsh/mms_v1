@@ -56,12 +56,6 @@ def register_administration_menu():
                 icon_name="calendar",
                 order=7,
             ),
-            MenuItem(
-                label="📄 Membership Questionnaire",
-                url=reverse_lazy("membership:download_questionnaire"),
-                icon_name="doc-full",
-                order=8,
-            ),
         ]
     )
 
