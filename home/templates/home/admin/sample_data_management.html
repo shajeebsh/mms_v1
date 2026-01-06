@@ -86,7 +86,7 @@
                                 name="action" 
                                 value="populate" 
                                 class="button button-primary"
-                                onclick="return confirm('Are you sure you want to populate sample data for the selected modules? This will add new records to your database.')">
+                                onclick="return confirm('{% trans "Are you sure you want to populate sample data for the selected modules? This will add new records to your database." %}')">
                             <i class="icon icon-plus"></i>
                             {% trans "Populate Sample Data" %}
                         </button>
@@ -96,7 +96,7 @@
                                 value="clear" 
                                 class="button button-secondary"
                                 style="background-color: #e74c3c; color: white;"
-                                onclick="return confirm('WARNING: This will permanently delete ALL data in the selected modules. This action cannot be undone. Are you absolutely sure?')">
+                                onclick="return confirm('{% trans "WARNING: This will permanently delete ALL data in the selected modules. This action cannot be undone. Are you absolutely sure?" %}')">
                             <i class="icon icon-bin"></i>
                             {% trans "Clear All Data" %}
                         </button>

@@ -63,6 +63,7 @@ def get_dashboard_actions(user):
             'actions': [
                 {'name': 'Members', 'url': get_modeladmin_url('membership', 'member'), 'icon': 'user'},
                 {'name': 'Families', 'url': get_modeladmin_url('membership', 'family'), 'icon': 'group'},
+                {'name': 'Registration Form', 'url': '/membership/download-questionnaire/', 'icon': 'file-pdf'},
                 {'name': 'Overdue Dues', 'url': '/membership/overdue-report/', 'icon': 'warning'},
             ]
         })
