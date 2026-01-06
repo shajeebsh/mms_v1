@@ -2,7 +2,7 @@ from django.utils.html import format_html
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Family, Member, MembershipDues, Payment, VitalRecord
+from .models import Family, Member, MembershipDues, Payment, VitalRecord, Ward, Taluk, City, State, Country, PostalCode
 
 
 from wagtail_modeladmin.helpers import ButtonHelper
@@ -34,6 +34,84 @@ class MemberButtonHelper(ButtonHelper):
 
 
 from home.permission_helpers import ACLPermissionHelper
+
+class WardAdmin(ModelAdmin):
+    model = Ward
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Wards"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class TalukAdmin(ModelAdmin):
+    model = Taluk
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Taluks"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class CityAdmin(ModelAdmin):
+    model = City
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Cities"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class StateAdmin(ModelAdmin):
+    model = State
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "States"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class CountryAdmin(ModelAdmin):
+    model = Country
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Countries"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class PostalCodeAdmin(ModelAdmin):
+    model = PostalCode
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Postal Codes"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("code", "created_at")
+    search_fields = ("code",)
+    panels = [
+        FieldPanel("code"),
+        FieldPanel("created_at"),
+    ]
 
 class FamilyAdmin(ModelAdmin):
     model = Family
@@ -198,6 +276,12 @@ class VitalRecordAdmin(ModelAdmin):
     ]
 
 
+modeladmin_register(WardAdmin)
+modeladmin_register(TalukAdmin)
+modeladmin_register(CityAdmin)
+modeladmin_register(StateAdmin)
+modeladmin_register(CountryAdmin)
+modeladmin_register(PostalCodeAdmin)
 modeladmin_register(FamilyAdmin)
 modeladmin_register(MemberAdmin)
 modeladmin_register(MembershipDuesAdmin)

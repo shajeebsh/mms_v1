@@ -132,7 +132,7 @@ class Member(models.Model):
     whatsapp_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     
-    # Keep as text fields for now - will convert to dropdowns later
+    # Keep as text fields for now - will add dropdown models alongside
     ward_no = models.CharField(max_length=20, blank=True, verbose_name="Ward No")
     taluk = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
