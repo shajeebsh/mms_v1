@@ -21,6 +21,14 @@ class MemberButtonHelper(ButtonHelper):
 
     def get_header_buttons_for_index(self, exclude=None, classnames_add=None, classnames_exclude=None):
         buttons = super().get_header_buttons_for_index(exclude, classnames_add, classnames_exclude)
+        
+        # Add Questionnaire Button
+        buttons.append({
+            'url': reverse('membership:preview_questionnaire'),
+            'label': 'Membership Questionnaire',
+            'classname': 'button button-small button-secondary',
+            'title': 'Preview/Print Membership Questionnaire',
+        })
         return buttons
 
 
@@ -49,7 +57,7 @@ class MemberAdmin(ModelAdmin):
     menu_label = "Members"
     menu_icon = "user"
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ("full_name", "family", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link", "questionnaire_preview_button")
+    list_display = ("full_name", "family", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
     list_filter = ("gender", "is_active", "is_head_of_family", "family")
     search_fields = ("first_name", "last_name", "email", "phone")
     panels = [
@@ -105,12 +113,6 @@ class MemberAdmin(ModelAdmin):
         url = reverse('membership:preview_membership_card', args=[obj.id])
         return format_html('<a class="button button-small" href="{}" target="_blank">Preview ID</a>', url)
     print_card_link.short_description = 'Actions'
-
-    def questionnaire_preview_button(self, obj):
-        from django.urls import reverse
-        url = reverse('membership:preview_questionnaire')
-        return format_html('<a class="button button-small button-secondary" href="{}" target="_blank">Questionnaire</a>', url)
-    questionnaire_preview_button.short_description = 'Questionnaire'
 
 
 class MembershipDuesAdmin(ModelAdmin):
