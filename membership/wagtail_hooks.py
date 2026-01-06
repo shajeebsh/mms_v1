@@ -23,12 +23,6 @@ class MemberButtonHelper(ButtonHelper):
         buttons = super().get_header_buttons_for_index(exclude, classnames_add, classnames_exclude)
         return buttons
 
-    def questionnaire_preview_button(self, obj):
-        from django.urls import reverse
-        url = reverse('membership:preview_questionnaire')
-        return format_html('<a class="button button-small button-secondary" href="{}" target="_blank">Questionnaire</a>', url)
-    questionnaire_preview_button.short_description = 'Questionnaire'
-
 
 from home.permission_helpers import ACLPermissionHelper
 
@@ -111,6 +105,12 @@ class MemberAdmin(ModelAdmin):
         url = reverse('membership:preview_membership_card', args=[obj.id])
         return format_html('<a class="button button-small" href="{}" target="_blank">Preview ID</a>', url)
     print_card_link.short_description = 'Actions'
+
+    def questionnaire_preview_button(self, obj):
+        from django.urls import reverse
+        url = reverse('membership:preview_questionnaire')
+        return format_html('<a class="button button-small button-secondary" href="{}" target="_blank">Questionnaire</a>', url)
+    questionnaire_preview_button.short_description = 'Questionnaire'
 
 
 class MembershipDuesAdmin(ModelAdmin):
