@@ -25,6 +25,78 @@ class Family(models.Model):
         verbose_name_plural = "Families"
 
 
+class Ward(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Wards"
+
+
+class Taluk(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Taluks"
+
+
+class City(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Cities"
+
+
+class State(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "States"
+
+
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Countries"
+
+
+class PostalCode(models.Model):
+    code = models.CharField(max_length=10, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.code
+
+    class Meta:
+        verbose_name_plural = "Postal Codes"
+
+
 class Member(models.Model):
     GENDER_CHOICES = [
         ("M", "Male"),
@@ -36,8 +108,8 @@ class Member(models.Model):
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
-    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="members")
-    is_head_of_family = models.BooleanField(default=False, help_text="Is this person the head of the family?")
+    # family field removed - replaced with individual text fields for now
+    is_head_of_family = models.BooleanField(default=False, help_text="Is this person head of family?")
     
     MARITAL_STATUS_CHOICES = [
         ("S", "Single"),
@@ -60,6 +132,7 @@ class Member(models.Model):
     whatsapp_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     
+    # Keep as text fields for now - will convert to dropdowns later
     ward_no = models.CharField(max_length=20, blank=True, verbose_name="Ward No")
     taluk = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)

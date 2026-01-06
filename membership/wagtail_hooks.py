@@ -58,8 +58,8 @@ class MemberAdmin(ModelAdmin):
     menu_label = "Members"
     menu_icon = "user"
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ("full_name", "family", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
-    list_filter = ("gender", "is_active", "is_head_of_family", "family")
+    list_display = ("full_name", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
+    list_filter = ("gender", "is_active", "is_head_of_family", "city", "state")
     search_fields = ("first_name", "last_name", "email", "phone")
     panels = [
         MultiFieldPanel([
@@ -74,7 +74,6 @@ class MemberAdmin(ModelAdmin):
                 FieldPanel("marital_status", classname="col4"),
             ]),
             FieldRowPanel([
-                FieldPanel("family", classname="col4"),
                 FieldPanel("is_head_of_family", classname="col4"),
                 FieldPanel("is_active", classname="col4"),
             ]),
