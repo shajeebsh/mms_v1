@@ -21,16 +21,17 @@
         {% fragment as description %}{% include 'modeladmin/includes/result_count.html' %}{% endfragment %}
         {% fragment as extra_actions %}
             {% block header_extra %}
-                {% if view.list_export or user_can_create %}
-                    <div class="actionbutton">
-                        {% if user_can_create %}
-                            {% include 'modeladmin/includes/button.html' with button=view.button_helper.add_button %}
-                        {% endif %}
-                        {% if view.list_export %}
-                            {% include view.export_buttons_template_name %}
-                        {% endif %}
-                    </div>
-                {% endif %}
+                <div class="actionbutton">
+                    {% if user_can_create %}
+                        {% include 'modeladmin/includes/button.html' with button=view.button_helper.add_button %}
+                    {% endif %}
+                    {% for button in view.button_helper.get_header_buttons_for_index %}
+                        {% include 'modeladmin/includes/button.html' with button=button %}
+                    {% endfor %}
+                    {% if view.list_export %}
+                        {% include view.export_buttons_template_name %}
+                    {% endif %}
+                </div>
             {% endblock %}
         {% endfragment %}
         {% fragment as search %}{% block search %}{% search_form %}{% endblock %}{% endfragment %}
