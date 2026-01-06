@@ -171,17 +171,17 @@ class MemberAdmin(ModelAdmin):
         
         MultiFieldPanel([
             FieldRowPanel([
-                FieldPanel("ward_no", classname="col4"),
+                FieldPanel("ward_no_dropdown", classname="col4"),
                 FieldPanel("address", classname="col8"),
             ]),
             FieldRowPanel([
-                FieldPanel("taluk", classname="col4"),
-                FieldPanel("city", classname="col4"),
-                FieldPanel("postal_code", classname="col4"),
+                FieldPanel("taluk_dropdown", classname="col4"),
+                FieldPanel("city_dropdown", classname="col4"),
+                FieldPanel("postal_code_dropdown", classname="col4"),
             ]),
             FieldRowPanel([
-                FieldPanel("state", classname="col6"),
-                FieldPanel("country", classname="col6"),
+                FieldPanel("state_dropdown", classname="col6"),
+                FieldPanel("country_dropdown", classname="col6"),
             ]),
         ], heading="Location Information"),
     ]

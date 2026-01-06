@@ -132,7 +132,7 @@ class Member(models.Model):
     whatsapp_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     
-    # Keep as text fields for now - will add dropdown models alongside
+    # Keep existing text fields and add new dropdown fields
     ward_no = models.CharField(max_length=20, blank=True, verbose_name="Ward No")
     taluk = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
@@ -141,6 +141,14 @@ class Member(models.Model):
     
     address = models.TextField(blank=True, help_text="Personal address if different from family")
     postal_code = models.CharField(max_length=10, blank=True)
+    
+    # New dropdown fields
+    ward_no_dropdown = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ward No (Dropdown)")
+    taluk_dropdown = models.ForeignKey(Taluk, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Taluk (Dropdown)")
+    city_dropdown = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="City (Dropdown)")
+    state_dropdown = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="State (Dropdown)")
+    country_dropdown = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Country (Dropdown)")
+    postal_code_dropdown = models.ForeignKey(PostalCode, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Postal Code (Dropdown)")
     
     photo = models.ForeignKey(
         'wagtailimages.Image',
