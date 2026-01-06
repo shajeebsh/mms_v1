@@ -15,8 +15,8 @@ class Invoice(models.Model):
     
     invoice_number = models.CharField(max_length=50, unique=True)
     
-    # Can be linked to a Family or a Shop/Tenant
-    family = models.ForeignKey('membership.Family', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
+    # Can be linked to a House Registration or a Shop/Tenant
+    house = models.ForeignKey('membership.HouseRegistration', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
     shop = models.ForeignKey('assets.Shop', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
     property_unit = models.ForeignKey('assets.PropertyUnit', on_delete=models.SET_NULL, null=True, blank=True, related_name='invoices')
     
@@ -95,7 +95,7 @@ class BillingPayment(models.Model):
             # Credit Revenue (Based on what was invoiced)
             # In a full system, this would be more complex (Accounts Receivable vs Revenue)
             # For simplicity, we credit the respective revenue account directly
-            if invoice.family:
+            if invoice.house:
                 rev_account = Account.objects.get(code='4002') # Dues Revenue
             elif invoice.shop:
                 rev_account = Account.objects.get(code='4003') # Rental Revenue

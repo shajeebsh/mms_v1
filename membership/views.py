@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from django.http import HttpResponse
-from .models import Family, Member, MembershipDues, Payment
+from .models import HouseRegistration, Member, MembershipDues, Payment
 from .utils import generate_membership_questionnaire, generate_membership_card
 
 logger = logging.getLogger(__name__)
@@ -18,13 +18,13 @@ logger = logging.getLogger(__name__)
 def bulk_payment_view(request):
     """View for bulk payment processing"""
     if request.method == "POST":
-        family_ids = request.POST.getlist("family_ids")
+        house_ids = request.POST.getlist("house_ids")
         payment_method = request.POST.get("payment_method")
         payment_date = request.POST.get("payment_date")
         notes = request.POST.get("notes", "")
 
-        if not family_ids:
-            messages.error(request, "Please select at least one family.")
+        if not house_ids:
+            messages.error(request, "Please select at least one house.")
             return redirect("bulk_payment")
 
         if not payment_method:
@@ -36,37 +36,37 @@ def bulk_payment_view(request):
                 total_amount = Decimal("0.00")
                 selected_dues = []
 
-                # Optimize: Get all families and dues in bulk
-                families = Family.objects.filter(id__in=family_ids)
-                # Get all unpaid dues for selected families in one query
+                # Optimize: Get all houses and dues in bulk
+                houses = HouseRegistration.objects.filter(id__in=house_ids)
+                # Get all unpaid dues for selected houses in one query
                 dues = (
-                    MembershipDues.objects.filter(family__in=families, is_paid=False)
-                    .select_related("family")
+                    MembershipDues.objects.filter(house__in=houses, is_paid=False)
+                    .select_related("house")
                     .order_by("year", "month")
                 )
 
-                # Group dues by family
-                for family in families:
-                    family_dues = [due for due in dues if due.family_id == family.id]
-                    if family_dues:
-                        selected_dues.extend(family_dues)
-                        total_amount += sum(due.amount_due for due in family_dues)
+                # Group dues by house
+                for house in houses:
+                    house_dues = [due for due in dues if due.house_id == house.id]
+                    if house_dues:
+                        selected_dues.extend(house_dues)
+                        total_amount += sum(due.amount_due for due in house_dues)
 
                 if not selected_dues:
                     messages.warning(
-                        request, "No unpaid dues found for selected families."
+                        request, "No unpaid dues found for selected houses."
                     )
                     return redirect("bulk_payment")
 
                 # Create payment record
                 payment = Payment.objects.create(
-                    family=Family.objects.filter(
-                        id__in=family_ids
-                    ).first(),  # Use first family as reference
+                    house=HouseRegistration.objects.filter(
+                        id__in=house_ids
+                    ).first(),  # Use first house as reference
                     amount=total_amount,
                     payment_method=payment_method,
                     payment_date=payment_date or timezone.now().date(),
-                    notes=f"Bulk payment for {len(family_ids)} families - {notes}",
+                    notes=f"Bulk payment for {len(house_ids)} houses - {notes}",
                 )
 
                 # Associate dues with payment and mark as paid
@@ -81,7 +81,7 @@ def bulk_payment_view(request):
                 )
                 logger.info(
                     f"Bulk payment processed: Receipt #{payment.receipt_number}, "
-                    f"Amount: ₹{total_amount}, Families: {len(family_ids)}"
+                    f"Amount: ₹{total_amount}, Houses: {len(house_ids)}"
                 )
 
         except ValidationError as e:
@@ -100,15 +100,15 @@ def bulk_payment_view(request):
         return redirect("bulk_payment")
 
     # GET request - show form
-    # Get families with unpaid dues
-    families_with_dues = (
-        Family.objects.filter(membership_dues__is_paid=False)
+    # Get houses with unpaid dues
+    houses_with_dues = (
+        HouseRegistration.objects.filter(membership_dues__is_paid=False)
         .distinct()
-        .order_by("name")
+        .order_by("house_name", "house_number")
     )
 
     context = {
-        "families": families_with_dues,
+        "houses": houses_with_dues,
         "payment_methods": Payment.PAYMENT_METHOD_CHOICES,
     }
     return render(request, "membership/bulk_payment.html", context)
@@ -122,9 +122,9 @@ def overdue_report_view(request):
     # Get overdue dues with optimized query
     overdue_dues = (
         MembershipDues.objects.filter(is_paid=False, due_date__lt=today)
-        .select_related("family")
+        .select_related("house")
         .prefetch_related("payments")
-        .order_by("due_date", "family__name")
+        .order_by("due_date", "house__house_name", "house__house_number")
     )
 
     # Calculate totals
@@ -132,32 +132,32 @@ def overdue_report_view(request):
         "total"
     ] or Decimal("0.00")
 
-    # Group by family for summary
-    family_summary = {}
+    # Group by house for summary
+    house_summary = {}
     for due in overdue_dues:
-        family_name = due.family.name
-        if family_name not in family_summary:
-            family_summary[family_name] = {
-                "family": due.family,
+        house_name = str(due.house)
+        if house_name not in house_summary:
+            house_summary[house_name] = {
+                "house": due.house,
                 "dues_count": 0,
                 "total_amount": Decimal("0.00"),
                 "dues": [],
             }
-        family_summary[family_name]["dues_count"] += 1
-        family_summary[family_name]["total_amount"] += due.amount_due
-        family_summary[family_name]["dues"].append(due)
+        house_summary[house_name]["dues_count"] += 1
+        house_summary[house_name]["total_amount"] += due.amount_due
+        house_summary[house_name]["dues"].append(due)
 
     context = {
         "overdue_dues": overdue_dues,
         "total_overdue_amount": total_overdue_amount,
-        "family_summary": family_summary,
+        "house_summary": house_summary,
         "today": today,
     }
     return render(request, "membership/overdue_report.html", context)
 
 
 def generate_monthly_dues_view(request):
-    """View to generate monthly dues for all families"""
+    """View to generate monthly dues for all houses"""
     if request.method == "POST":
         try:
             year = int(request.POST.get("year"))
@@ -174,19 +174,17 @@ def generate_monthly_dues_view(request):
                 messages.warning(request, f"Dues for {year}-{month:02d} already exist!")
                 return redirect("generate_monthly_dues")
 
-            # Generate dues for all families
-            families = Family.objects.all()
+            # Generate dues for all houses
+            houses = HouseRegistration.objects.all()
             created_count = 0
 
             with transaction.atomic():
-                for family in families:
-                    # Check if family has at least one active couple (simplified logic)
-                    active_members = family.members.filter(is_active=True)
-                    # For now, assume each family pays ₹10 regardless of member count
+                for house in houses:
+                    # For now, assume each house pays ₹10 regardless of member count
                     # This can be enhanced with more complex logic later
 
                     MembershipDues.objects.create(
-                        family=family,
+                        house=house,
                         year=year,
                         month=month,
                         amount_due=Decimal("10.00"),

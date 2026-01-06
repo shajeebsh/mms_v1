@@ -2,7 +2,7 @@ from django.utils.html import format_html
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Family, Member, MembershipDues, Payment, VitalRecord, Ward, Taluk, City, State, Country, PostalCode
+from .models import HouseRegistration, Member, MembershipDues, Payment, VitalRecord, Ward, Taluk, City, State, Country, PostalCode
 
 
 from wagtail_modeladmin.helpers import ButtonHelper
@@ -113,19 +113,23 @@ class PostalCodeAdmin(ModelAdmin):
         FieldPanel("created_at"),
     ]
 
-class FamilyAdmin(ModelAdmin):
-    model = Family
+class HouseRegistrationAdmin(ModelAdmin):
+    model = HouseRegistration
     permission_helper_class = ACLPermissionHelper
-    menu_label = "Families"
-    menu_icon = "group"
+    menu_label = "House Registrations"
+    menu_icon = "home"
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ("name", "phone", "email", "created_at")
-    search_fields = ("name", "phone", "email")
+    list_display = ("house_name", "house_number", "ward", "city", "state", "country")
+    search_fields = ("house_name", "house_number")
     panels = [
-        FieldPanel("name"),
-        FieldPanel("address"),
-        FieldPanel("phone"),
-        FieldPanel("email"),
+        FieldPanel("house_name"),
+        FieldPanel("house_number"),
+        FieldPanel("ward"),
+        FieldPanel("taluk"),
+        FieldPanel("city"),
+        FieldPanel("state"),
+        FieldPanel("country"),
+        FieldPanel("postal_code"),
     ]
 
 
@@ -200,7 +204,7 @@ class MembershipDuesAdmin(ModelAdmin):
     menu_icon = "money"
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = (
-        "family",
+        "house",
         "year",
         "month",
         "amount_due",
@@ -209,10 +213,10 @@ class MembershipDuesAdmin(ModelAdmin):
         "is_overdue",
     )
     list_filter = ("year", "month", "is_paid", "due_date")
-    search_fields = ("family__name",)
+    search_fields = ("house__house_name", "house__house_number")
     list_editable = ("is_paid",)
     panels = [
-        FieldPanel("family"),
+        FieldPanel("house"),
         FieldPanel("year"),
         FieldPanel("month"),
         FieldPanel("amount_due"),
@@ -221,7 +225,7 @@ class MembershipDuesAdmin(ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("family")
+        return super().get_queryset(request).select_related("house")
 
 
 class PaymentAdmin(ModelAdmin):
@@ -232,16 +236,16 @@ class PaymentAdmin(ModelAdmin):
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = (
         "receipt_number",
-        "family",
+        "house",
         "amount",
         "payment_method",
         "payment_date",
         "total_dues_covered",
     )
     list_filter = ("payment_method", "payment_date")
-    search_fields = ("receipt_number", "family__name", "notes")
+    search_fields = ("receipt_number", "house__house_name", "house__house_number", "notes")
     panels = [
-        FieldPanel("family"),
+        FieldPanel("house"),
         FieldPanel("amount"),
         FieldPanel("payment_method"),
         FieldPanel("payment_date"),
@@ -253,7 +257,7 @@ class PaymentAdmin(ModelAdmin):
         return (
             super()
             .get_queryset(request)
-            .select_related("family")
+            .select_related("house")
             .prefetch_related("membership_dues")
         )
 
@@ -282,7 +286,7 @@ modeladmin_register(CityAdmin)
 modeladmin_register(StateAdmin)
 modeladmin_register(CountryAdmin)
 modeladmin_register(PostalCodeAdmin)
-modeladmin_register(FamilyAdmin)
+modeladmin_register(HouseRegistrationAdmin)
 modeladmin_register(MemberAdmin)
 modeladmin_register(MembershipDuesAdmin)
 modeladmin_register(PaymentAdmin)

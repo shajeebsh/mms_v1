@@ -10,7 +10,7 @@ from wagtail.models import Site
 
 from home.models import SystemSettings
 
-from .models import Family, Member, MembershipDues, Payment
+from .models import HouseRegistration, Member, MembershipDues, Payment
 
 
 class BulkPaymentViewTest(TestCase):
@@ -23,13 +23,13 @@ class BulkPaymentViewTest(TestCase):
         )
         self.client.login(username="testuser", password="testpass123")
 
-        # Create families and dues
-        self.family1 = Family.objects.create(name="Family 1")
-        self.family2 = Family.objects.create(name="Family 2")
+        # Create houses and dues
+        self.house1 = HouseRegistration.objects.create(house_name="House 1")
+        self.house2 = HouseRegistration.objects.create(house_name="House 2")
 
         # Create overdue dues
         self.due1 = MembershipDues.objects.create(
-            family=self.family1,
+            house=self.house1,
             year=2023,
             month=1,
             amount_due=Decimal("10.00"),
@@ -37,7 +37,7 @@ class BulkPaymentViewTest(TestCase):
             is_paid=False,
         )
         self.due2 = MembershipDues.objects.create(
-            family=self.family1,
+            house=self.house1,
             year=2023,
             month=2,
             amount_due=Decimal("10.00"),
@@ -45,7 +45,7 @@ class BulkPaymentViewTest(TestCase):
             is_paid=False,
         )
         self.due3 = MembershipDues.objects.create(
-            family=self.family2,
+            house=self.house2,
             year=2023,
             month=1,
             amount_due=Decimal("10.00"),
@@ -57,14 +57,14 @@ class BulkPaymentViewTest(TestCase):
         """Test GET request to bulk payment view"""
         response = self.client.get(reverse("bulk_payment"))
         self.assertEqual(response.status_code, 200)
-        self.assertIn("families", response.context)
+        self.assertIn("houses", response.context)
 
     def test_bulk_payment_post_success(self):
         """Test successful bulk payment processing"""
         response = self.client.post(
             reverse("bulk_payment"),
             {
-                "family_ids": [self.family1.id, self.family2.id],
+                "house_ids": [self.house1.id, self.house2.id],
                 "payment_method": "cash",
                 "payment_date": date.today().isoformat(),
                 "notes": "Test payment",
@@ -83,12 +83,12 @@ class BulkPaymentViewTest(TestCase):
         self.assertTrue(self.due3.is_paid)
 
         # Check that payment was created
-        payment = Payment.objects.filter(family=self.family1).first()
+        payment = Payment.objects.filter(house=self.house1).first()
         self.assertIsNotNone(payment)
         self.assertEqual(payment.amount, Decimal("30.00"))  # 10 + 10 + 10
 
     def test_bulk_payment_no_families_selected(self):
-        """Test bulk payment with no families selected"""
+        """Test bulk payment with no houses selected"""
         response = self.client.post(
             reverse("bulk_payment"),
             {
@@ -98,14 +98,14 @@ class BulkPaymentViewTest(TestCase):
         self.assertEqual(response.status_code, 302)  # Redirects with error message
 
     def test_bulk_payment_no_unpaid_dues(self):
-        """Test bulk payment when families have no unpaid dues"""
+        """Test bulk payment when houses have no unpaid dues"""
         # Mark all dues as paid
         MembershipDues.objects.update(is_paid=True)
 
         response = self.client.post(
             reverse("bulk_payment"),
             {
-                "family_ids": [self.family1.id],
+                "house_ids": [self.house1.id],
                 "payment_method": "cash",
                 "payment_date": date.today().isoformat(),
             },
@@ -123,11 +123,11 @@ class OverdueReportViewTest(TestCase):
         )
         self.client.login(username="testuser", password="testpass123")
 
-        self.family = Family.objects.create(name="Test Family")
+        self.house = HouseRegistration.objects.create(house_name="Test House")
 
         # Create overdue dues
         self.overdue_due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2023,
             month=1,
             amount_due=Decimal("10.00"),
@@ -137,7 +137,7 @@ class OverdueReportViewTest(TestCase):
 
         # Create paid due (should not appear)
         self.paid_due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2023,
             month=2,
             amount_due=Decimal("10.00"),
@@ -147,7 +147,7 @@ class OverdueReportViewTest(TestCase):
 
         # Create future due (should not appear)
         self.future_due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2025,
             month=1,
             amount_due=Decimal("10.00"),
@@ -186,8 +186,8 @@ class GenerateMonthlyDuesViewTest(TestCase):
             site=self.site, monthly_membership_dues=Decimal("10.00")
         )
 
-        self.family1 = Family.objects.create(name="Family 1")
-        self.family2 = Family.objects.create(name="Family 2")
+        self.house1 = HouseRegistration.objects.create(house_name="House 1")
+        self.house2 = HouseRegistration.objects.create(house_name="House 2")
 
     def test_generate_monthly_dues_get(self):
         """Test GET request to generate monthly dues view"""
@@ -205,7 +205,7 @@ class GenerateMonthlyDuesViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302)  # Redirects after success
 
-        # Check that dues were created for all families
+        # Check that dues were created for all houses
         dues = MembershipDues.objects.filter(year=year, month=month)
         self.assertEqual(dues.count(), 2)
 
@@ -230,7 +230,7 @@ class GenerateMonthlyDuesViewTest(TestCase):
 
         self.assertEqual(response.status_code, 302)  # Redirects with warning
 
-        # Should still only have 2 dues (one per family)
+        # Should still only have 2 dues (one per house)
         dues = MembershipDues.objects.filter(year=year, month=month)
         self.assertEqual(dues.count(), 2)
 

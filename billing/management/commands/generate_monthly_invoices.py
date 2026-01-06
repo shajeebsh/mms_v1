@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from membership.models import Family
+from membership.models import HouseRegistration
 from assets.models import Shop
 from billing.models import Invoice, InvoiceLineItem
 from decimal import Decimal
@@ -16,15 +16,15 @@ class Command(BaseCommand):
         today = timezone.now().date()
         month_name = today.strftime('%B %Y')
         
-        # 1. Generate for Families (Membership Dues)
-        families = Family.objects.all() # In a real app, filter for active ones
-        for family in families:
+        # 1. Generate for Houses (Membership Dues)
+        houses = HouseRegistration.objects.all() # In a real app, filter for active ones
+        for house in houses:
             # Check if invoice already exists for this month
-            invoice_number = f"INV-FAM-{family.id}-{today.strftime('%Y%m')}"
+            invoice_number = f"INV-HOUSE-{house.id}-{today.strftime('%Y%m')}"
             if not Invoice.objects.filter(invoice_number=invoice_number).exists():
                 invoice = Invoice.objects.create(
                     invoice_number=invoice_number,
-                    family=family,
+                    house=house,
                     date_issued=today,
                     due_date=today + timezone.timedelta(days=15),
                     status='draft'
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 
                 invoice.total_amount = amount
                 invoice.save()
-                self.stdout.write(f"Generated invoice {invoice_number} for family {family}")
+                self.stdout.write(f"Generated invoice {invoice_number} for house {house}")
 
         # 2. Generate for Shops (Rent)
         shops = Shop.objects.all()

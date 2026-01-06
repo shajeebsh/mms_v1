@@ -23,7 +23,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
 from assets.models import PropertyUnit, Shop
 from education.models import Class, StudentEnrollment, Teacher
 from finance.models import Donation, DonationCategory, Expense, ExpenseCategory
-from membership.models import Family, Member, MembershipDues, Payment
+from membership.models import HouseRegistration, Member, MembershipDues, Payment
 from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                PrayerTime)
 from home.admin_menu import get_modeladmin_url
@@ -151,7 +151,7 @@ def get_admin_dashboard_data():
 
     # Basic counts
     data = {
-        'total_families': Family.objects.count(),
+        'total_houses': HouseRegistration.objects.count(),
         'total_members': Member.objects.filter(is_active=True).count(),
         'total_teachers': Teacher.objects.filter(is_active=True).count(),
         'total_classes': Class.objects.filter(is_active=True).count(),
@@ -193,7 +193,7 @@ def get_admin_dashboard_data():
 
     # Recent activities
     data['recent_donations'] = Donation.objects.select_related('member', 'category').order_by('-date')[:5]
-    data['recent_payments'] = Payment.objects.select_related('family').prefetch_related('membership_dues').order_by('-payment_date')[:5]
+    data['recent_payments'] = Payment.objects.select_related('house').prefetch_related('membership_dues').order_by('-payment_date')[:5]
     data['upcoming_bookings'] = AuditoriumBooking.objects.filter(
         booking_date__gte=today,
         status='approved'
@@ -244,7 +244,7 @@ def get_executive_dashboard_data():
 
     # Key Performance Indicators
     total_members = Member.objects.filter(is_active=True).count()
-    total_families = Family.objects.count()
+    total_houses = HouseRegistration.objects.count()
 
     # Income data
     total_donations = Donation.objects.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
@@ -401,19 +401,19 @@ def export_overdue_dues_report(request):
     overdue_dues = MembershipDues.objects.filter(
         is_paid=False,
         due_date__lt=today
-    ).select_related('family').order_by('due_date', 'family__name')
+    ).select_related('house').order_by('due_date', 'house__house_name', 'house__house_number')
 
     if export_format == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename="overdue_dues_{today}.csv"'
 
         writer = csv.writer(response)
-        writer.writerow(['Family', 'Year', 'Month', 'Amount Due', 'Due Date', 'Days Overdue'])
+        writer.writerow(['House', 'Year', 'Month', 'Amount Due', 'Due Date', 'Days Overdue'])
 
         for due in overdue_dues:
             days_overdue = (today - due.due_date).days
             writer.writerow([
-                due.family.name,
+                str(due.house),
                 due.year,
                 due.month,
                 due.amount_due,
@@ -436,11 +436,11 @@ def export_overdue_dues_report(request):
         elements.append(Paragraph("", styles['Normal']))
 
         # Create table data
-        data = [['Family', 'Year', 'Month', 'Amount Due', 'Due Date', 'Days Overdue']]
+        data = [['House', 'Year', 'Month', 'Amount Due', 'Due Date', 'Days Overdue']]
         for due in overdue_dues:
             days_overdue = (today - due.due_date).days
             data.append([
-                due.family.name,
+                str(due.house),
                 str(due.year),
                 str(due.month),
                 f"₹{due.amount_due}",
@@ -538,7 +538,7 @@ def export_membership_summary_report(request):
     export_format = request.GET.get('format', 'csv')
     today = timezone.now().date()
 
-    families = Family.objects.all()
+    houses = HouseRegistration.objects.all()
     members = Member.objects.filter(is_active=True)
 
     if export_format == 'csv':
@@ -547,7 +547,7 @@ def export_membership_summary_report(request):
 
         writer = csv.writer(response)
         writer.writerow(['Metric', 'Count'])
-        writer.writerow(['Total Families', families.count()])
+        writer.writerow(['Total Houses', houses.count()])
         writer.writerow(['Total Active Members', members.count()])
         writer.writerow(['Male Members', members.filter(gender='M').count()])
         writer.writerow(['Female Members', members.filter(gender='F').count()])
@@ -568,7 +568,7 @@ def live_data_feed(request):
 
     if data_type == 'summary':
         data = {
-            'total_families': Family.objects.count(),
+            'total_houses': HouseRegistration.objects.count(),
             'total_members': Member.objects.filter(is_active=True).count(),
             'total_donations': float(Donation.objects.aggregate(total=Sum('amount'))['total'] or 0),
             'total_dues_collected': float(Payment.objects.aggregate(total=Sum('amount'))['total'] or 0),

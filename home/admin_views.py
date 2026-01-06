@@ -169,7 +169,7 @@ def _clear_sample_data(request, selected_modules):
     from education.models import Class, StudentEnrollment, Teacher
     from finance.models import (Donation, DonationCategory, Expense,
                                 ExpenseCategory, FinancialReport)
-    from membership.models import (Family, Member, MembershipDues, Payment,
+    from membership.models import (HouseRegistration, Member, MembershipDues, Payment,
                                    VitalRecord)
     from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                    PrayerTime)
@@ -198,7 +198,7 @@ def _clear_sample_data(request, selected_modules):
                         MembershipDues.objects.all().delete()
                         VitalRecord.objects.all().delete()
                         Member.objects.all().delete()
-                        Family.objects.all().delete()
+                        HouseRegistration.objects.all().delete()
                     elif module == 'assets':
                         PropertyUnit.objects.all().delete()
                         Shop.objects.all().delete()

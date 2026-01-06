@@ -28,9 +28,9 @@ class DashboardPage(Page):
         # Add dashboard data
         from education.models import Class, StudentEnrollment
         from finance.models import Donation, Expense
-        from membership.models import Family, Member
+        from membership.models import HouseRegistration, Member
 
-        context["total_families"] = Family.objects.count()
+        context["total_houses"] = HouseRegistration.objects.count()
         context["total_members"] = Member.objects.filter(is_active=True).count()
         context["total_donations"] = (
             Donation.objects.aggregate(total=models.Sum("amount"))["total"] or 0

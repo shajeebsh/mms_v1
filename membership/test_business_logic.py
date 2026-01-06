@@ -8,18 +8,18 @@ from django.test import TestCase, TransactionTestCase
 from django.db import transaction
 from django.utils import timezone
 
-from .models import Family, Member, MembershipDues, Payment
+from .models import HouseRegistration, Member, MembershipDues, Payment
 
 
 class PaymentBusinessLogicTest(TransactionTestCase):
     """Test critical payment business logic"""
 
     def setUp(self):
-        self.family = Family.objects.create(name="Test Family")
+        self.house = HouseRegistration.objects.create(house_name="Test House")
         
         # Create multiple unpaid dues
         self.due1 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=1,
             amount_due=Decimal("10.00"),
@@ -27,7 +27,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
             is_paid=False
         )
         self.due2 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=2,
             amount_due=Decimal("10.00"),
@@ -35,7 +35,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
             is_paid=False
         )
         self.due3 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=3,
             amount_due=Decimal("10.00"),
@@ -46,7 +46,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
     def test_payment_marks_dues_as_paid(self):
         """Test that payment correctly marks associated dues as paid"""
         payment = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("20.00"),
             payment_method="cash",
             payment_date=date.today()
@@ -72,7 +72,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
     def test_payment_total_matches_dues_amount(self):
         """Test that payment amount matches total of associated dues"""
         payment = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("30.00"),
             payment_method="upi",
             payment_date=date.today()
@@ -88,7 +88,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
         """Test scenario where payment covers only some dues"""
         # Create payment for first due only
         payment = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("10.00"),
             payment_method="cash",
             payment_date=date.today()
@@ -108,9 +108,9 @@ class PaymentBusinessLogicTest(TransactionTestCase):
         self.assertFalse(self.due3.is_paid)
 
     def test_multiple_payments_for_same_family(self):
-        """Test multiple payments for the same family"""
+        """Test multiple payments for the same house"""
         payment1 = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("10.00"),
             payment_method="cash",
             payment_date=date.today()
@@ -120,7 +120,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
         self.due1.save()
         
         payment2 = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("20.00"),
             payment_method="bank",
             payment_date=date.today()
@@ -132,7 +132,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
         self.due3.save()
         
         # Verify all payments exist
-        payments = Payment.objects.filter(family=self.family)
+        payments = Payment.objects.filter(house=self.house)
         self.assertEqual(payments.count(), 2)
         
         # Verify all dues are paid
@@ -148,13 +148,13 @@ class DuesBusinessLogicTest(TestCase):
     """Test critical dues business logic"""
 
     def setUp(self):
-        self.family = Family.objects.create(name="Test Family")
+        self.house = HouseRegistration.objects.create(house_name="Test House")
 
     def test_dues_overdue_calculation(self):
         """Test overdue calculation logic"""
         # Create overdue due
         overdue_due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2023,
             month=1,
             amount_due=Decimal("10.00"),
@@ -172,7 +172,7 @@ class DuesBusinessLogicTest(TestCase):
     def test_dues_unique_constraint(self):
         """Test that same family cannot have duplicate dues for same year/month"""
         MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=1,
             amount_due=Decimal("10.00"),
@@ -182,7 +182,7 @@ class DuesBusinessLogicTest(TestCase):
         # Try to create duplicate
         with self.assertRaises(Exception):  # IntegrityError
             MembershipDues.objects.create(
-                family=self.family,
+                house=self.house,
                 year=2024,
                 month=1,
                 amount_due=Decimal("10.00"),
@@ -192,7 +192,7 @@ class DuesBusinessLogicTest(TestCase):
     def test_dues_auto_due_date(self):
         """Test automatic due date calculation"""
         due = MembershipDues(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=5,
             amount_due=Decimal("10.00")
@@ -204,21 +204,21 @@ class DuesBusinessLogicTest(TestCase):
     def test_dues_ordering(self):
         """Test that dues are ordered correctly"""
         due1 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=3,
             amount_due=Decimal("10.00"),
             due_date=date(2024, 3, 1)
         )
         due2 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=1,
             amount_due=Decimal("10.00"),
             due_date=date(2024, 1, 1)
         )
         due3 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=2,
             amount_due=Decimal("10.00"),
@@ -226,24 +226,24 @@ class DuesBusinessLogicTest(TestCase):
         )
         
         # Query should return in order: year desc, month desc
-        dues = MembershipDues.objects.filter(family=self.family)
+        dues = MembershipDues.objects.filter(house=self.house)
         self.assertEqual(dues[0], due1)  # Latest month first
         self.assertEqual(dues[1], due2)  # Then earlier months
         self.assertEqual(dues[2], due3)
 
     def test_bulk_dues_generation(self):
-        """Test generating dues for multiple families"""
-        family1 = Family.objects.create(name="Family 1")
-        family2 = Family.objects.create(name="Family 2")
-        family3 = Family.objects.create(name="Family 3")
+        """Test generating dues for multiple houses"""
+        house1 = HouseRegistration.objects.create(house_name="House 1")
+        house2 = HouseRegistration.objects.create(house_name="House 2")
+        house3 = HouseRegistration.objects.create(house_name="House 3")
         
         year = 2024
         month = 6
         
-        # Generate dues for all families
-        for family in [family1, family2, family3]:
+        # Generate dues for all houses
+        for house in [house1, house2, house3]:
             MembershipDues.objects.create(
-                family=family,
+                house=house,
                 year=year,
                 month=month,
                 amount_due=Decimal("10.00"),
@@ -254,8 +254,8 @@ class DuesBusinessLogicTest(TestCase):
         dues = MembershipDues.objects.filter(year=year, month=month)
         self.assertEqual(dues.count(), 3)
         
-        # Verify each family has one due
-        for family in [family1, family2, family3]:
-            family_dues = dues.filter(family=family)
-            self.assertEqual(family_dues.count(), 1)
+        # Verify each house has one due
+        for house in [house1, house2, house3]:
+            house_dues = dues.filter(house=house)
+            self.assertEqual(house_dues.count(), 1)
 

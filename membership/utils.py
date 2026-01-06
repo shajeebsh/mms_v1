@@ -131,7 +131,6 @@ def generate_membership_card(member):
         info_data = [
             [photo_image, Paragraph(f"<b>{member.full_name}</b>", name_style), qr_image],
             ["", Paragraph(f"ID: MMS-{member.id:04d}", detail_style), ""],
-            ["", Paragraph(f"Family: {member.family.name}", detail_style), ""],
             ["", Paragraph(f"Phone: {member.phone}", detail_style), ""],
         ]
         table = Table(info_data, colWidths=[22*mm, 35*mm, 15*mm])
@@ -147,7 +146,6 @@ def generate_membership_card(member):
         info_data = [
             [Paragraph(f"<b>{member.full_name}</b>", name_style), qr_image],
             [Paragraph(f"ID: MMS-{member.id:04d}", detail_style), ""],
-            [Paragraph(f"Family: {member.family.name}", detail_style), ""],
             [Paragraph(f"Phone: {member.phone}", detail_style), ""],
         ]
         table = Table(info_data, colWidths=[55*mm, 15*mm])

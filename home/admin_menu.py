@@ -11,6 +11,47 @@ def get_modeladmin_url(app, model):
 def register_administration_menu():
     """Register the main Administration menu with submenus"""
 
+    membership_geography_menu = Menu(
+        items=[
+            MenuItem(
+                label="🏷️ Wards",
+                url=get_modeladmin_url("membership", "ward"),
+                icon_name="tag",
+                order=1,
+            ),
+            MenuItem(
+                label="🗺️ Taluks",
+                url=get_modeladmin_url("membership", "taluk"),
+                icon_name="tag",
+                order=2,
+            ),
+            MenuItem(
+                label="�️ Cities",
+                url=get_modeladmin_url("membership", "city"),
+                icon_name="tag",
+                order=3,
+            ),
+            MenuItem(
+                label="🏷️ States",
+                url=get_modeladmin_url("membership", "state"),
+                icon_name="tag",
+                order=4,
+            ),
+            MenuItem(
+                label="🏷️ Countries",
+                url=get_modeladmin_url("membership", "country"),
+                icon_name="tag",
+                order=5,
+            ),
+            MenuItem(
+                label="🏷️ Postal Codes",
+                url=get_modeladmin_url("membership", "postalcode"),
+                icon_name="tag",
+                order=6,
+            ),
+        ]
+    )
+
     # Create membership submenu
     membership_menu = Menu(
         items=[
@@ -21,9 +62,9 @@ def register_administration_menu():
                 order=1,
             ),
             MenuItem(
-                label="🏠 Families",
-                url=get_modeladmin_url("membership", "family"),
-                icon_name="group",
+                label="🏠 House Registrations",
+                url=get_modeladmin_url("membership", "houseregistration"),
+                icon_name="home",
                 order=2,
             ),
             MenuItem(
@@ -390,6 +431,17 @@ def register_administration_menu():
                 label="🏠 Membership", 
                 menu=membership_menu, 
                 icon_name="group", 
+                order=order,
+                required_groups=['membership']
+            )
+        )
+        order += 1
+
+        menu_items.append(
+            GroupRestrictedSubmenuMenuItem(
+                label="🌍 Geography",
+                menu=membership_geography_menu,
+                icon_name="site",
                 order=order,
                 required_groups=['membership']
             )

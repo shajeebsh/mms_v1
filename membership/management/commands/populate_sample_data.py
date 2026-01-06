@@ -12,7 +12,7 @@ from assets.models import PropertyUnit, Shop
 from education.models import Class, StudentEnrollment, Teacher
 from finance.models import (Donation, DonationCategory, Expense,
                             ExpenseCategory, FinancialReport)
-from membership.models import (Family, Member, MembershipDues, Payment,
+from membership.models import (HouseRegistration, Member, MembershipDues, Payment,
                                VitalRecord)
 from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                PrayerTime)
@@ -47,30 +47,30 @@ class Command(BaseCommand):
     def create_membership_data(self):
         self.stdout.write('Creating membership sample data...')
 
-        # Create sample families
-        families_data = [
-            {'name': 'Ahmed Family', 'phone': '+1-555-0101', 'email': 'ahmed@example.com', 'address': '123 Main St'},
-            {'name': 'Khan Family', 'phone': '+1-555-0102', 'email': 'khan@example.com', 'address': '456 Oak Ave'},
-            {'name': 'Patel Family', 'phone': '+1-555-0103', 'email': 'patel@example.com', 'address': '789 Pine Rd'},
-            {'name': 'Ali Family', 'phone': '+1-555-0104', 'email': 'ali@example.com', 'address': '321 Elm St'},
-            {'name': 'Hassan Family', 'phone': '+1-555-0105', 'email': 'hassan@example.com', 'address': '654 Maple Dr'},
+        # Create sample houses
+        houses_data = [
+            {'house_name': 'Ahmed House', 'house_number': 'H-001'},
+            {'house_name': 'Khan House', 'house_number': 'H-002'},
+            {'house_name': 'Patel House', 'house_number': 'H-003'},
+            {'house_name': 'Ali House', 'house_number': 'H-004'},
+            {'house_name': 'Hassan House', 'house_number': 'H-005'},
         ]
 
-        families = []
-        for family_data in families_data:
-            family = Family.objects.create(**family_data)
-            families.append(family)
+        houses = []
+        for house_data in houses_data:
+            house = HouseRegistration.objects.create(**house_data)
+            houses.append(house)
 
         # Create sample members
         members_data = [
-            {'first_name': 'Ahmed', 'last_name': 'Mohammed', 'family': families[0], 'phone': '+1-555-0101', 'email': 'ahmed.m@example.com', 'gender': 'M', 'date_of_birth': date(1985, 5, 15)},
-            {'first_name': 'Fatima', 'last_name': 'Ahmed', 'family': families[0], 'phone': '+1-555-0101', 'email': 'fatima.a@example.com', 'gender': 'F', 'date_of_birth': date(1988, 8, 20)},
-            {'first_name': 'Omar', 'last_name': 'Khan', 'family': families[1], 'phone': '+1-555-0102', 'email': 'omar.k@example.com', 'gender': 'M', 'date_of_birth': date(1990, 3, 10)},
-            {'first_name': 'Aisha', 'last_name': 'Khan', 'family': families[1], 'phone': '+1-555-0102', 'email': 'aisha.k@example.com', 'gender': 'F', 'date_of_birth': date(1992, 7, 25)},
-            {'first_name': 'Raj', 'last_name': 'Patel', 'family': families[2], 'phone': '+1-555-0103', 'email': 'raj.p@example.com', 'gender': 'M', 'date_of_birth': date(1980, 12, 5)},
-            {'first_name': 'Priya', 'last_name': 'Patel', 'family': families[2], 'phone': '+1-555-0103', 'email': 'priya.p@example.com', 'gender': 'F', 'date_of_birth': date(1983, 4, 18)},
-            {'first_name': 'Hassan', 'last_name': 'Ali', 'family': families[3], 'phone': '+1-555-0104', 'email': 'hassan.a@example.com', 'gender': 'M', 'date_of_birth': date(1975, 9, 30)},
-            {'first_name': 'Zara', 'last_name': 'Ali', 'family': families[3], 'phone': '+1-555-0104', 'email': 'zara.a@example.com', 'gender': 'F', 'date_of_birth': date(1978, 11, 12)},
+            {'first_name': 'Ahmed', 'last_name': 'Mohammed', 'phone': '+1-555-0101', 'email': 'ahmed.m@example.com', 'gender': 'M', 'date_of_birth': date(1985, 5, 15)},
+            {'first_name': 'Fatima', 'last_name': 'Ahmed', 'phone': '+1-555-0101', 'email': 'fatima.a@example.com', 'gender': 'F', 'date_of_birth': date(1988, 8, 20)},
+            {'first_name': 'Omar', 'last_name': 'Khan', 'phone': '+1-555-0102', 'email': 'omar.k@example.com', 'gender': 'M', 'date_of_birth': date(1990, 3, 10)},
+            {'first_name': 'Aisha', 'last_name': 'Khan', 'phone': '+1-555-0102', 'email': 'aisha.k@example.com', 'gender': 'F', 'date_of_birth': date(1992, 7, 25)},
+            {'first_name': 'Raj', 'last_name': 'Patel', 'phone': '+1-555-0103', 'email': 'raj.p@example.com', 'gender': 'M', 'date_of_birth': date(1980, 12, 5)},
+            {'first_name': 'Priya', 'last_name': 'Patel', 'phone': '+1-555-0103', 'email': 'priya.p@example.com', 'gender': 'F', 'date_of_birth': date(1983, 4, 18)},
+            {'first_name': 'Hassan', 'last_name': 'Ali', 'phone': '+1-555-0104', 'email': 'hassan.a@example.com', 'gender': 'M', 'date_of_birth': date(1975, 9, 30)},
+            {'first_name': 'Zara', 'last_name': 'Ali', 'phone': '+1-555-0104', 'email': 'zara.a@example.com', 'gender': 'F', 'date_of_birth': date(1978, 11, 12)},
         ]
 
         members = []
@@ -90,10 +90,10 @@ class Command(BaseCommand):
 
         # Create membership dues for current year
         current_year = timezone.now().year
-        for family in families:
+        for house in houses:
             for month in range(1, 13):
                 MembershipDues.objects.create(
-                    family=family,
+                    house=house,
                     year=current_year,
                     month=month,
                     amount_due=Decimal('10.00'),
@@ -103,16 +103,16 @@ class Command(BaseCommand):
 
         # Create sample payments
         payment_data = [
-            {'family': families[0], 'amount': Decimal('20.00'), 'payment_method': 'cash', 'payment_date': date.today()},
-            {'family': families[1], 'amount': Decimal('30.00'), 'payment_method': 'upi', 'payment_date': date.today()},
-            {'family': families[2], 'amount': Decimal('10.00'), 'payment_method': 'bank', 'payment_date': date.today()},
+            {'house': houses[0], 'amount': Decimal('20.00'), 'payment_method': 'cash', 'payment_date': date.today()},
+            {'house': houses[1], 'amount': Decimal('30.00'), 'payment_method': 'upi', 'payment_date': date.today()},
+            {'house': houses[2], 'amount': Decimal('10.00'), 'payment_method': 'bank', 'payment_date': date.today()},
         ]
 
         for payment_info in payment_data:
             payment = Payment.objects.create(**payment_info)
             # Associate with some dues
             dues = MembershipDues.objects.filter(
-                family=payment.family,
+                house=payment.house,
                 is_paid=False
             )[:payment.amount // 10]  # Pay for some months
             payment.membership_dues.set(dues)
@@ -641,18 +641,18 @@ class Command(BaseCommand):
         # Ensure accounts exist first
         self.create_accounting_data()
         
-        families = list(Family.objects.all())
-        if not families:
-            self.stdout.write(self.style.WARNING('No families available for billing. Skipping.'))
+        houses = list(HouseRegistration.objects.all())
+        if not houses:
+            self.stdout.write(self.style.WARNING('No houses available for billing. Skipping.'))
             return
 
         shops = list(Shop.objects.all())
 
         # Create some invoices
-        for i, family in enumerate(families[:3]):
+        for i, house in enumerate(houses[:3]):
             invoice = Invoice.objects.create(
-                invoice_number=f"INV-FAM-{family.id}-{random.randint(1000, 9999)}",
-                family=family,
+                invoice_number=f"INV-HOUSE-{house.id}-{random.randint(1000, 9999)}",
+                house=house,
                 date_issued=date.today() - timedelta(days=10),
                 due_date=date.today() + timedelta(days=20),
                 status='sent',

@@ -20,7 +20,16 @@ from django.contrib.contenttypes.models import ContentType
 # mapping of group -> list of app_label.model names to grant permissions for
 GROUP_MODEL_MAP = {
     'membership': [
-        'membership.member', 'membership.family', 'membership.membershipdues', 'membership.payment'
+        'membership.member',
+        'membership.houseregistration',
+        'membership.membershipdues',
+        'membership.payment',
+        'membership.ward',
+        'membership.taluk',
+        'membership.city',
+        'membership.state',
+        'membership.country',
+        'membership.postalcode',
     ],
     'finance': [
         'finance.donation', 'finance.expense', 'finance.financialreport', 'finance.donationcategory', 'finance.expensecategory'
