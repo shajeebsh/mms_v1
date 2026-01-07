@@ -16,7 +16,17 @@ MODULES = {
     'membership': {
         'name': 'Membership',
         'icon': 'group',
-        'description': 'Families, members, dues, payments, and vital records',
+        'description': 'Houses, members, dues, payments, and vital records',
+    },
+    'membership_geography': {
+        'name': 'Membership Geography',
+        'icon': 'site',
+        'description': 'Ward, taluk, city, state, country, and postal code dropdown values',
+    },
+    'membership_houses': {
+        'name': 'House Registrations',
+        'icon': 'home',
+        'description': 'House registrations linked to geography values',
     },
     'assets': {
         'name': 'Assets',
@@ -121,6 +131,10 @@ def _populate_sample_data(request, selected_modules):
                 try:
                     if module == 'membership':
                         command.create_membership_data()
+                    elif module == 'membership_geography':
+                        command.create_membership_geography_data()
+                    elif module == 'membership_houses':
+                        command.create_house_registration_data()
                     elif module == 'assets':
                         command.create_assets_data()
                     elif module == 'education':
@@ -169,15 +183,35 @@ def _clear_sample_data(request, selected_modules):
     from education.models import Class, StudentEnrollment, Teacher
     from finance.models import (Donation, DonationCategory, Expense,
                                 ExpenseCategory, FinancialReport)
-    from membership.models import (HouseRegistration, Member, MembershipDues, Payment,
-                                   VitalRecord)
+    from membership.models import (
+        City,
+        Country,
+        HouseRegistration,
+        Member,
+        MembershipDues,
+        Payment,
+        PostalCode,
+        State,
+        Taluk,
+        VitalRecord,
+        Ward,
+    )
     from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                    PrayerTime)
     from hr.models import (StaffPosition, StaffMember, Attendance, LeaveType,
                            LeaveRequest, SalaryComponent, StaffSalary, Payroll)
-    from committee.models import (CommitteeType, Committee, CommitteeMember,
-                                   Meeting, MeetingAttendee, Trustee,
-                                   TrusteeMeeting, TrusteeMeetingAttendee)
+    from committee.models import (
+        Committee,
+        CommitteeMember,
+        CommitteeType,
+        Meeting,
+        MeetingAttachment,
+        MeetingAttendee,
+        Trustee,
+        TrusteeMeeting,
+        TrusteeMeetingAttachment,
+        TrusteeMeetingAttendee,
+    )
     from accounting.models import (Account, AccountCategory, Transaction,
                                     JournalEntry)
     from billing.models import (Invoice, InvoiceLineItem, BillingPayment)
@@ -199,6 +233,30 @@ def _clear_sample_data(request, selected_modules):
                         VitalRecord.objects.all().delete()
                         Member.objects.all().delete()
                         HouseRegistration.objects.all().delete()
+                        PostalCode.objects.all().delete()
+                        Country.objects.all().delete()
+                        State.objects.all().delete()
+                        City.objects.all().delete()
+                        Taluk.objects.all().delete()
+                        Ward.objects.all().delete()
+                    elif module == 'membership_houses':
+                        Payment.objects.all().delete()
+                        MembershipDues.objects.all().delete()
+                        VitalRecord.objects.all().delete()
+                        Member.objects.all().delete()
+                        HouseRegistration.objects.all().delete()
+                    elif module == 'membership_geography':
+                        Payment.objects.all().delete()
+                        MembershipDues.objects.all().delete()
+                        VitalRecord.objects.all().delete()
+                        Member.objects.all().delete()
+                        HouseRegistration.objects.all().delete()
+                        PostalCode.objects.all().delete()
+                        Country.objects.all().delete()
+                        State.objects.all().delete()
+                        City.objects.all().delete()
+                        Taluk.objects.all().delete()
+                        Ward.objects.all().delete()
                     elif module == 'assets':
                         PropertyUnit.objects.all().delete()
                         Shop.objects.all().delete()
@@ -226,8 +284,10 @@ def _clear_sample_data(request, selected_modules):
                         LeaveType.objects.all().delete()
                         StaffPosition.objects.all().delete()
                     elif module == 'committee':
+                        TrusteeMeetingAttachment.objects.all().delete()
                         TrusteeMeetingAttendee.objects.all().delete()
                         TrusteeMeeting.objects.all().delete()
+                        MeetingAttachment.objects.all().delete()
                         MeetingAttendee.objects.all().delete()
                         Meeting.objects.all().delete()
                         CommitteeMember.objects.all().delete()

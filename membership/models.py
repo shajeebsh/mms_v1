@@ -104,6 +104,8 @@ class HouseRegistration(models.Model):
 
 
 class Member(models.Model):
+    wagtail_reference_index_ignore = True
+
     GENDER_CHOICES = [
         ("M", "Male"),
         ("F", "Female"),
@@ -182,6 +184,24 @@ class Member(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def clean(self):
+        errors = {}
+
+        if not (self.gender or "").strip():
+            errors["gender"] = "Gender is required"
+
+        if self.house_id is None:
+            errors["house"] = "House is required"
+
+        if not (self.phone or "").strip():
+            errors["phone"] = "Phone number is required"
+
+        if not (self.whatsapp_number or "").strip():
+            errors["whatsapp_number"] = "WhatsApp number is required"
+
+        if errors:
+            raise ValidationError(errors)
 
 
 class MembershipDues(models.Model):

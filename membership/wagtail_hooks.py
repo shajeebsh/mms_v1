@@ -1,4 +1,7 @@
 from django.utils.html import format_html
+from django import forms
+from django.core.exceptions import ValidationError
+import re
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
@@ -143,6 +146,57 @@ class MemberAdmin(ModelAdmin):
     list_display = ("full_name", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
     list_filter = ("gender", "is_active", "is_head_of_family", "house")
     search_fields = ("first_name", "last_name", "email", "phone")
+
+    class MemberAdminForm(forms.ModelForm):
+        _phone_re = re.compile(r'^\+?[0-9]{7,20}$')
+
+        class Meta:
+            model = Member
+            fields = '__all__'
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if 'gender' in self.fields:
+                self.fields['gender'].required = True
+            if 'house' in self.fields:
+                self.fields['house'].required = True
+            if 'whatsapp_number' in self.fields:
+                self.fields['whatsapp_number'].required = True
+            if 'phone' in self.fields:
+                self.fields['phone'].required = True
+
+        def clean_phone(self):
+            value = (self.cleaned_data.get('phone') or '').strip()
+            if not value:
+                raise ValidationError('Phone number is required.')
+            if not self._phone_re.match(value):
+                raise ValidationError('Enter a valid phone number (digits only, optional leading +).')
+            return value
+
+        def clean_whatsapp_number(self):
+            value = (self.cleaned_data.get('whatsapp_number') or '').strip()
+            if not value:
+                raise ValidationError('WhatsApp number is required.')
+            if not self._phone_re.match(value):
+                raise ValidationError('Enter a valid WhatsApp number (digits only, optional leading +).')
+            return value
+
+        def clean_gender(self):
+            value = (self.cleaned_data.get('gender') or '').strip()
+            if not value:
+                raise ValidationError('Gender is required.')
+            return value
+
+        def clean_house(self):
+            value = self.cleaned_data.get('house')
+            if value is None:
+                raise ValidationError('House is required.')
+            return value
+
+    base_form_class = MemberAdminForm
+
+    def get_form_class(self):
+        return self.MemberAdminForm
     panels = [
         MultiFieldPanel([
             FieldRowPanel([

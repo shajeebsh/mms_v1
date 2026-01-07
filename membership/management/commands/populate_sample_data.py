@@ -12,8 +12,19 @@ from assets.models import PropertyUnit, Shop
 from education.models import Class, StudentEnrollment, Teacher
 from finance.models import (Donation, DonationCategory, Expense,
                             ExpenseCategory, FinancialReport)
-from membership.models import (HouseRegistration, Member, MembershipDues, Payment,
-                               VitalRecord)
+from membership.models import (
+    City,
+    Country,
+    HouseRegistration,
+    Member,
+    MembershipDues,
+    Payment,
+    PostalCode,
+    State,
+    Taluk,
+    VitalRecord,
+    Ward,
+)
 from operations.models import (AuditoriumBooking, DigitalSignageContent,
                                PrayerTime)
 from hr.models import (StaffPosition, StaffMember, Attendance, LeaveType,
@@ -47,19 +58,7 @@ class Command(BaseCommand):
     def create_membership_data(self):
         self.stdout.write('Creating membership sample data...')
 
-        # Create sample houses
-        houses_data = [
-            {'house_name': 'Ahmed House', 'house_number': 'H-001'},
-            {'house_name': 'Khan House', 'house_number': 'H-002'},
-            {'house_name': 'Patel House', 'house_number': 'H-003'},
-            {'house_name': 'Ali House', 'house_number': 'H-004'},
-            {'house_name': 'Hassan House', 'house_number': 'H-005'},
-        ]
-
-        houses = []
-        for house_data in houses_data:
-            house = HouseRegistration.objects.create(**house_data)
-            houses.append(house)
+        houses = self.create_house_registration_data()
 
         # Create sample members
         members_data = [
@@ -74,8 +73,11 @@ class Command(BaseCommand):
         ]
 
         members = []
-        for member_data in members_data:
+        for idx, member_data in enumerate(members_data):
             member = Member.objects.create(**member_data)
+            if houses:
+                member.house = houses[idx % len(houses)]
+                member.save(update_fields=["house"])
             members.append(member)
 
         # Create sample vital records
@@ -119,6 +121,125 @@ class Command(BaseCommand):
             for due in dues:
                 due.is_paid = True
                 due.save()
+
+
+    def create_membership_geography_data(self):
+        self.stdout.write('Creating membership geography sample data...')
+
+        wards = []
+        for name in ["Ward 1", "Ward 2", "Ward 3", "Ward 4"]:
+            obj, _ = Ward.objects.get_or_create(name=name)
+            wards.append(obj)
+
+        taluks = []
+        for name in ["Alathur", "Chittur", "Pattambi", "Ottapalam"]:
+            obj, _ = Taluk.objects.get_or_create(name=name)
+            taluks.append(obj)
+
+        cities = []
+        for name in ["Palakkad", "Ottapalam", "Shoranur", "Chittur"]:
+            obj, _ = City.objects.get_or_create(name=name)
+            cities.append(obj)
+
+        states = []
+        for name in ["Kerala", "Tamil Nadu"]:
+            obj, _ = State.objects.get_or_create(name=name)
+            states.append(obj)
+
+        countries = []
+        for name in ["India"]:
+            obj, _ = Country.objects.get_or_create(name=name)
+            countries.append(obj)
+
+        postal_codes = []
+        for code in ["678001", "679101", "679121", "678101"]:
+            obj, _ = PostalCode.objects.get_or_create(code=code)
+            postal_codes.append(obj)
+
+        return {
+            "wards": wards,
+            "taluks": taluks,
+            "cities": cities,
+            "states": states,
+            "countries": countries,
+            "postal_codes": postal_codes,
+        }
+
+
+    def create_house_registration_data(self):
+        self.stdout.write('Creating house registration sample data...')
+
+        geo = self.create_membership_geography_data()
+        wards = geo["wards"]
+        taluks = geo["taluks"]
+        cities = geo["cities"]
+        states = geo["states"]
+        countries = geo["countries"]
+        postal_codes = geo["postal_codes"]
+
+        houses_data = [
+            {
+                'house_name': 'Ahmed House',
+                'house_number': 'H-001',
+                'ward': wards[0] if wards else None,
+                'taluk': taluks[0] if taluks else None,
+                'city': cities[0] if cities else None,
+                'state': states[0] if states else None,
+                'country': countries[0] if countries else None,
+                'postal_code': postal_codes[0] if postal_codes else None,
+            },
+            {
+                'house_name': 'Khan House',
+                'house_number': 'H-002',
+                'ward': wards[1] if len(wards) > 1 else (wards[0] if wards else None),
+                'taluk': taluks[1] if len(taluks) > 1 else (taluks[0] if taluks else None),
+                'city': cities[1] if len(cities) > 1 else (cities[0] if cities else None),
+                'state': states[0] if states else None,
+                'country': countries[0] if countries else None,
+                'postal_code': postal_codes[1] if len(postal_codes) > 1 else (postal_codes[0] if postal_codes else None),
+            },
+            {
+                'house_name': 'Patel House',
+                'house_number': 'H-003',
+                'ward': wards[2] if len(wards) > 2 else (wards[0] if wards else None),
+                'taluk': taluks[2] if len(taluks) > 2 else (taluks[0] if taluks else None),
+                'city': cities[2] if len(cities) > 2 else (cities[0] if cities else None),
+                'state': states[0] if states else None,
+                'country': countries[0] if countries else None,
+                'postal_code': postal_codes[2] if len(postal_codes) > 2 else (postal_codes[0] if postal_codes else None),
+            },
+            {
+                'house_name': 'Ali House',
+                'house_number': 'H-004',
+                'ward': wards[3] if len(wards) > 3 else (wards[0] if wards else None),
+                'taluk': taluks[3] if len(taluks) > 3 else (taluks[0] if taluks else None),
+                'city': cities[3] if len(cities) > 3 else (cities[0] if cities else None),
+                'state': states[0] if states else None,
+                'country': countries[0] if countries else None,
+                'postal_code': postal_codes[3] if len(postal_codes) > 3 else (postal_codes[0] if postal_codes else None),
+            },
+            {
+                'house_name': 'Hassan House',
+                'house_number': 'H-005',
+                'ward': wards[0] if wards else None,
+                'taluk': taluks[0] if taluks else None,
+                'city': cities[0] if cities else None,
+                'state': states[0] if states else None,
+                'country': countries[0] if countries else None,
+                'postal_code': postal_codes[0] if postal_codes else None,
+            },
+        ]
+
+        houses = []
+        for house_data in houses_data:
+            house, _ = HouseRegistration.objects.get_or_create(
+                house_name=house_data.get("house_name", ""),
+                house_number=house_data.get("house_number", ""),
+                defaults=house_data,
+            )
+            houses.append(house)
+
+        return houses
 
 
     def create_assets_data(self):
