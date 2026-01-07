@@ -141,7 +141,7 @@ class MemberAdmin(ModelAdmin):
     menu_icon = "user"
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = ("full_name", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
-    list_filter = ("gender", "is_active", "is_head_of_family", "city", "state")
+    list_filter = ("gender", "is_active", "is_head_of_family", "house")
     search_fields = ("first_name", "last_name", "email", "phone")
     panels = [
         MultiFieldPanel([
@@ -158,6 +158,7 @@ class MemberAdmin(ModelAdmin):
             FieldRowPanel([
                 FieldPanel("is_head_of_family", classname="col4"),
                 FieldPanel("is_active", classname="col4"),
+                FieldPanel("house", classname="col4"),
             ]),
         ], heading="Personal Information"),
         
@@ -172,22 +173,12 @@ class MemberAdmin(ModelAdmin):
                 FieldPanel("photo", classname="col8"),
             ]),
         ], heading="Contact & Identification"),
-        
+
         MultiFieldPanel([
             FieldRowPanel([
-                FieldPanel("ward_no_dropdown", classname="col4"),
-                FieldPanel("address", classname="col8"),
+                FieldPanel("address", classname="col12"),
             ]),
-            FieldRowPanel([
-                FieldPanel("taluk_dropdown", classname="col4"),
-                FieldPanel("city_dropdown", classname="col4"),
-                FieldPanel("postal_code_dropdown", classname="col4"),
-            ]),
-            FieldRowPanel([
-                FieldPanel("state_dropdown", classname="col6"),
-                FieldPanel("country_dropdown", classname="col6"),
-            ]),
-        ], heading="Location Information"),
+        ], heading="House"),
     ]
 
     def print_card_link(self, obj):

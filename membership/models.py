@@ -116,6 +116,14 @@ class Member(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
     # family field removed - replaced with individual text fields for now
     is_head_of_family = models.BooleanField(default=False, help_text="Is this person head of family?")
+
+    house = models.ForeignKey(
+        HouseRegistration,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="members",
+    )
     
     MARITAL_STATUS_CHOICES = [
         ("S", "Single"),
