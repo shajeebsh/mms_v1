@@ -146,6 +146,26 @@ python manage.py runserver
 ## Deployment & Production
 For detailed instructions on deploying to **Google Cloud Run** and **Cloud SQL**, refer to the [walkthrough.md](file:///Users/shajeebs/.gemini/antigravity/brain/e3b9ea35-d83b-484f-9530-3b975abbc9f7/walkthrough.md).
 
+### PythonAnywhere (quick deploy)
+```bash
+# 1) Pull latest code
+git pull
+
+# 2) Activate venv
+source ~/.virtualenvs/<your-venv-name>/bin/activate
+
+# 3) Install deps (if changed)
+pip install -r requirements.txt
+
+# 4) Apply DB migrations
+python manage.py migrate
+
+# 5) Static files
+python manage.py collectstatic --noinput
+```
+
+Then go to the **Web** tab in PythonAnywhere and click **Reload**.
+
 ## Accessing the Application
 - **Website**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - **Admin Panel**: [http://127.0.0.1:8000/cms/](http://127.0.0.1:8000/cms/)
