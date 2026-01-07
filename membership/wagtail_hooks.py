@@ -116,6 +116,67 @@ class PostalCodeAdmin(ModelAdmin):
         FieldPanel("created_at"),
     ]
 
+class HouseRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = HouseRegistration
+        fields = ['house_name', 'house_number', 'ward', 'taluk', 'city', 'state', 'country', 'postal_code']
+
+    def __init__(self, *args, **kwargs):
+        super(HouseRegistrationForm, self).__init__(*args, **kwargs)
+        required_fields = ['house_name', 'house_number', 'ward', 'taluk', 'city', 'state', 'country', 'postal_code']
+        for field_name in required_fields:
+            if field_name in self.fields:
+                self.fields[field_name].required = True
+
+    def clean_house_name(self):
+        value = (self.cleaned_data.get('house_name') or '').strip()
+        if not value:
+            raise ValidationError('House name is required.')
+        return value
+
+    def clean_house_number(self):
+        value = (self.cleaned_data.get('house_number') or '').strip()
+        if not value:
+            raise ValidationError('House number is required.')
+        return value
+
+    def clean_ward(self):
+        value = self.cleaned_data.get('ward')
+        if value is None:
+            raise ValidationError('Ward is required.')
+        return value
+
+    def clean_taluk(self):
+        value = self.cleaned_data.get('taluk')
+        if value is None:
+            raise ValidationError('Taluk is required.')
+        return value
+
+    def clean_city(self):
+        value = self.cleaned_data.get('city')
+        if value is None:
+            raise ValidationError('City is required.')
+        return value
+
+    def clean_state(self):
+        value = self.cleaned_data.get('state')
+        if value is None:
+            raise ValidationError('State is required.')
+        return value
+
+    def clean_country(self):
+        value = self.cleaned_data.get('country')
+        if value is None:
+            raise ValidationError('Country is required.')
+        return value
+
+    def clean_postal_code(self):
+        value = self.cleaned_data.get('postal_code')
+        if value is None:
+            raise ValidationError('Postal code is required.')
+        return value
+
+
 class HouseRegistrationAdmin(ModelAdmin):
     model = HouseRegistration
     permission_helper_class = ACLPermissionHelper
@@ -124,15 +185,31 @@ class HouseRegistrationAdmin(ModelAdmin):
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = ("house_name", "house_number", "ward", "city", "state", "country")
     search_fields = ("house_name", "house_number")
+
+    def get_form_class(self, request=None):
+        return HouseRegistrationForm
+
     panels = [
-        FieldPanel("house_name"),
-        FieldPanel("house_number"),
-        FieldPanel("ward"),
-        FieldPanel("taluk"),
-        FieldPanel("city"),
-        FieldPanel("state"),
-        FieldPanel("country"),
-        FieldPanel("postal_code"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("house_name", classname="col6"),
+                FieldPanel("house_number", classname="col6"),
+            ]),
+        ], heading="House Details"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("ward", classname="col6"),
+                FieldPanel("taluk", classname="col6"),
+            ]),
+            FieldRowPanel([
+                FieldPanel("city", classname="col6"),
+                FieldPanel("state", classname="col6"),
+            ]),
+            FieldRowPanel([
+                FieldPanel("country", classname="col6"),
+                FieldPanel("postal_code", classname="col6"),
+            ]),
+        ], heading="Address"),
     ]
 
 
