@@ -9,7 +9,7 @@ class InvoiceAdmin(ModelAdmin):
     menu_icon = "doc-full"
     list_display = (
         "invoice_number",
-        "family",
+        "house",
         "shop",
         "date_issued",
         "due_date",
@@ -18,7 +18,7 @@ class InvoiceAdmin(ModelAdmin):
         "balance_due",
     )
     list_filter = ("status", "date_issued")
-    search_fields = ("invoice_number", "family__name", "shop__name")
+    search_fields = ("invoice_number", "house__house_name", "house__house_number", "shop__name")
     add_to_admin_menu = False
     # extra_css = {'all': ('home/css/admin_theme.css',)}  # Disabled to test default styling
 

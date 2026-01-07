@@ -38,20 +38,18 @@
             <textarea name="notes" id="notes" rows="3" placeholder="Optional payment notes"></textarea>
         </div>
 
-        <h2>Select Families with Outstanding Dues</h2>
+        <h2>Select Houses with Outstanding Dues</h2>
         <div class="families-list">
-            {% for family in families %}
+            {% for house in houses %}
                 <div class="family-item">
                     <label class="family-checkbox">
-                        <input type="checkbox" name="family_ids" value="{{ family.id }}">
+                        <input type="checkbox" name="house_ids" value="{{ house.id }}">
                         <span class="family-info">
-                            <strong>{{ family.name }}</strong>
-                            {% if family.phone %} - {{ family.phone }}{% endif %}
-                            {% if family.email %} - {{ family.email }}{% endif %}
+                            <strong>{{ house }}</strong>
                         </span>
                     </label>
                     <div class="dues-summary">
-                        {% with dues_count=family.membership_dues.filter|length %}
+                        {% with dues_count=house.membership_dues.filter|length %}
                             {% if dues_count > 0 %}
                                 <small>{{ dues_count }} unpaid dues</small>
                             {% endif %}

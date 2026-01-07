@@ -1,8 +1,11 @@
 from django.utils.html import format_html
+from django import forms
+from django.core.exceptions import ValidationError
+import re
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Family, Member, MembershipDues, Payment, VitalRecord
+from .models import HouseRegistration, Member, MembershipDues, Payment, VitalRecord, Ward, Taluk, City, State, Country, PostalCode
 
 
 from wagtail_modeladmin.helpers import ButtonHelper
@@ -35,19 +38,101 @@ class MemberButtonHelper(ButtonHelper):
 
 from home.permission_helpers import ACLPermissionHelper
 
-class FamilyAdmin(ModelAdmin):
-    model = Family
+class WardAdmin(ModelAdmin):
+    model = Ward
     permission_helper_class = ACLPermissionHelper
-    menu_label = "Families"
-    menu_icon = "group"
+    menu_label = "Wards"
+    menu_icon = "tag"
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ("name", "phone", "email", "created_at")
-    search_fields = ("name", "phone", "email")
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
     panels = [
         FieldPanel("name"),
-        FieldPanel("address"),
-        FieldPanel("phone"),
-        FieldPanel("email"),
+        FieldPanel("created_at"),
+    ]
+
+class TalukAdmin(ModelAdmin):
+    model = Taluk
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Taluks"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class CityAdmin(ModelAdmin):
+    model = City
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Cities"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class StateAdmin(ModelAdmin):
+    model = State
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "States"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class CountryAdmin(ModelAdmin):
+    model = Country
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Countries"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("created_at"),
+    ]
+
+class PostalCodeAdmin(ModelAdmin):
+    model = PostalCode
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "Postal Codes"
+    menu_icon = "tag"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("code", "created_at")
+    search_fields = ("code",)
+    panels = [
+        FieldPanel("code"),
+        FieldPanel("created_at"),
+    ]
+
+class HouseRegistrationAdmin(ModelAdmin):
+    model = HouseRegistration
+    permission_helper_class = ACLPermissionHelper
+    menu_label = "House Registrations"
+    menu_icon = "home"
+    add_to_admin_menu = False  # Will be included in grouped menu
+    list_display = ("house_name", "house_number", "ward", "city", "state", "country")
+    search_fields = ("house_name", "house_number")
+    panels = [
+        FieldPanel("house_name"),
+        FieldPanel("house_number"),
+        FieldPanel("ward"),
+        FieldPanel("taluk"),
+        FieldPanel("city"),
+        FieldPanel("state"),
+        FieldPanel("country"),
+        FieldPanel("postal_code"),
     ]
 
 
@@ -58,9 +143,60 @@ class MemberAdmin(ModelAdmin):
     menu_label = "Members"
     menu_icon = "user"
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ("full_name", "family", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
-    list_filter = ("gender", "is_active", "is_head_of_family", "family")
+    list_display = ("full_name", "is_head_of_family", "date_of_birth", "gender", "is_active", "print_card_link")
+    list_filter = ("gender", "is_active", "is_head_of_family", "house")
     search_fields = ("first_name", "last_name", "email", "phone")
+
+    class MemberAdminForm(forms.ModelForm):
+        _phone_re = re.compile(r'^\+?[0-9]{7,20}$')
+
+        class Meta:
+            model = Member
+            fields = '__all__'
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if 'gender' in self.fields:
+                self.fields['gender'].required = True
+            if 'house' in self.fields:
+                self.fields['house'].required = True
+            if 'whatsapp_number' in self.fields:
+                self.fields['whatsapp_number'].required = True
+            if 'phone' in self.fields:
+                self.fields['phone'].required = True
+
+        def clean_phone(self):
+            value = (self.cleaned_data.get('phone') or '').strip()
+            if not value:
+                raise ValidationError('Phone number is required.')
+            if not self._phone_re.match(value):
+                raise ValidationError('Enter a valid phone number (digits only, optional leading +).')
+            return value
+
+        def clean_whatsapp_number(self):
+            value = (self.cleaned_data.get('whatsapp_number') or '').strip()
+            if not value:
+                raise ValidationError('WhatsApp number is required.')
+            if not self._phone_re.match(value):
+                raise ValidationError('Enter a valid WhatsApp number (digits only, optional leading +).')
+            return value
+
+        def clean_gender(self):
+            value = (self.cleaned_data.get('gender') or '').strip()
+            if not value:
+                raise ValidationError('Gender is required.')
+            return value
+
+        def clean_house(self):
+            value = self.cleaned_data.get('house')
+            if value is None:
+                raise ValidationError('House is required.')
+            return value
+
+    base_form_class = MemberAdminForm
+
+    def get_form_class(self):
+        return self.MemberAdminForm
     panels = [
         MultiFieldPanel([
             FieldRowPanel([
@@ -74,9 +210,9 @@ class MemberAdmin(ModelAdmin):
                 FieldPanel("marital_status", classname="col4"),
             ]),
             FieldRowPanel([
-                FieldPanel("family", classname="col4"),
                 FieldPanel("is_head_of_family", classname="col4"),
                 FieldPanel("is_active", classname="col4"),
+                FieldPanel("house", classname="col4"),
             ]),
         ], heading="Personal Information"),
         
@@ -91,22 +227,12 @@ class MemberAdmin(ModelAdmin):
                 FieldPanel("photo", classname="col8"),
             ]),
         ], heading="Contact & Identification"),
-        
+
         MultiFieldPanel([
             FieldRowPanel([
-                FieldPanel("ward_no", classname="col4"),
-                FieldPanel("address", classname="col8"),
+                FieldPanel("address", classname="col12"),
             ]),
-            FieldRowPanel([
-                FieldPanel("taluk", classname="col4"),
-                FieldPanel("city", classname="col4"),
-                FieldPanel("postal_code", classname="col4"),
-            ]),
-            FieldRowPanel([
-                FieldPanel("state", classname="col6"),
-                FieldPanel("country", classname="col6"),
-            ]),
-        ], heading="Location Information"),
+        ], heading="House"),
     ]
 
     def print_card_link(self, obj):
@@ -123,7 +249,7 @@ class MembershipDuesAdmin(ModelAdmin):
     menu_icon = "money"
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = (
-        "family",
+        "house",
         "year",
         "month",
         "amount_due",
@@ -132,10 +258,10 @@ class MembershipDuesAdmin(ModelAdmin):
         "is_overdue",
     )
     list_filter = ("year", "month", "is_paid", "due_date")
-    search_fields = ("family__name",)
+    search_fields = ("house__house_name", "house__house_number")
     list_editable = ("is_paid",)
     panels = [
-        FieldPanel("family"),
+        FieldPanel("house"),
         FieldPanel("year"),
         FieldPanel("month"),
         FieldPanel("amount_due"),
@@ -144,7 +270,7 @@ class MembershipDuesAdmin(ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("family")
+        return super().get_queryset(request).select_related("house")
 
 
 class PaymentAdmin(ModelAdmin):
@@ -155,16 +281,16 @@ class PaymentAdmin(ModelAdmin):
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = (
         "receipt_number",
-        "family",
+        "house",
         "amount",
         "payment_method",
         "payment_date",
         "total_dues_covered",
     )
     list_filter = ("payment_method", "payment_date")
-    search_fields = ("receipt_number", "family__name", "notes")
+    search_fields = ("receipt_number", "house__house_name", "house__house_number", "notes")
     panels = [
-        FieldPanel("family"),
+        FieldPanel("house"),
         FieldPanel("amount"),
         FieldPanel("payment_method"),
         FieldPanel("payment_date"),
@@ -176,7 +302,7 @@ class PaymentAdmin(ModelAdmin):
         return (
             super()
             .get_queryset(request)
-            .select_related("family")
+            .select_related("house")
             .prefetch_related("membership_dues")
         )
 
@@ -199,7 +325,13 @@ class VitalRecordAdmin(ModelAdmin):
     ]
 
 
-modeladmin_register(FamilyAdmin)
+modeladmin_register(WardAdmin)
+modeladmin_register(TalukAdmin)
+modeladmin_register(CityAdmin)
+modeladmin_register(StateAdmin)
+modeladmin_register(CountryAdmin)
+modeladmin_register(PostalCodeAdmin)
+modeladmin_register(HouseRegistrationAdmin)
 modeladmin_register(MemberAdmin)
 modeladmin_register(MembershipDuesAdmin)
 modeladmin_register(PaymentAdmin)

@@ -10,41 +10,37 @@ from wagtail.models import Site
 
 from home.models import SystemSettings
 
-from .models import Family, Member, MembershipDues, Payment, VitalRecord
+from .models import HouseRegistration, Member, MembershipDues, Payment, VitalRecord
 
 
-class FamilyModelTest(TestCase):
-    """Test cases for Family model"""
+class HouseRegistrationModelTest(TestCase):
+    """Test cases for HouseRegistration model"""
 
     def setUp(self):
-        self.family = Family.objects.create(
-            name="Test Family",
-            address="123 Test St",
-            phone="1234567890",
-            email="test@example.com",
+        self.house = HouseRegistration.objects.create(
+            house_name="Test House",
+            house_number="H-001",
         )
 
-    def test_family_creation(self):
-        """Test that a family can be created"""
-        self.assertEqual(self.family.name, "Test Family")
-        self.assertEqual(str(self.family), "Test Family")
+    def test_house_creation(self):
+        """Test that a house registration can be created"""
+        self.assertEqual(self.house.house_name, "Test House")
+        self.assertEqual(str(self.house), "Test House")
 
-    def test_family_str_representation(self):
-        """Test family string representation"""
-        self.assertEqual(str(self.family), "Test Family")
+    def test_house_str_representation(self):
+        """Test house string representation"""
+        self.assertEqual(str(self.house), "Test House")
 
 
 class MemberModelTest(TestCase):
     """Test cases for Member model"""
 
     def setUp(self):
-        self.family = Family.objects.create(name="Test Family")
         self.member = Member.objects.create(
             first_name="John",
             last_name="Doe",
             date_of_birth=date(1990, 1, 1),
             gender="M",
-            family=self.family,
             phone="1234567890",
             email="john@example.com",
             is_active=True,
@@ -69,7 +65,7 @@ class MembershipDuesModelTest(TestCase):
     """Test cases for MembershipDues model"""
 
     def setUp(self):
-        self.family = Family.objects.create(name="Test Family")
+        self.house = HouseRegistration.objects.create(house_name="Test House")
         # Create a default site for SystemSettings
         self.site = Site.objects.create(
             hostname="test.com", port=80, site_name="Test Site", is_default_site=True
@@ -81,13 +77,13 @@ class MembershipDuesModelTest(TestCase):
     def test_membership_dues_creation(self):
         """Test that membership dues can be created"""
         due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=1,
             amount_due=Decimal("10.00"),
             due_date=date(2024, 1, 1),
         )
-        self.assertEqual(due.family, self.family)
+        self.assertEqual(due.house, self.house)
         self.assertEqual(due.year, 2024)
         self.assertEqual(due.month, 1)
         self.assertEqual(due.amount_due, Decimal("10.00"))
@@ -95,7 +91,7 @@ class MembershipDuesModelTest(TestCase):
     def test_membership_dues_unique_together(self):
         """Test that duplicate dues for same family/year/month are prevented"""
         MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=1,
             amount_due=Decimal("10.00"),
@@ -104,7 +100,7 @@ class MembershipDuesModelTest(TestCase):
         # Try to create duplicate
         with self.assertRaises(Exception):  # IntegrityError
             MembershipDues.objects.create(
-                family=self.family,
+                house=self.house,
                 year=2024,
                 month=1,
                 amount_due=Decimal("10.00"),
@@ -114,7 +110,7 @@ class MembershipDuesModelTest(TestCase):
     def test_membership_dues_auto_calculate_due_date(self):
         """Test that due_date is auto-calculated if not provided"""
         due = MembershipDues(
-            family=self.family, year=2024, month=3, amount_due=Decimal("10.00")
+            house=self.house, year=2024, month=3, amount_due=Decimal("10.00")
         )
         due.save()
         self.assertEqual(due.due_date, date(2024, 3, 1))
@@ -123,7 +119,7 @@ class MembershipDuesModelTest(TestCase):
         """Test that new dues use system settings for default amount"""
         SystemSettings.objects.update(monthly_membership_dues=Decimal("15.00"))
         due = MembershipDues(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=4,
             amount_due=Decimal("10.00"),  # Will be overridden by system settings
@@ -135,7 +131,7 @@ class MembershipDuesModelTest(TestCase):
     def test_membership_dues_validation(self):
         """Test that amount_due must be greater than zero"""
         due = MembershipDues(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=1,
             amount_due=Decimal("0.00"),
@@ -148,7 +144,7 @@ class MembershipDuesModelTest(TestCase):
         """Test the is_overdue property"""
         # Create an overdue due
         overdue_due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2023,
             month=1,
             amount_due=Decimal("10.00"),
@@ -159,7 +155,7 @@ class MembershipDuesModelTest(TestCase):
 
         # Create a paid due (not overdue even if past due date)
         paid_due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2023,
             month=2,
             amount_due=Decimal("10.00"),
@@ -170,7 +166,7 @@ class MembershipDuesModelTest(TestCase):
 
         # Create a future due (not overdue)
         future_due = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2025,
             month=1,
             amount_due=Decimal("10.00"),
@@ -184,24 +180,24 @@ class PaymentModelTest(TestCase):
     """Test cases for Payment model"""
 
     def setUp(self):
-        self.family = Family.objects.create(name="Test Family")
+        self.house = HouseRegistration.objects.create(house_name="Test House")
 
     def test_payment_creation(self):
         """Test that a payment can be created"""
         payment = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("50.00"),
             payment_method="cash",
             payment_date=date.today(),
         )
-        self.assertEqual(payment.family, self.family)
+        self.assertEqual(payment.house, self.house)
         self.assertEqual(payment.amount, Decimal("50.00"))
         self.assertTrue(payment.receipt_number.startswith("REC-"))
 
     def test_payment_auto_generate_receipt_number(self):
         """Test that receipt number is auto-generated"""
         payment1 = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("10.00"),
             payment_method="cash",
             payment_date=date.today(),
@@ -209,7 +205,7 @@ class PaymentModelTest(TestCase):
         self.assertTrue(payment1.receipt_number.startswith("REC-"))
 
         payment2 = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("20.00"),
             payment_method="upi",
             payment_date=date.today(),
@@ -221,14 +217,14 @@ class PaymentModelTest(TestCase):
         """Test the total_dues_covered property"""
         # Create dues
         due1 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=1,
             amount_due=Decimal("10.00"),
             due_date=date(2024, 1, 1),
         )
         due2 = MembershipDues.objects.create(
-            family=self.family,
+            house=self.house,
             year=2024,
             month=2,
             amount_due=Decimal("10.00"),
@@ -237,7 +233,7 @@ class PaymentModelTest(TestCase):
 
         # Create payment and associate dues
         payment = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("20.00"),
             payment_method="cash",
             payment_date=date.today(),
@@ -249,23 +245,20 @@ class PaymentModelTest(TestCase):
     def test_payment_str_representation(self):
         """Test payment string representation"""
         payment = Payment.objects.create(
-            family=self.family,
+            house=self.house,
             amount=Decimal("50.00"),
             payment_method="cash",
             payment_date=date.today(),
         )
         self.assertIn("Receipt #", str(payment))
-        self.assertIn(self.family.name, str(payment))
+        self.assertIn(str(self.house), str(payment))
 
 
 class VitalRecordModelTest(TestCase):
     """Test cases for VitalRecord model"""
 
     def setUp(self):
-        self.family = Family.objects.create(name="Test Family")
-        self.member = Member.objects.create(
-            first_name="John", last_name="Doe", family=self.family
-        )
+        self.member = Member.objects.create(first_name="John", last_name="Doe")
 
     def test_vital_record_creation(self):
         """Test that a vital record can be created"""

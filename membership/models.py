@@ -8,13 +8,8 @@ from django.utils import timezone
 logger = logging.getLogger(__name__)
 
 
-class Family(models.Model):
-    name = models.CharField(max_length=200, help_text="Family name or surname")
-    address = models.TextField(blank=True, help_text="Family address")
-    phone = models.CharField(
-        max_length=20, blank=True, help_text="Primary phone number"
-    )
-    email = models.EmailField(blank=True, help_text="Family email")
+class Ward(models.Model):
+    name = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -22,10 +17,95 @@ class Family(models.Model):
         return self.name
 
     class Meta:
-        verbose_name_plural = "Families"
+        verbose_name_plural = "Wards"
+
+
+class Taluk(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Taluks"
+
+
+class City(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Cities"
+
+
+class State(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "States"
+
+
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Countries"
+
+
+class PostalCode(models.Model):
+    code = models.CharField(max_length=10, unique=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.code
+
+    class Meta:
+        verbose_name_plural = "Postal Codes"
+
+
+class HouseRegistration(models.Model):
+    house_name = models.CharField(max_length=200, blank=True)
+    house_number = models.CharField(max_length=50, blank=True)
+
+    ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True)
+    taluk = models.ForeignKey(Taluk, on_delete=models.SET_NULL, null=True, blank=True)
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True)
+    state = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, blank=True)
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True)
+    postal_code = models.ForeignKey(PostalCode, on_delete=models.SET_NULL, null=True, blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        display = self.house_name or self.house_number
+        return display or f"House #{self.pk}"
+
+    class Meta:
+        verbose_name = "House Registration"
+        verbose_name_plural = "House Registrations"
 
 
 class Member(models.Model):
+    wagtail_reference_index_ignore = True
+
     GENDER_CHOICES = [
         ("M", "Male"),
         ("F", "Female"),
@@ -36,8 +116,16 @@ class Member(models.Model):
     last_name = models.CharField(max_length=100)
     date_of_birth = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
-    family = models.ForeignKey(Family, on_delete=models.CASCADE, related_name="members")
-    is_head_of_family = models.BooleanField(default=False, help_text="Is this person the head of the family?")
+    # family field removed - replaced with individual text fields for now
+    is_head_of_family = models.BooleanField(default=False, help_text="Is this person head of family?")
+
+    house = models.ForeignKey(
+        HouseRegistration,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="members",
+    )
     
     MARITAL_STATUS_CHOICES = [
         ("S", "Single"),
@@ -60,6 +148,7 @@ class Member(models.Model):
     whatsapp_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     
+    # Keep existing text fields and add new dropdown fields
     ward_no = models.CharField(max_length=20, blank=True, verbose_name="Ward No")
     taluk = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
@@ -68,6 +157,14 @@ class Member(models.Model):
     
     address = models.TextField(blank=True, help_text="Personal address if different from family")
     postal_code = models.CharField(max_length=10, blank=True)
+    
+    # New dropdown fields
+    ward_no_dropdown = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ward No (Dropdown)")
+    taluk_dropdown = models.ForeignKey(Taluk, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Taluk (Dropdown)")
+    city_dropdown = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="City (Dropdown)")
+    state_dropdown = models.ForeignKey(State, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="State (Dropdown)")
+    country_dropdown = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Country (Dropdown)")
+    postal_code_dropdown = models.ForeignKey(PostalCode, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Postal Code (Dropdown)")
     
     photo = models.ForeignKey(
         'wagtailimages.Image',
@@ -88,12 +185,30 @@ class Member(models.Model):
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
+    def clean(self):
+        errors = {}
+
+        if not (self.gender or "").strip():
+            errors["gender"] = "Gender is required"
+
+        if self.house_id is None:
+            errors["house"] = "House is required"
+
+        if not (self.phone or "").strip():
+            errors["phone"] = "Phone number is required"
+
+        if not (self.whatsapp_number or "").strip():
+            errors["whatsapp_number"] = "WhatsApp number is required"
+
+        if errors:
+            raise ValidationError(errors)
+
 
 class MembershipDues(models.Model):
     """Monthly membership dues for families - ₹10 per couple per month"""
 
-    family = models.ForeignKey(
-        Family, on_delete=models.CASCADE, related_name="membership_dues"
+    house = models.ForeignKey(
+        HouseRegistration, on_delete=models.CASCADE, related_name="membership_dues"
     )
     year = models.PositiveIntegerField(help_text="Year for the dues")
     month = models.PositiveIntegerField(help_text="Month for the dues (1-12)")
@@ -109,13 +224,13 @@ class MembershipDues(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ["family", "year", "month"]
-        ordering = ["-year", "-month", "family__name"]
+        unique_together = ["house", "year", "month"]
+        ordering = ["-year", "-month", "house__house_name", "house__house_number"]
         verbose_name = "Membership Due"
         verbose_name_plural = "Membership Dues"
 
     def __str__(self):
-        return f"{self.family.name} - {self.year}-{self.month:02d} (₹{self.amount_due})"
+        return f"{self.house} - {self.year}-{self.month:02d} (₹{self.amount_due})"
 
     def clean(self):
         if self.amount_due <= 0:
@@ -168,8 +283,8 @@ class Payment(models.Model):
         ("upi", "UPI"),
     ]
 
-    family = models.ForeignKey(
-        Family, on_delete=models.CASCADE, related_name="payments"
+    house = models.ForeignKey(
+        HouseRegistration, on_delete=models.CASCADE, related_name="payments"
     )
     amount = models.DecimalField(
         max_digits=10, decimal_places=2, help_text="Payment amount"
@@ -200,7 +315,7 @@ class Payment(models.Model):
         verbose_name_plural = "Payments"
 
     def __str__(self):
-        return f"Receipt #{self.receipt_number} - {self.family.name} - ₹{self.amount}"
+        return f"Receipt #{self.receipt_number} - {self.house} - ₹{self.amount}"
 
     def save(self, *args, **kwargs):
         if not self.receipt_number:

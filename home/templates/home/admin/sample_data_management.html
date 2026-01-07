@@ -7,7 +7,7 @@
     {% trans "Sample Data Management" as title %}
     {% include "wagtailadmin/shared/header.html" with title=title icon="cog" %}
 
-    <div class="nice-padding">
+    <div class="nice-padding" style="padding-top: 12px; padding-bottom: 12px;">
         <div class="help-block help-info">
             <p>
                 <strong>{% trans "Warning:" %}</strong>
@@ -18,18 +18,18 @@
         <form method="post" action="{% url 'home_admin:sample_data_management' %}" id="sample-data-form">
             {% csrf_token %}
             
-            <div class="panel">
+            <div class="panel" style="margin-bottom: 10px;">
                 <div class="panel-header">
                     <h2>{% trans "Select Modules" %}</h2>
                 </div>
                 <div class="panel-content">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h2 style="margin: 0;">{% trans "Select Modules" %}</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h2 style="margin: 0; font-size: 18px;">{% trans "Select Modules" %}</h2>
                         <div>
                             <button type="button" 
                                     class="button button-secondary" 
                                     onclick="selectAllModules(true)"
-                                    style="margin-right: 10px;">
+                                    style="margin-right: 8px; padding: 6px 10px;">
                                 <i class="icon icon-tick"></i>
                                 {% trans "Select All" %}
                             </button>
@@ -41,10 +41,10 @@
                             </button>
                         </div>
                     </div>
-                    <div class="module-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div class="module-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin: 10px 0;">
                         {% for module_key, module_info in modules.items %}
                             {% if module_key in enabled_modules %}
-                                <div class="module-card" style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; background: white; cursor: pointer; transition: all 0.3s;" 
+                                <div class="module-card" style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; background: white; cursor: pointer; transition: all 0.2s;" 
                                      onmouseover="this.style.borderColor='#007d7e'; this.style.boxShadow='0 2px 8px rgba(0,125,126,0.2)'"
                                      onmouseout="this.style.borderColor='#e0e0e0'; this.style.boxShadow='none'"
                                      onclick="document.getElementById('module_{{ module_key }}').checked = !document.getElementById('module_{{ module_key }}').checked; updateCardStyle('{{ module_key }}')">
@@ -53,14 +53,14 @@
                                                name="modules" 
                                                value="{{ module_key }}" 
                                                id="module_{{ module_key }}"
-                                               style="margin-right: 10px; width: 20px; height: 20px; cursor: pointer;"
+                                               style="margin-right: 8px; width: 18px; height: 18px; cursor: pointer;"
                                                onchange="updateCardStyle('{{ module_key }}')">
                                         <div style="flex: 1;">
-                                            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                                                <i class="icon icon-{{ module_info.icon }}" style="font-size: 24px; margin-right: 10px; color: #007d7e;"></i>
-                                                <strong style="font-size: 16px;">{{ module_info.name }}</strong>
+                                            <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                                                <i class="icon icon-{{ module_info.icon }}" style="font-size: 20px; margin-right: 8px; color: #007d7e;"></i>
+                                                <h3 style="margin: 0; font-size: 16px; color: #333;">{{ module_info.name }}</h3>
                                             </div>
-                                            <p style="color: #666; font-size: 14px; margin: 0;">{{ module_info.description }}</p>
+                                            <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.35;">{{ module_info.description }}</p>
                                         </div>
                                     </label>
                                 </div>
@@ -80,26 +80,26 @@
                 <div class="panel-header">
                     <h2>{% trans "Actions" %}</h2>
                 </div>
-                <div class="panel-content">
-                    <div style="display: flex; gap: 15px; margin-top: 20px;">
-                        <button type="submit" 
-                                name="action" 
-                                value="populate" 
-                                class="button button-primary"
-                                onclick="return confirm('{% trans "Are you sure you want to populate sample data for the selected modules? This will add new records to your database." %}')">
-                            <i class="icon icon-plus"></i>
-                            {% trans "Populate Sample Data" %}
-                        </button>
-                        
-                        <button type="submit" 
-                                name="action" 
-                                value="clear" 
-                                class="button button-secondary"
-                                style="background-color: #e74c3c; color: white;"
-                                onclick="return confirm('{% trans "WARNING: This will permanently delete ALL data in the selected modules. This action cannot be undone. Are you absolutely sure?" %}')">
-                            <i class="icon icon-bin"></i>
-                            {% trans "Clear All Data" %}
-                        </button>
+                <div style="text-align: center; margin-top: 12px;">
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <button type="submit" 
+                            name="action" 
+                            value="populate" 
+                            class="button button-primary"
+                            style="padding: 8px 14px;"
+                            data-confirm="{% trans 'Are you sure you want to populate sample data for the selected modules? This will add new records to your database.' %}">
+                        <i class="icon icon-plus"></i>
+                        {% trans "Populate Sample Data" %}
+                    </button>
+                    <button type="submit" 
+                            name="action" 
+                            value="clear" 
+                            class="button button-secondary"
+                            style="background-color: #e74c3c; color: white; padding: 8px 14px;"
+                            data-confirm="{% trans 'WARNING: This will permanently delete ALL data in the selected modules. This action cannot be undone. Are you absolutely sure?' %}">
+                        <i class="icon icon-bin"></i>
+                        {% trans "Clear All Data" %}
+                    </button>
                     </div>
                 </div>
             </div>
@@ -107,6 +107,16 @@
     </div>
 
     <script>
+        document.addEventListener('click', function(e) {
+            const button = e.target.closest('button[data-confirm]');
+            if (!button) return;
+
+            const message = button.getAttribute('data-confirm');
+            if (message && !confirm(message)) {
+                e.preventDefault();
+            }
+        });
+
         function selectAllModules(select) {
             const checkboxes = document.querySelectorAll('input[name="modules"]');
             checkboxes.forEach(checkbox => {
@@ -132,11 +142,10 @@
 
         // Initialize card styles on page load
         document.addEventListener('DOMContentLoaded', function() {
-            {% for module_key, module_info in modules.items %}
-                {% if module_key in enabled_modules %}
-                    updateCardStyle('{{ module_key }}');
-                {% endif %}
-            {% endfor %}
+            const checkboxes = document.querySelectorAll('input[name="modules"]');
+            checkboxes.forEach(checkbox => {
+                updateCardStyle(checkbox.value);
+            });
         });
     </script>
 

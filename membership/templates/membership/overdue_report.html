@@ -16,8 +16,8 @@
             <div class="count">{{ overdue_dues|length }}</div>
         </div>
         <div class="summary-card">
-            <h3>Families Affected</h3>
-            <div class="count">{{ family_summary|length }}</div>
+            <h3>Houses Affected</h3>
+            <div class="count">{{ house_summary|length }}</div>
         </div>
     </div>
 
@@ -27,7 +27,7 @@
             <table class="listing">
                 <thead>
                     <tr>
-                        <th>Family</th>
+                        <th>House</th>
                         <th>Year-Month</th>
                         <th>Amount Due</th>
                         <th>Due Date</th>
@@ -37,7 +37,7 @@
                 <tbody>
                     {% for due in overdue_dues %}
                         <tr>
-                            <td>{{ due.family.name }}</td>
+                            <td>{{ due.house }}</td>
                             <td>{{ due.year }}-{{ due.month|date:"m" }}</td>
                             <td>₹{{ due.amount_due }}</td>
                             <td>{{ due.due_date|date:"M j, Y" }}</td>
@@ -48,11 +48,11 @@
             </table>
         </div>
 
-        <h2>Family Summary</h2>
+        <h2>House Summary</h2>
         <div class="family-summary-grid">
-            {% for family_name, data in family_summary.items %}
+            {% for house_name, data in house_summary.items %}
                 <div class="family-card">
-                    <h3>{{ family_name }}</h3>
+                    <h3>{{ house_name }}</h3>
                     <div class="family-stats">
                         <div class="stat">
                             <span class="label">Unpaid Months:</span>
@@ -71,7 +71,7 @@
         </div>
     {% else %}
         <div class="no-data">
-            <p>🎉 No overdue membership dues found! All families are up to date.</p>
+            <p>🎉 No overdue membership dues found! All houses are up to date.</p>
         </div>
     {% endif %}
 

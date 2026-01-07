@@ -45,7 +45,7 @@ def post_membership_payment_to_ledger(sender, instance, created, **kwargs):
     if created:
         tx = Transaction.objects.create(
             date=instance.payment_date,
-            description=f"Membership Dues Payment: {instance.family}",
+            description=f"Membership Dues Payment: {instance.house}",
             reference=instance.receipt_number
         )
         
