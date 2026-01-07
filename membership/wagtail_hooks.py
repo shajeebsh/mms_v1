@@ -155,7 +155,7 @@ class HouseRegistrationForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        forms.ModelForm.__init__(self, *args, **kwargs)
         # Make all fields required
         for field_name in self.fields:
             self.fields[field_name].required = True

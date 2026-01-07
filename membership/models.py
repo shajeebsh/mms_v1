@@ -81,6 +81,7 @@ class PostalCode(models.Model):
 
 
 class HouseRegistration(models.Model):
+    wagtail_reference_index_ignore = True
     house_name = models.CharField(max_length=200)
     house_number = models.CharField(max_length=50)
 
