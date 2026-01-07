@@ -153,6 +153,7 @@ git pull
 
 # 2) Activate venv
 source ~/.virtualenvs/<your-venv-name>/bin/activate
+eg:- source /home/shajeebsh/.virtualenvs/.env/bin/activate
 
 # 3) Install deps (if changed)
 pip install -r requirements.txt
