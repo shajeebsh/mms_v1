@@ -1,16 +1,18 @@
 import logging
 from decimal import Decimal
+from urllib.parse import quote
 
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q, Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from django.http import HttpResponse
+from .forms import WhatsAppMessageForm
 from .models import HouseRegistration, Member, MembershipDues, Payment
-from .utils import generate_membership_questionnaire, generate_membership_card
+from .utils import generate_membership_card, generate_membership_questionnaire
 
 logger = logging.getLogger(__name__)
 
@@ -61,18 +63,23 @@ def bulk_payment_view(request):
                 # Create payment record
                 # Find the head of family (or if not available, any member) of the first house to link the payment to
                 first_house = HouseRegistration.objects.filter(id__in=house_ids).first()
-                member_to_link = Member.objects.filter(house=first_house, is_head_of_family=True).first()
+                member_to_link = Member.objects.filter(
+                    house=first_house, is_head_of_family=True
+                ).first()
                 if not member_to_link:
-                     member_to_link = Member.objects.filter(house=first_house).first()
-                
+                    member_to_link = Member.objects.filter(house=first_house).first()
+
                 if not member_to_link:
-                     # Fallback or error if house has no members? 
-                     # For now, we will create a dummy member or raise an error?
-                     # Let's skip with a warning if no member found? But we already processed potential dues.
-                     # We'll assume for now that house registration implies members exist or we can proceed 
-                     # but we can't create Payment without Member due to ForeignKey.
-                     messages.error(request, f"Cannot create payment: No members found in {first_house}. Payment requires a Member.")
-                     return redirect("bulk_payment")
+                    # Fallback or error if house has no members?
+                    # For now, we will create a dummy member or raise an error?
+                    # Let's skip with a warning if no member found? But we already processed potential dues.
+                    # We'll assume for now that house registration implies members exist or we can proceed
+                    # but we can't create Payment without Member due to ForeignKey.
+                    messages.error(
+                        request,
+                        f"Cannot create payment: No members found in {first_house}. Payment requires a Member.",
+                    )
+                    return redirect("bulk_payment")
 
                 payment = Payment.objects.create(
                     member=member_to_link,
@@ -239,22 +246,26 @@ def generate_monthly_dues_view(request):
 def download_questionnaire_view(request):
     """View to download a blank membership questionnaire"""
     buffer = generate_membership_questionnaire()
-    response = HttpResponse(buffer.read(), content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="membership_questionnaire.pdf"'
+    response = HttpResponse(buffer.read(), content_type="application/pdf")
+    response["Content-Disposition"] = (
+        'attachment; filename="membership_questionnaire.pdf"'
+    )
     return response
 
 
 def preview_questionnaire_view(request):
     """View to preview the membership questionnaire"""
-    return render(request, 'membership/preview_questionnaire.html')
+    return render(request, "membership/preview_questionnaire.html")
 
 
 def print_membership_card_view(request, member_id):
     """View to download/print a membership card for a specific member"""
     member = get_object_or_404(Member, id=member_id)
     buffer = generate_membership_card(member)
-    response = HttpResponse(buffer.read(), content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="membership_card_{member.id}.pdf"'
+    response = HttpResponse(buffer.read(), content_type="application/pdf")
+    response["Content-Disposition"] = (
+        f'attachment; filename="membership_card_{member.id}.pdf"'
+    )
     return response
 
 
@@ -262,6 +273,36 @@ def preview_membership_card_view(request, member_id):
     """View to preview a membership card for a specific member"""
     member = get_object_or_404(Member, id=member_id)
     context = {
-        'member': member,
+        "member": member,
     }
-    return render(request, 'membership/preview_card.html', context)
+    return render(request, "membership/preview_card.html", context)
+
+
+def whatsapp_message_view(request):
+    if request.method == "POST":
+        form = WhatsAppMessageForm(request.POST)
+        if form.is_valid():
+            members = form.cleaned_data["members"]
+            message = form.cleaned_data["message"]
+            whatsapp_links = []
+            for member in members:
+                if member.phone_number:
+                    phone_number = member.phone_number.replace("+", "").replace(" ", "")
+                    encoded_message = quote(message)
+                    link = f"https://wa.me/{phone_number}?text={encoded_message}"
+                    whatsapp_links.append({"member": member, "link": link})
+                else:
+                    messages.warning(
+                        request,
+                        f"Member {member.first_name} {member.last_name} does not have a phone number.",
+                    )
+            context = {
+                "form": form,
+                "whatsapp_links": whatsapp_links,
+                "message_sent": True,
+            }
+            return render(request, "membership/whatsapp_message.html", context)
+    else:
+        form = WhatsAppMessageForm()
+    context = {"form": form, "message_sent": False}
+    return render(request, "membership/whatsapp_message.html", context)

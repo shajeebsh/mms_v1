@@ -104,6 +104,10 @@ def sample_data_management_view(request):
         "modules": MODULES,
         "enabled_modules": _get_enabled_modules(),
     }
+    for module_name, module_info in context["modules"].items():
+        print(
+            f"DEBUG: Module {module_name}, Description: {module_info.get('description')}"
+        )
     return render(request, "home/admin/sample_data_management.html", context)
 
 

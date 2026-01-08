@@ -11,4 +11,5 @@ urlpatterns = [
     path('preview-questionnaire/', views.preview_questionnaire_view, name='preview_questionnaire'),
     path('print-card/<int:member_id>/', views.print_membership_card_view, name='print_membership_card'),
     path('preview-card/<int:member_id>/', views.preview_membership_card_view, name='preview_membership_card'),
+    path('whatsapp-message/', views.whatsapp_message_view, name='whatsapp_message'),
 ]
