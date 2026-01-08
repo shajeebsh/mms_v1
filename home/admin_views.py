@@ -196,8 +196,7 @@ def _clear_sample_data(request, selected_modules):
         VitalRecord,
         Ward,
     )
-    from operations.models import (AuditoriumBooking, DigitalSignageContent,
-                                   PrayerTime)
+    from operations.models import AuditoriumBooking
     from hr.models import (StaffPosition, StaffMember, Attendance, LeaveType,
                            LeaveRequest, SalaryComponent, StaffSalary, Payroll)
     from committee.models import (
@@ -271,8 +270,6 @@ def _clear_sample_data(request, selected_modules):
                         ExpenseCategory.objects.all().delete()
                         DonationCategory.objects.all().delete()
                     elif module == 'operations':
-                        DigitalSignageContent.objects.all().delete()
-                        PrayerTime.objects.all().delete()
                         AuditoriumBooking.objects.all().delete()
                     elif module == 'hr':
                         Payroll.objects.all().delete()
