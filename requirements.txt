@@ -10,5 +10,4 @@ django-environ==0.11.2
 psycopg2-binary==2.9.9
 pytest-html
 mysqlclient
-mysqlclient
 hijri-converter
