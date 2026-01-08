@@ -65,8 +65,12 @@ class WardAdmin(ModelAdmin):
     list_display = ("name", "created_at")
     search_fields = ("name",)
     panels = [
-        FieldPanel("name"),
-        FieldPanel("created_at"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("name", classname="col6"),
+                FieldPanel("created_at", classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Ward Details", classname="compact-panel"),
     ]
 
 
@@ -79,8 +83,12 @@ class TalukAdmin(ModelAdmin):
     list_display = ("name", "created_at")
     search_fields = ("name",)
     panels = [
-        FieldPanel("name"),
-        FieldPanel("created_at"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("name", classname="col6"),
+                FieldPanel("created_at", classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Taluk Details", classname="compact-panel"),
     ]
 
 
@@ -93,8 +101,12 @@ class CityAdmin(ModelAdmin):
     list_display = ("name", "created_at")
     search_fields = ("name",)
     panels = [
-        FieldPanel("name"),
-        FieldPanel("created_at"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("name", classname="col6"),
+                FieldPanel("created_at", classname="col6"),
+            ], classname="compact-row"),
+        ], heading="City Details", classname="compact-panel"),
     ]
 
 
@@ -107,8 +119,12 @@ class StateAdmin(ModelAdmin):
     list_display = ("name", "created_at")
     search_fields = ("name",)
     panels = [
-        FieldPanel("name"),
-        FieldPanel("created_at"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("name", classname="col6"),
+                FieldPanel("created_at", classname="col6"),
+            ], classname="compact-row"),
+        ], heading="State Details", classname="compact-panel"),
     ]
 
 
@@ -121,8 +137,12 @@ class CountryAdmin(ModelAdmin):
     list_display = ("name", "created_at")
     search_fields = ("name",)
     panels = [
-        FieldPanel("name"),
-        FieldPanel("created_at"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("name", classname="col6"),
+                FieldPanel("created_at", classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Country Details", classname="compact-panel"),
     ]
 
 
@@ -135,8 +155,12 @@ class PostalCodeAdmin(ModelAdmin):
     list_display = ("code", "created_at")
     search_fields = ("code",)
     panels = [
-        FieldPanel("code"),
-        FieldPanel("created_at"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("code", classname="col6"),
+                FieldPanel("created_at", classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Postal Code Details", classname="compact-panel"),
     ]
 
 
@@ -423,12 +447,20 @@ class MembershipDuesAdmin(ModelAdmin):
     search_fields = ("house__house_name", "house__house_number")
     list_editable = ("is_paid",)
     panels = [
-        FieldPanel("house"),
-        FieldPanel("year"),
-        FieldPanel("month"),
-        FieldPanel("amount_due"),
-        FieldPanel("is_paid"),
-        FieldPanel("due_date"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("house", classname="col6"),
+                FieldPanel("year", classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel("month", classname="col6"),
+                FieldPanel("amount_due", classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel("is_paid", classname="col6"),
+                FieldPanel("due_date", classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Dues Details", classname="compact-panel"),
     ]
 
     def get_queryset(self, request):
@@ -443,7 +475,7 @@ class PaymentAdmin(ModelAdmin):
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = (
         "receipt_number",
-        "house",
+        "member",
         "amount",
         "payment_method",
         "payment_date",
@@ -452,24 +484,34 @@ class PaymentAdmin(ModelAdmin):
     list_filter = ("payment_method", "payment_date")
     search_fields = (
         "receipt_number",
-        "house__house_name",
-        "house__house_number",
+        "member__first_name",
+        "member__last_name",
         "notes",
     )
     panels = [
-        FieldPanel("house"),
-        FieldPanel("amount"),
-        FieldPanel("payment_method"),
-        FieldPanel("payment_date"),
-        FieldPanel("membership_dues"),
-        FieldPanel("notes"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("member", classname="col6"),
+                FieldPanel("amount", classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel("payment_method", classname="col6"),
+                FieldPanel("payment_date", classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel("membership_dues", classname="col12"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel("notes", classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Payment Details", classname="compact-panel"),
     ]
 
     def get_queryset(self, request):
         return (
             super()
             .get_queryset(request)
-            .select_related("house")
+            .select_related("member")
             .prefetch_related("membership_dues")
         )
 
@@ -484,11 +526,19 @@ class VitalRecordAdmin(ModelAdmin):
     list_filter = ("record_type", "date")
     search_fields = ("member__first_name", "member__last_name", "location", "details")
     panels = [
-        FieldPanel("record_type"),
-        FieldPanel("date"),
-        FieldPanel("member"),
-        FieldPanel("details"),
-        FieldPanel("location"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel("record_type", classname="col6"),
+                FieldPanel("date", classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel("member", classname="col6"),
+                FieldPanel("location", classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel("details", classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Record Details", classname="compact-panel"),
     ]
 
 

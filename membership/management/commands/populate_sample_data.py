@@ -25,8 +25,7 @@ from membership.models import (
     VitalRecord,
     Ward,
 )
-from operations.models import (AuditoriumBooking, DigitalSignageContent,
-                               PrayerTime)
+from operations.models import AuditoriumBooking
 from hr.models import (StaffPosition, StaffMember, Attendance, LeaveType,
                        LeaveRequest, SalaryComponent, StaffSalary, Payroll)
 from committee.models import (CommitteeType, Committee, CommitteeMember,
@@ -94,33 +93,37 @@ class Command(BaseCommand):
         current_year = timezone.now().year
         for house in houses:
             for month in range(1, 13):
-                MembershipDues.objects.create(
+
+                MembershipDues.objects.get_or_create(
                     house=house,
                     year=current_year,
                     month=month,
-                    amount_due=Decimal('10.00'),
-                    due_date=date(current_year, month, 1),
-                    is_paid=random.choice([True, False, False])  # 33% paid
+                    defaults={
+                        'amount_due': Decimal('10.00'),
+                        'due_date': date(current_year, month, 1),
+                        'is_paid': random.choice([True, False, False])  # 33% paid
+                    }
                 )
 
         # Create sample payments
         payment_data = [
-            {'house': houses[0], 'amount': Decimal('20.00'), 'payment_method': 'cash', 'payment_date': date.today()},
-            {'house': houses[1], 'amount': Decimal('30.00'), 'payment_method': 'upi', 'payment_date': date.today()},
-            {'house': houses[2], 'amount': Decimal('10.00'), 'payment_method': 'bank', 'payment_date': date.today()},
+            {'member': members[0], 'amount': Decimal('20.00'), 'payment_method': 'cash', 'payment_date': date.today()},
+            {'member': members[1], 'amount': Decimal('30.00'), 'payment_method': 'upi', 'payment_date': date.today()},
+            {'member': members[2], 'amount': Decimal('10.00'), 'payment_method': 'bank', 'payment_date': date.today()},
         ]
 
         for payment_info in payment_data:
             payment = Payment.objects.create(**payment_info)
-            # Associate with some dues
-            dues = MembershipDues.objects.filter(
-                house=payment.house,
-                is_paid=False
-            )[:payment.amount // 10]  # Pay for some months
-            payment.membership_dues.set(dues)
-            for due in dues:
-                due.is_paid = True
-                due.save()
+            # Associate with some dues linked to member's house
+            if payment.member and payment.member.house:
+                dues = MembershipDues.objects.filter(
+                    house=payment.member.house,
+                    is_paid=False
+                )[:int(payment.amount // 10)]  # Pay for some months
+                payment.membership_dues.set(dues)
+                for due in dues:
+                    due.is_paid = True
+                    due.save()
 
 
     def create_membership_geography_data(self):
@@ -269,30 +272,83 @@ class Command(BaseCommand):
     def create_education_data(self):
         self.stdout.write('Creating education sample data...')
 
-        # Get some members to make teachers
-        existing_teacher_members = Teacher.objects.values_list('member_id', flat=True)
-        members = list(Member.objects.exclude(id__in=existing_teacher_members)[:3])
-
-        if len(members) < 3:
-            self.stdout.write(self.style.WARNING('Not enough members available to create teachers. Skipping teacher creation.'))
-            return
-
-        # Create teachers
+        # Create teachers with new standalone model fields
         teachers_data = [
-            {'member': members[0], 'specialization': 'Quran Studies', 'qualifications': 'Hafiz, Islamic Studies Degree', 'hire_date': date(2020, 1, 15)},
-            {'member': members[1], 'specialization': 'Arabic Language', 'qualifications': 'Arabic Literature Degree', 'hire_date': date(2021, 3, 20)},
-            {'member': members[2], 'specialization': 'Islamic Studies', 'qualifications': 'Islamic Theology Masters', 'hire_date': date(2019, 9, 10)},
+            {
+                'name': 'Abdul Rahman',
+                'father_name': 'Mohammed Ali',
+                'date_of_birth': date(1985, 5, 15),
+                'blood_group': 'O+',
+                'house_name': 'Rahman Manzil',
+                'place': 'Main Street',
+                'post_office': 'Central PO',
+                'via': 'Market Road',
+                'pin_code': '678001',
+                'district': 'Palakkad',
+                'state': 'Kerala',
+                'lsg_name': 'Palakkad Municipality',
+                'land_phone': '0491-2550101',
+                'mobile_no': '9876543210',
+                'teaching_level': 'primary',
+                'islamic_qualification': 'Hafiz, Islamic Studies Degree',
+                'general_qualification': 'BA Arabic',
+                'organization': 'none'
+            },
+            {
+                'name': 'Yusuf Khan',
+                'father_name': 'Ibrahim Khan',
+                'date_of_birth': date(1988, 8, 20),
+                'blood_group': 'A+',
+                'house_name': 'Khan Villa',
+                'place': 'West Fort',
+                'post_office': 'West PO',
+                'via': 'Fort Road',
+                'pin_code': '678002',
+                'district': 'Palakkad',
+                'state': 'Kerala',
+                'lsg_name': 'Palakkad Municipality',
+                'land_phone': '0491-2550102',
+                'mobile_no': '9876543211',
+                'teaching_level': 'secondary',
+                'islamic_qualification': 'Arabic Literature Degree',
+                'general_qualification': 'MA English',
+                'organization': 'other',
+                'membership_no': 'MEM123',
+                'unit_name': 'West Unit',
+                'unit_secretary_name': 'Hamza',
+                'unit_secretary_mobile': '9876543220'
+            },
+            {
+                'name': 'Zaid Ali',
+                'father_name': 'Hassan Ali',
+                'date_of_birth': date(1990, 3, 10),
+                'blood_group': 'B+',
+                'house_name': 'Ali House',
+                'place': 'Kalpathy',
+                'post_office': 'Kalpathy PO',
+                'via': 'River Road',
+                'pin_code': '678003',
+                'district': 'Palakkad',
+                'state': 'Kerala',
+                'lsg_name': 'Palakkad Municipality',
+                'land_phone': '0491-2550103',
+                'mobile_no': '9876543212',
+                'teaching_level': 'higher_secondary',
+                'islamic_qualification': 'Islamic Theology Masters',
+                'general_qualification': 'B.Ed',
+                'organization': 'none'
+            },
         ]
 
         teachers = []
         for teacher_data in teachers_data:
             teacher, created = Teacher.objects.get_or_create(
-                member=teacher_data['member'],
+                name=teacher_data['name'],
                 defaults=teacher_data
             )
             teachers.append(teacher)
             if created:
-                self.stdout.write(f"Created teacher: {teacher.member.first_name} {teacher.member.last_name}")
+                self.stdout.write(f"Created teacher: {teacher.name}")
 
         # Create classes
         classes_data = [
@@ -409,51 +465,8 @@ class Command(BaseCommand):
         for booking_data in bookings_data:
             AuditoriumBooking.objects.create(**booking_data)
 
-        # Create prayer times for next 7 days
-        prayer_times_data = []
-        base_date = date.today()
-
-        for i in range(7):
-            current_date = base_date + timedelta(days=i)
-            prayers = [
-                ('fajr', time(5, 30)),
-                ('dhuhr', time(12, 30)),
-                ('asr', time(15, 45)),
-                ('maghrib', time(18, 15)),
-                ('isha', time(19, 45)),
-            ]
-
-            # Add Jumah on Friday
-            if current_date.weekday() == 4:  # Friday
-                prayers.append(('jumah', time(13, 30)))
-
-            for prayer_name, prayer_time in prayers:
-                prayer_times_data.append({
-                    'date': current_date,
-                    'prayer': prayer_name,
-                    'time': prayer_time,
-                    'is_jumah': prayer_name == 'jumah',
-                    'location': 'Main Mosque'
-                })
-
-        for prayer_data in prayer_times_data:
-            PrayerTime.objects.get_or_create(
-                date=prayer_data['date'],
-                prayer=prayer_data['prayer'],
-                location=prayer_data['location'],
-                defaults=prayer_data
-            )
-
-        # Create digital signage content
-        signage_data = [
-            {'title': 'Ramadan Mubarak', 'content_type': 'announcement', 'content': 'Ramadan Kareem! Join us for Taraweeh prayers every night at 8:00 PM.', 'display_start': timezone.now(), 'display_end': timezone.now() + timedelta(days=30), 'priority': 10},
-            {'title': 'Friday Prayer Times', 'content_type': 'prayer_times', 'content': 'Jumah prayers start at 1:30 PM. Please arrive early.', 'display_start': timezone.now(), 'display_end': timezone.now() + timedelta(days=7), 'priority': 8},
-            {'title': 'Community Meeting', 'content_type': 'event', 'content': 'Monthly community meeting this Saturday at 4:00 PM in the main hall.', 'display_start': timezone.now(), 'display_end': timezone.now() + timedelta(days=3), 'priority': 7},
-            {'title': 'Quran Verse of the Day', 'content_type': 'quran_verse', 'content': '"And whoever puts all his trust in Allah, He will be enough for him." (Quran 65:3)', 'display_start': timezone.now(), 'display_end': timezone.now() + timedelta(days=1), 'priority': 5},
-        ]
-
-        for content_data in signage_data:
-            DigitalSignageContent.objects.create(**content_data)
+        for booking_data in bookings_data:
+            AuditoriumBooking.objects.create(**booking_data)
 
     def create_hr_data(self):
         self.stdout.write('Creating HR sample data...')
@@ -479,9 +492,10 @@ class Command(BaseCommand):
 
         # Get members to make staff (exclude those already teachers or staff)
         existing_staff_members = StaffMember.objects.values_list('member_id', flat=True)
-        existing_teacher_members = Teacher.objects.values_list('member_id', flat=True)
+        existing_staff_members = StaffMember.objects.values_list('member_id', flat=True)
+        # Teacher is no longer a Member, so we don't need to exclude them from Staff creation
         available_members = Member.objects.exclude(
-            id__in=list(existing_staff_members) + list(existing_teacher_members)
+            id__in=list(existing_staff_members)
         )[:5]
 
         if len(available_members) < len(positions):

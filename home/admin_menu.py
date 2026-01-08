@@ -217,18 +217,6 @@ def register_administration_menu():
                 icon_name="calendar",
                 order=1,
             ),
-            MenuItem(
-                label="🕌 Prayer Times",
-                url=get_modeladmin_url("operations", "prayertime"),
-                icon_name="time",
-                order=2,
-            ),
-            MenuItem(
-                label="📺 Digital Signage",
-                url=get_modeladmin_url("operations", "digitalsignagecontent"),
-                icon_name="media",
-                order=3,
-            ),
         ]
     )
 

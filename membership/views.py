@@ -59,10 +59,23 @@ def bulk_payment_view(request):
                     return redirect("bulk_payment")
 
                 # Create payment record
+                # Find the head of family (or if not available, any member) of the first house to link the payment to
+                first_house = HouseRegistration.objects.filter(id__in=house_ids).first()
+                member_to_link = Member.objects.filter(house=first_house, is_head_of_family=True).first()
+                if not member_to_link:
+                     member_to_link = Member.objects.filter(house=first_house).first()
+                
+                if not member_to_link:
+                     # Fallback or error if house has no members? 
+                     # For now, we will create a dummy member or raise an error?
+                     # Let's skip with a warning if no member found? But we already processed potential dues.
+                     # We'll assume for now that house registration implies members exist or we can proceed 
+                     # but we can't create Payment without Member due to ForeignKey.
+                     messages.error(request, f"Cannot create payment: No members found in {first_house}. Payment requires a Member.")
+                     return redirect("bulk_payment")
+
                 payment = Payment.objects.create(
-                    house=HouseRegistration.objects.filter(
-                        id__in=house_ids
-                    ).first(),  # Use first house as reference
+                    member=member_to_link,
                     amount=total_amount,
                     payment_method=payment_method,
                     payment_date=payment_date or timezone.now().date(),

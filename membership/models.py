@@ -335,8 +335,8 @@ class Payment(models.Model):
         ("upi", "UPI"),
     ]
 
-    house = models.ForeignKey(
-        HouseRegistration, on_delete=models.CASCADE, related_name="payments"
+    member = models.ForeignKey(
+        Member, on_delete=models.CASCADE, related_name="payments", null=True
     )
     amount = models.DecimalField(
         max_digits=10, decimal_places=2, help_text="Payment amount"
@@ -367,7 +367,7 @@ class Payment(models.Model):
         verbose_name_plural = "Payments"
 
     def __str__(self):
-        return f"Receipt #{self.receipt_number} - {self.house} - ₹{self.amount}"
+        return f"Receipt #{self.receipt_number} - {self.member.full_name} - ₹{self.amount}"
 
     def save(self, *args, **kwargs):
         if not self.receipt_number:

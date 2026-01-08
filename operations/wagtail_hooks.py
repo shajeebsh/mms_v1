@@ -1,7 +1,7 @@
 from wagtail.admin.panels import FieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import AuditoriumBooking, PrayerTime, DigitalSignageContent
+from .models import AuditoriumBooking
 
 
 from home.permission_helpers import ACLPermissionHelper
@@ -32,47 +32,4 @@ class AuditoriumBookingAdmin(ModelAdmin):
     ]
 
 
-class PrayerTimeAdmin(ModelAdmin):
-    model = PrayerTime
-    permission_helper_class = ACLPermissionHelper
-    menu_label = 'Prayer Times'
-    menu_icon = 'time'
-    add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ('prayer', 'date', 'time', 'location', 'is_jumah')
-    list_filter = ('prayer', 'is_jumah', 'location')
-    search_fields = ('prayer', 'location')
-    panels = [
-        FieldPanel('date'),
-        FieldPanel('prayer'),
-        FieldPanel('time'),
-        FieldPanel('is_jumah'),
-        FieldPanel('location'),
-    ]
-
-
-class DigitalSignageContentAdmin(ModelAdmin):
-    model = DigitalSignageContent
-    permission_helper_class = ACLPermissionHelper
-    menu_label = 'Digital Signage'
-    menu_icon = 'media'
-    add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ('title', 'content_type', 'display_start', 'display_end', 'is_active', 'priority')
-    list_filter = ('content_type', 'is_active')
-    search_fields = ('title', 'content')
-    panels = [
-        FieldPanel('title'),
-        FieldPanel('content_type'),
-        FieldPanel('content'),
-        FieldPanel('image'),
-        FieldPanel('video_url'),
-        FieldPanel('display_start'),
-        FieldPanel('display_end'),
-        FieldPanel('is_active'),
-        FieldPanel('priority'),
-        FieldPanel('created_by'),
-    ]
-
-
 modeladmin_register(AuditoriumBookingAdmin)
-modeladmin_register(PrayerTimeAdmin)
-modeladmin_register(DigitalSignageContentAdmin)
