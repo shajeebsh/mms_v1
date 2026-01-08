@@ -11,3 +11,4 @@ psycopg2-binary==2.9.9
 pytest-html
 mysqlclient
 mysqlclient
+hijri-converter

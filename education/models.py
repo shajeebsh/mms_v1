@@ -4,16 +4,49 @@ from membership.models import Member
 
 
 class Teacher(models.Model):
-    member = models.OneToOneField(Member, on_delete=models.CASCADE, related_name='teacher_profile')
-    specialization = models.CharField(max_length=200, blank=True)
-    qualifications = models.TextField(blank=True)
-    hire_date = models.DateField(null=True, blank=True)
+    # Personal Details
+    name = models.CharField(max_length=200, default="")
+    father_name = models.CharField(max_length=200, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    blood_group = models.CharField(max_length=10, blank=True)
+    
+    # Address
+    house_name = models.CharField(max_length=200, blank=True)
+    place = models.CharField(max_length=200, blank=True)
+    post_office = models.CharField(max_length=200, blank=True)
+    via = models.CharField(max_length=200, blank=True)
+    pin_code = models.CharField(max_length=20, blank=True)
+    district = models.CharField(max_length=200, blank=True)
+    state = models.CharField(max_length=200, blank=True)
+    lsg_name = models.CharField(max_length=200, blank=True, help_text="Panchayath/Municipality/Corporation")
+
+    # Contact
+    land_phone = models.CharField(max_length=20, blank=True)
+    mobile_no = models.CharField(max_length=20, blank=True)
+
+    # Qualifications
+    teaching_level = models.CharField(max_length=100, blank=True, choices=[
+        ('primary', 'Primary'),
+        ('secondary', 'Secondary'),
+        ('higher_secondary', 'Higher Secondary'),
+        ('other', 'Other'),
+    ])
+    islamic_qualification = models.CharField(max_length=200, blank=True)
+    general_qualification = models.CharField(max_length=200, blank=True)
+
+    # Organization & Membership
+    organization = models.CharField(max_length=200, blank=True, choices=[('none', 'None'), ('other', 'Other')], default='none')
+    membership_no = models.CharField(max_length=50, blank=True)
+    unit_name = models.CharField(max_length=200, blank=True)
+    unit_secretary_name = models.CharField(max_length=200, blank=True)
+    unit_secretary_mobile = models.CharField(max_length=20, blank=True)
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Teacher: {self.member.full_name}"
+        return self.name
 
     class Meta:
         verbose_name = 'Teacher'

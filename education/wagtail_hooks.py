@@ -1,4 +1,4 @@
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
 from .models import Teacher, Class, StudentEnrollment
@@ -16,14 +16,68 @@ class TeacherAdmin(ModelAdmin):
     menu_label = 'Teachers'
     menu_icon = 'user'
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ('member', 'specialization', 'hire_date', 'is_active')
-    list_filter = ('is_active', 'hire_date')
-    search_fields = ('member__first_name', 'member__last_name', 'specialization')
+    list_display = ('name', 'mobile_no', 'teaching_level', 'is_active')
+    list_filter = ('is_active', 'teaching_level', 'blood_group', 'district', 'state')
+    search_fields = ('name', 'mobile_no', 'place', 'district')
     panels = [
-        FieldPanel('member'),
-        FieldPanel('specialization'),
-        FieldPanel('qualifications'),
-        FieldPanel('hire_date'),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('name', classname="col6"),
+                FieldPanel('father_name', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('date_of_birth', classname="col6"),
+                FieldPanel('blood_group', classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Personal Details", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('house_name', classname="col6"),
+                FieldPanel('place', classname="col6"),
+            ], classname="compact-row"),
+             FieldRowPanel([
+                FieldPanel('post_office', classname="col4"),
+                FieldPanel('via', classname="col4"),
+                FieldPanel('pin_code', classname="col4"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('district', classname="col6"),
+                FieldPanel('state', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('lsg_name', classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Address Details", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('land_phone', classname="col6"),
+                FieldPanel('mobile_no', classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Contact", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('teaching_level', classname="col12"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('islamic_qualification', classname="col12"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('general_qualification', classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Qualifications", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('organization', classname="col6"),
+                FieldPanel('membership_no', classname="col6"),
+            ], classname="compact-row"),
+             FieldRowPanel([
+                FieldPanel('unit_name', classname="col12"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('unit_secretary_name', classname="col6"),
+                FieldPanel('unit_secretary_mobile', classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Org. Membership", classname="compact-panel"),
         FieldPanel('is_active'),
     ]
 
@@ -37,18 +91,30 @@ class ClassAdmin(ModelAdmin):
     add_to_admin_menu = False  # Will be included in grouped menu
     list_display = ('name', 'subject', 'grade_level', 'teacher', 'current_enrollment', 'max_students', 'is_active')
     list_filter = ('subject', 'grade_level', 'is_active')
-    search_fields = ('name', 'description', 'teacher__member__first_name', 'teacher__member__last_name')
+    search_fields = ('name', 'description', 'teacher__name')
     panels = [
-        FieldPanel('name'),
-        FieldPanel('grade_level'),
-        FieldPanel('subject'),
-        FieldPanel('teacher'),
-        FieldPanel('max_students'),
-        FieldPanel('description'),
-        FieldPanel('schedule'),
-        FieldPanel('start_date'),
-        FieldPanel('end_date'),
-        FieldPanel('is_active'),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('name', classname="col6"),
+                FieldPanel('grade_level', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('subject', classname="col6"),
+                FieldPanel('teacher', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('max_students', classname="col4"),
+                FieldPanel('start_date', classname="col4"),
+                FieldPanel('end_date', classname="col4"),
+            ], classname="compact-row"),
+             FieldRowPanel([
+                FieldPanel('is_active', classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Class Details", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldPanel('description'),
+            FieldPanel('schedule'),
+        ], heading="Description & Schedule", classname="compact-panel"),
     ]
 
 
@@ -63,12 +129,20 @@ class StudentEnrollmentAdmin(ModelAdmin):
     list_filter = ('status', 'enrollment_date', 'class_instance__subject')
     search_fields = ('student__first_name', 'student__last_name', 'class_instance__name', 'notes')
     panels = [
-        FieldPanel('student'),
-        FieldPanel('class_instance'),
-        FieldPanel('enrollment_date'),
-        FieldPanel('status'),
-        FieldPanel('grade'),
-        FieldPanel('notes'),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('student', classname="col6"),
+                FieldPanel('class_instance', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('enrollment_date', classname="col4"),
+                FieldPanel('status', classname="col4"),
+                FieldPanel('grade', classname="col4"),
+            ], classname="compact-row"),
+             FieldRowPanel([
+                FieldPanel('notes', classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Enrollment Details", classname="compact-panel"),
     ]
 
 

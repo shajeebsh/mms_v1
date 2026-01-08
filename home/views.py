@@ -24,8 +24,8 @@ from assets.models import PropertyUnit, Shop
 from education.models import Class, StudentEnrollment, Teacher
 from finance.models import Donation, DonationCategory, Expense, ExpenseCategory
 from membership.models import HouseRegistration, Member, MembershipDues, Payment
-from operations.models import (AuditoriumBooking, DigitalSignageContent,
-                               PrayerTime)
+from operations.models import AuditoriumBooking
+from hijri_converter import Hijri
 from home.admin_menu import get_modeladmin_url
 
 from .models import DashboardWidget, ReportExport, UserProfile
@@ -109,8 +109,6 @@ def get_dashboard_actions(user):
             'icon': 'calendar-alt',
             'actions': [
                 {'name': 'Auditorium Bookings', 'url': get_modeladmin_url('operations', 'auditoriumbooking'), 'icon': 'calendar-check'},
-                {'name': 'Digital Signage', 'url': '/operations/signage/', 'icon': 'tv'},
-                {'name': 'Prayer Times', 'url': get_modeladmin_url('operations', 'prayertime'), 'icon': 'clock'},
             ]
         })
 
@@ -620,6 +618,7 @@ def wagtail_dashboard_view(request):
         'user_profile': user_profile,
         'user_type': user_type,
         'now': timezone.now(),
+        'hijri_date': f"{Hijri.today().day} {Hijri.today().month_name()} {Hijri.today().year}",
     }
 
     if user_type == 'admin':
