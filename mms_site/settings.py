@@ -1,6 +1,7 @@
 import os
-import environ
 from pathlib import Path
+
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,7 +12,7 @@ env = environ.Env(
 )
 
 # Read environment variables from .env file if it exists
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="replace-me-for-production-dev-only")
@@ -82,7 +83,7 @@ ROOT_URLCONF = "mms_site.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates", BASE_DIR / "membership" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -104,16 +105,16 @@ WSGI_APPLICATION = "mms_site.wsgi.application"
 DATABASES = {
     # Ensure DATABASE_URL is set in .env to a PostgreSQL connection
     # e.g., postgres://user:password@localhost:5432/mms_v1
-    "local-dev": env.db("DATABASE_URL"), 
+    "local-dev": env.db("DATABASE_URL"),
     "remote-dev1": env.db(
         "REMOTE_DEV1_URL",
-        default="postgresql://neondb_owner:npg_8armhCE2voTt@ep-lively-sound-ahzl5trp-pooler.c-3.us-east-1.aws.neon.tech/mmsv1db?sslmode=require&channel_binding=require"
+        default="postgresql://neondb_owner:npg_8armhCE2voTt@ep-lively-sound-ahzl5trp-pooler.c-3.us-east-1.aws.neon.tech/mmsv1db?sslmode=require&channel_binding=require",
     ),
     # MySQL database configuration (PythonAnywhere)
     # Can be overridden by setting MYSQL_DB_URL in .env
     "mysql-dev": env.db(
         "MYSQL_DB_URL",
-        default="mysql://shajeebsh:MyHomeMms123!@shajeebsh.mysql.pythonanywhere-services.com/shajeebsh$mmdb_mysql"
+        default="mysql://shajeebsh:MyHomeMms123!@shajeebsh.mysql.pythonanywhere-services.com/shajeebsh$mmdb_mysql",
     ),
 }
 

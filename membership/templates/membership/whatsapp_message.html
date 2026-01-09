@@ -1,0 +1,16 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags %}
+
+{% block titletag %}WhatsApp Message Sender{% endblock %}
+
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="WhatsApp Message Sender" icon="comment" %}
+
+    <div class="nice-padding">
+        <form action="{% url 'membership:whatsapp_message_sender' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Send Message" class="button button-primary">
+        </form>
+    </div>
+{% endblock %}

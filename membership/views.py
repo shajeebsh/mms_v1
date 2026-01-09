@@ -286,15 +286,15 @@ def whatsapp_message_view(request):
             message = form.cleaned_data["message"]
             whatsapp_links = []
             for member in members:
-                if member.phone_number:
-                    phone_number = member.phone_number.replace("+", "").replace(" ", "")
+                if member.whatsapp_number:
+                    phone_number = member.whatsapp_number.replace("+", "").replace(" ", "")
                     encoded_message = quote(message)
                     link = f"https://wa.me/{phone_number}?text={encoded_message}"
                     whatsapp_links.append({"member": member, "link": link})
                 else:
                     messages.warning(
                         request,
-                        f"Member {member.first_name} {member.last_name} does not have a phone number.",
+                        f"Member {member.first_name} {member.last_name} does not have a WhatsApp number.",
                     )
             context = {
                 "form": form,

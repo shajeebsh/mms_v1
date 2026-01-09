@@ -1,6 +1,6 @@
+from django.urls import reverse_lazy
 from wagtail import hooks
 from wagtail.admin.menu import Menu, MenuItem, SubmenuMenuItem
-from django.urls import reverse_lazy
 
 
 def get_modeladmin_url(app, model):
@@ -96,6 +96,12 @@ def register_administration_menu():
                 url="/membership/generate-monthly-dues/",
                 icon_name="calendar",
                 order=7,
+            ),
+            MenuItem(
+                label="💬 WhatsApp Sender",
+                url=reverse_lazy("membership:whatsapp_message_sender"),
+                icon_name="comment",
+                order=8,
             ),
         ]
     )
@@ -341,24 +347,40 @@ def register_administration_menu():
     )
     # Check module configuration - only include enabled modules
     from home.models import SystemSettings
-    
+
     # Separate registration for each module to ensure they are top-level
     # and to comply with Wagtail's expectation of a single MenuItem from each hook function.
-    
+
     class GroupRestrictedSubmenuMenuItem(SubmenuMenuItem):
-        def __init__(self, label, menu, name=None, icon_name=None, classname=None, order=1000, required_groups=None):
+        def __init__(
+            self,
+            label,
+            menu,
+            name=None,
+            icon_name=None,
+            classname=None,
+            order=1000,
+            required_groups=None,
+        ):
             self.required_groups = required_groups or []
-            super().__init__(label, menu, name=name, icon_name=icon_name, classname=classname, order=order)
+            super().__init__(
+                label,
+                menu,
+                name=name,
+                icon_name=icon_name,
+                classname=classname,
+                order=order,
+            )
 
         def is_shown(self, request):
             user = request.user
             if user.is_superuser:
                 return True
-                
+
             # Determine user type
             try:
                 # Handle case where user might not have a profile
-                if hasattr(user, 'profile'):
+                if hasattr(user, "profile"):
                     user_type = user.profile.user_type
                 else:
                     user_type = "staff"
@@ -366,9 +388,10 @@ def register_administration_menu():
                 user_type = "staff"
 
             # Get Access Control Settings
-            from home.models import AccessControlSettings
             from wagtail.models import Site
-            
+
+            from home.models import AccessControlSettings
+
             settings = None
             try:
                 site = Site.find_for_request(request)
@@ -376,7 +399,7 @@ def register_administration_menu():
                     settings = AccessControlSettings.for_site(site)
             except Exception:
                 pass
-            
+
             if not settings:
                 # Try getting the first site or any settings object
                 try:
@@ -385,8 +408,8 @@ def register_administration_menu():
                     pass
 
             # If still no settings, we can either default to ALLOWING nothing or defaulting to legacy groups.
-            # Given the user wants ACL Control, defaulting to legacy groups as fallback seems reasonable 
-            # OR finding a way to force-create settings? 
+            # Given the user wants ACL Control, defaulting to legacy groups as fallback seems reasonable
+            # OR finding a way to force-create settings?
             # For now, if no settings exist at all, we fall back to groups.
             if not settings:
                 if not self.required_groups:
@@ -399,28 +422,28 @@ def register_administration_menu():
                 allowed_modules = settings.admin_modules or []
             elif user_type == "executive":
                 allowed_modules = settings.executive_modules or []
-            else: # staff
+            else:  # staff
                 allowed_modules = settings.staff_modules or []
-            
+
             # Check if this menu item's module is allowed
             if self.required_groups:
                 module_name = self.required_groups[0]
                 if module_name in allowed_modules:
                     return True
-            
+
             return False
 
     menu_items = []
     order = 1
-    
+
     if SystemSettings.is_module_enabled("membership"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
-                label="🏠 Membership", 
-                menu=membership_menu, 
-                icon_name="group", 
+                label="🏠 Membership",
+                menu=membership_menu,
+                icon_name="group",
                 order=order,
-                required_groups=['membership']
+                required_groups=["membership"],
             )
         )
         order += 1
@@ -431,47 +454,47 @@ def register_administration_menu():
                 menu=membership_geography_menu,
                 icon_name="site",
                 order=order,
-                required_groups=['membership']
+                required_groups=["membership"],
             )
         )
         order += 1
-    
+
     if SystemSettings.is_module_enabled("finance"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
-                label="💰 FINANCE & ACCOUNTS", 
-                menu=finance_menu, 
-                icon_name="money", 
+                label="💰 FINANCE & ACCOUNTS",
+                menu=finance_menu,
+                icon_name="money",
                 order=order,
-                required_groups=['finance']
+                required_groups=["finance"],
             )
         )
         order += 1
-    
+
     if SystemSettings.is_module_enabled("education"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
-                label="👨‍🏫 Education", 
-                menu=education_menu, 
-                icon_name="user", 
+                label="👨‍🏫 Education",
+                menu=education_menu,
+                icon_name="user",
                 order=order,
-                required_groups=['education']
+                required_groups=["education"],
             )
         )
         order += 1
-    
+
     if SystemSettings.is_module_enabled("assets"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
-                label="🏢 Assets", 
-                menu=assets_menu, 
-                icon_name="home", 
+                label="🏢 Assets",
+                menu=assets_menu,
+                icon_name="home",
                 order=order,
-                required_groups=['assets']
+                required_groups=["assets"],
             )
         )
         order += 1
-    
+
     if SystemSettings.is_module_enabled("operations"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
@@ -479,23 +502,23 @@ def register_administration_menu():
                 menu=operations_menu,
                 icon_name="calendar",
                 order=order,
-                required_groups=['operations']
+                required_groups=["operations"],
             )
         )
         order += 1
-    
+
     if SystemSettings.is_module_enabled("hr"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
-                label="👥 HR & Payroll", 
-                menu=hr_menu, 
-                icon_name="user", 
+                label="👥 HR & Payroll",
+                menu=hr_menu,
+                icon_name="user",
                 order=order,
-                required_groups=['hr']
+                required_groups=["hr"],
             )
         )
         order += 1
-    
+
     if SystemSettings.is_module_enabled("committee"):
         menu_items.append(
             GroupRestrictedSubmenuMenuItem(
@@ -503,7 +526,7 @@ def register_administration_menu():
                 menu=committee_menu,
                 icon_name="group",
                 order=order,
-                required_groups=['committee']
+                required_groups=["committee"],
             )
         )
         order += 1
@@ -512,18 +535,20 @@ def register_administration_menu():
     def register_submenu(item):
         def hook():
             return item
+
         hooks.register("register_admin_menu_item", hook)
 
     for item in menu_items:
         register_submenu(item)
-    
-    return None # The original hook function now returns nothing as it did the registration
+
+    return None  # The original hook function now returns nothing as it did the registration
 
 
 @hooks.register("register_admin_menu_item")
 def register_sample_data_management_menu():
     """Register Sample Data Management menu item (admin-only)"""
     from django.urls import reverse
+
     return MenuItem(
         "📊 Sample Data Management",
         reverse("home_admin:sample_data_management"),
