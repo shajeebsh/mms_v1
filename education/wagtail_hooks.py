@@ -1,17 +1,12 @@
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Teacher, Class, StudentEnrollment
-
-
+from .models import Teacher, Class, StudentEnrollment, StudentFeePayment
 from home.permission_helpers import ACLPermissionHelper
 
-
-from home.permission_helpers import ACLPermissionHelper
 
 class TeacherAdmin(ModelAdmin):
     model = Teacher
-    permission_helper_class = ACLPermissionHelper
     permission_helper_class = ACLPermissionHelper
     menu_label = 'Teachers'
     menu_icon = 'user'
@@ -85,7 +80,6 @@ class TeacherAdmin(ModelAdmin):
 class ClassAdmin(ModelAdmin):
     model = Class
     permission_helper_class = ACLPermissionHelper
-    permission_helper_class = ACLPermissionHelper
     menu_label = 'Classes'
     menu_icon = 'group'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -101,6 +95,9 @@ class ClassAdmin(ModelAdmin):
             FieldRowPanel([
                 FieldPanel('subject', classname="col6"),
                 FieldPanel('teacher', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('course_fee', classname="col6"),
             ], classname="compact-row"),
             FieldRowPanel([
                 FieldPanel('max_students', classname="col4"),
@@ -120,7 +117,6 @@ class ClassAdmin(ModelAdmin):
 
 class StudentEnrollmentAdmin(ModelAdmin):
     model = StudentEnrollment
-    permission_helper_class = ACLPermissionHelper
     permission_helper_class = ACLPermissionHelper
     menu_label = 'Student Enrollments'
     menu_icon = 'tick'

@@ -77,7 +77,9 @@ class Class(models.Model):
     grade_level = models.CharField(max_length=20, choices=GRADE_LEVELS)
     subject = models.CharField(max_length=20, choices=SUBJECTS)
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, related_name='classes')
+    course_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Total fee for this course")
     max_students = models.PositiveIntegerField(default=20)
+
     description = models.TextField(blank=True)
     schedule = models.TextField(blank=True, help_text="Class schedule details")
     start_date = models.DateField(null=True, blank=True)
@@ -110,7 +112,14 @@ class StudentEnrollment(models.Model):
     class_instance = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='enrollments')
     enrollment_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=ENROLLMENT_STATUS, default='active')
+    payment_status = models.CharField(max_length=20, choices=[
+        ('pending', 'Pending'),
+        ('partial', 'Partial'),
+        ('paid', 'Paid'),
+        ('exempt', 'Exempt'),
+    ], default='pending')
     grade = models.CharField(max_length=10, blank=True, help_text="Current grade/mark")
+
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -121,3 +130,51 @@ class StudentEnrollment(models.Model):
     class Meta:
         unique_together = ('student', 'class_instance')
         ordering = ['-enrollment_date']
+
+    @property
+    def total_paid(self):
+        return sum(payment.amount for payment in self.payments.all())
+
+    @property
+    def balance_amount(self):
+        return self.class_instance.course_fee - self.total_paid
+
+    def update_payment_status(self):
+        total = self.total_paid
+        fee = self.class_instance.course_fee
+        
+        if fee == 0:
+            self.status = 'exempt' # Or handle as paid? Using payment_status field instead.
+            self.payment_status = 'exempt'
+        elif total >= fee:
+            self.payment_status = 'paid'
+        elif total > 0:
+            self.payment_status = 'partial'
+        else:
+            self.payment_status = 'pending'
+        self.save()
+
+
+class StudentFeePayment(models.Model):
+    PAYMENT_METHODS = [
+        ('cash', 'Cash'),
+        ('bank_transfer', 'Bank Transfer'),
+        ('upi', 'UPI'),
+        ('check', 'Check'),
+        ('other', 'Other'),
+    ]
+
+    enrollment = models.ForeignKey(StudentEnrollment, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField(default=timezone.now)
+    reference_number = models.CharField(max_length=100, blank=True, help_text="Receipt No / Transaction ID")
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='cash')
+    remarks = models.TextField(blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.enrollment.student.full_name} - {self.amount}"
+
+    class Meta:
+        ordering = ['-date']
