@@ -1,0 +1,66 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}Pending Course Fees{% endblock %}
+
+{% block content %}
+{% include "wagtailadmin/shared/header.html" with title="Pending Course Fees" icon="money" %}
+
+<div class="nice-padding">
+    <div class="row">
+        <div class="col-12">
+            <div class="help-block help-info">
+                <p>Showing <strong>{{ total_students }}</strong> students with outstanding fees. Total Pending:
+                    <strong>₹{{ total_pending_amount }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <table class="listing">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Enrollment Date</th>
+                <th>Total Fee</th>
+                <th>Paid</th>
+                <th>Balance</th>
+                <th>Status</th>
+                <th>Contact</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enrollment in enrollments %}
+            <tr>
+                <td class="title">
+                    <div class="title-wrapper">
+                        <a href="/cms/education/student-enrollment/edit/{{ enrollment.id }}/">{{ enrollment.student
+                            }}</a>
+                    </div>
+                </td>
+                <td>{{ enrollment.class_instance.name }}</td>
+                <td>{{ enrollment.enrollment_date }}</td>
+                <td>₹{{ enrollment.class_instance.course_fee }}</td>
+                <td>₹{{ enrollment.total_paid }}</td>
+                <td style="color: #d9534f; font-weight: bold;">₹{{ enrollment.balance_amount }}</td>
+                <td>
+                    {% if enrollment.payment_status == 'pending' %}
+                    <span class="status-tag primary">Pending</span>
+                    {% else %}
+                    <span class="status-tag warning">Partial</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if enrollment.student.phone %}{{ enrollment.student.phone }}{% else %}-{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No pending fees found. <!-- DEBUG-TEMPLATE-UPDATE --></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

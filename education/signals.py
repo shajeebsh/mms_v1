@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db import transaction
 from .models import StudentFeePayment
-from accounting.models import Transaction, JournalEntry, Account
+from accounting.models import Transaction, JournalEntry, Account, AccountCategory
 
 @receiver(post_save, sender=StudentFeePayment)
 def handle_payment_save(sender, instance, created, **kwargs):
@@ -25,17 +25,27 @@ def handle_payment_save(sender, instance, created, **kwargs):
                 reference=instance.reference_number or f"PAY-{instance.id}"
             )
 
+            # Get Categories (Create if missing)
+            asset_cat, _ = AccountCategory.objects.get_or_create(
+                name="Current Assets",
+                defaults={'category_type': 'asset'}
+            )
+            revenue_cat, _ = AccountCategory.objects.get_or_create(
+                name="Education Revenue",
+                defaults={'category_type': 'revenue'}
+            )
+
             # Get Accounts (Fallback to creating if missing)
             # 1. Debit: Cash/Bank (Asset) - defaulting to 'Cash in Hand'
             cash_account, _ = Account.objects.get_or_create(
                 name="Cash in Hand",
-                defaults={'code': '1001', 'category_id': 1} # Assuming category 1 exists or will error. Ideally should act smarter.
+                defaults={'code': '1001', 'category': asset_cat}
             )
             
             # 2. Credit: Education Revenue (Revenue)
             revenue_account, _ = Account.objects.get_or_create(
                 name="Education Fees",
-                defaults={'code': '4001', 'category_id': 4} # Assuming category 4 is Revenue
+                defaults={'code': '4001', 'category': revenue_cat}
             )
 
             # Debit Cash

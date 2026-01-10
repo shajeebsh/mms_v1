@@ -10,16 +10,32 @@ from wagtail.models import Site
 
 from home.models import SystemSettings
 
-from .models import HouseRegistration, Member, MembershipDues, Payment, VitalRecord
+from .models import (
+    HouseRegistration, Member, MembershipDues, Payment, VitalRecord,
+    Ward, Taluk, City, State, Country, PostalCode
+)
 
 
 class HouseRegistrationModelTest(TestCase):
     """Test cases for HouseRegistration model"""
 
     def setUp(self):
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+        
         self.house = HouseRegistration.objects.create(
             house_name="Test House",
             house_number="H-001",
+            ward=self.ward,
+            taluk=self.taluk,
+            city=self.city,
+            state=self.state,
+            country=self.country,
+            postal_code=self.postal_code
         )
 
     def test_house_creation(self):
@@ -65,7 +81,23 @@ class MembershipDuesModelTest(TestCase):
     """Test cases for MembershipDues model"""
 
     def setUp(self):
-        self.house = HouseRegistration.objects.create(house_name="Test House")
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+        
+        self.house = HouseRegistration.objects.create(
+            house_name="Test House",
+            house_number="H-002",
+            ward=self.ward,
+            taluk=self.taluk,
+            city=self.city,
+            state=self.state,
+            country=self.country,
+            postal_code=self.postal_code
+        )
         # Create a default site for SystemSettings
         self.site = Site.objects.create(
             hostname="test.com", port=80, site_name="Test Site", is_default_site=True
@@ -180,24 +212,47 @@ class PaymentModelTest(TestCase):
     """Test cases for Payment model"""
 
     def setUp(self):
-        self.house = HouseRegistration.objects.create(house_name="Test House")
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+        
+        self.house = HouseRegistration.objects.create(
+            house_name="Test House",
+            house_number="H-003",
+            ward=self.ward,
+            taluk=self.taluk,
+            city=self.city,
+            state=self.state,
+            country=self.country,
+            postal_code=self.postal_code
+        )
+        
+        # Create a member for payments
+        self.member = Member.objects.create(
+            first_name="John",
+            last_name="Doe",
+            house=self.house
+        )
 
     def test_payment_creation(self):
         """Test that a payment can be created"""
         payment = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("50.00"),
             payment_method="cash",
             payment_date=date.today(),
         )
-        self.assertEqual(payment.house, self.house)
+        self.assertEqual(payment.member, self.member)
         self.assertEqual(payment.amount, Decimal("50.00"))
         self.assertTrue(payment.receipt_number.startswith("REC-"))
 
     def test_payment_auto_generate_receipt_number(self):
         """Test that receipt number is auto-generated"""
         payment1 = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("10.00"),
             payment_method="cash",
             payment_date=date.today(),
@@ -205,7 +260,7 @@ class PaymentModelTest(TestCase):
         self.assertTrue(payment1.receipt_number.startswith("REC-"))
 
         payment2 = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("20.00"),
             payment_method="upi",
             payment_date=date.today(),
@@ -233,7 +288,7 @@ class PaymentModelTest(TestCase):
 
         # Create payment and associate dues
         payment = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("20.00"),
             payment_method="cash",
             payment_date=date.today(),
@@ -245,13 +300,13 @@ class PaymentModelTest(TestCase):
     def test_payment_str_representation(self):
         """Test payment string representation"""
         payment = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("50.00"),
             payment_method="cash",
             payment_date=date.today(),
         )
         self.assertIn("Receipt #", str(payment))
-        self.assertIn(str(self.house), str(payment))
+        self.assertIn("John Doe", str(payment))
 
 
 class VitalRecordModelTest(TestCase):

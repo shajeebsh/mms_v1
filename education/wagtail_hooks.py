@@ -3,6 +3,9 @@ from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
 from .models import Teacher, Class, StudentEnrollment, StudentFeePayment
 from home.permission_helpers import ACLPermissionHelper
+from wagtail import hooks
+from django.urls import path
+from . import views
 
 
 class TeacherAdmin(ModelAdmin):
@@ -145,3 +148,10 @@ class StudentEnrollmentAdmin(ModelAdmin):
 modeladmin_register(TeacherAdmin)
 modeladmin_register(ClassAdmin)
 modeladmin_register(StudentEnrollmentAdmin)
+
+
+@hooks.register('register_admin_urls')
+def register_education_admin_urls():
+    return [
+        path('education/pending-fees/', views.PendingFeesReportView.as_view(), name='education_pending_fees'),
+    ]

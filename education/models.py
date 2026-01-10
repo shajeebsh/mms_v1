@@ -4,6 +4,7 @@ from membership.models import Member
 
 
 class Teacher(models.Model):
+    wagtail_reference_index_ignore = True
     # Personal Details
     name = models.CharField(max_length=200, default="")
     father_name = models.CharField(max_length=200, blank=True)
@@ -54,6 +55,7 @@ class Teacher(models.Model):
 
 
 class Class(models.Model):
+    wagtail_reference_index_ignore = True
     GRADE_LEVELS = [
         ('preschool', 'Preschool'),
         ('kindergarten', 'Kindergarten'),
@@ -101,6 +103,7 @@ class Class(models.Model):
 
 
 class StudentEnrollment(models.Model):
+    wagtail_reference_index_ignore = True
     ENROLLMENT_STATUS = [
         ('active', 'Active'),
         ('inactive', 'Inactive'),
@@ -156,6 +159,7 @@ class StudentEnrollment(models.Model):
 
 
 class StudentFeePayment(models.Model):
+    wagtail_reference_index_ignore = True
     PAYMENT_METHODS = [
         ('cash', 'Cash'),
         ('bank_transfer', 'Bank Transfer'),

@@ -10,7 +10,10 @@ from wagtail.models import Site
 
 from home.models import SystemSettings
 
-from .models import HouseRegistration, Member, MembershipDues, Payment
+from .models import (
+    HouseRegistration, Member, MembershipDues, Payment,
+    Ward, Taluk, City, State, Country, PostalCode
+)
 
 
 class BulkPaymentViewTest(TestCase):
@@ -23,9 +26,25 @@ class BulkPaymentViewTest(TestCase):
         )
         self.client.login(username="testuser", password="testpass123")
 
+        # Create geographic dependencies
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+
         # Create houses and dues
-        self.house1 = HouseRegistration.objects.create(house_name="House 1")
-        self.house2 = HouseRegistration.objects.create(house_name="House 2")
+        self.house1 = HouseRegistration.objects.create(
+            house_name="House 1", house_number="H-V1",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
+        self.house2 = HouseRegistration.objects.create(
+            house_name="House 2", house_number="H-V2",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
 
         # Create overdue dues
         self.due1 = MembershipDues.objects.create(
@@ -123,7 +142,19 @@ class OverdueReportViewTest(TestCase):
         )
         self.client.login(username="testuser", password="testpass123")
 
-        self.house = HouseRegistration.objects.create(house_name="Test House")
+        # Create geographic dependencies
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+
+        self.house = HouseRegistration.objects.create(
+            house_name="Test House", house_number="H-V3",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
 
         # Create overdue dues
         self.overdue_due = MembershipDues.objects.create(
@@ -186,8 +217,24 @@ class GenerateMonthlyDuesViewTest(TestCase):
             site=self.site, monthly_membership_dues=Decimal("10.00")
         )
 
-        self.house1 = HouseRegistration.objects.create(house_name="House 1")
-        self.house2 = HouseRegistration.objects.create(house_name="House 2")
+        # Create geographic dependencies
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+
+        self.house1 = HouseRegistration.objects.create(
+            house_name="House 1", house_number="H-V4",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
+        self.house2 = HouseRegistration.objects.create(
+            house_name="House 2", house_number="H-V5",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
 
     def test_generate_monthly_dues_get(self):
         """Test GET request to generate monthly dues view"""
