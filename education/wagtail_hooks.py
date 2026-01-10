@@ -1,17 +1,15 @@
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Teacher, Class, StudentEnrollment
-
-
+from .models import Teacher, Class, StudentEnrollment, StudentFeePayment
 from home.permission_helpers import ACLPermissionHelper
+from wagtail import hooks
+from django.urls import path
+from . import views
 
-
-from home.permission_helpers import ACLPermissionHelper
 
 class TeacherAdmin(ModelAdmin):
     model = Teacher
-    permission_helper_class = ACLPermissionHelper
     permission_helper_class = ACLPermissionHelper
     menu_label = 'Teachers'
     menu_icon = 'user'
@@ -85,7 +83,6 @@ class TeacherAdmin(ModelAdmin):
 class ClassAdmin(ModelAdmin):
     model = Class
     permission_helper_class = ACLPermissionHelper
-    permission_helper_class = ACLPermissionHelper
     menu_label = 'Classes'
     menu_icon = 'group'
     add_to_admin_menu = False  # Will be included in grouped menu
@@ -101,6 +98,9 @@ class ClassAdmin(ModelAdmin):
             FieldRowPanel([
                 FieldPanel('subject', classname="col6"),
                 FieldPanel('teacher', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('course_fee', classname="col6"),
             ], classname="compact-row"),
             FieldRowPanel([
                 FieldPanel('max_students', classname="col4"),
@@ -120,7 +120,6 @@ class ClassAdmin(ModelAdmin):
 
 class StudentEnrollmentAdmin(ModelAdmin):
     model = StudentEnrollment
-    permission_helper_class = ACLPermissionHelper
     permission_helper_class = ACLPermissionHelper
     menu_label = 'Student Enrollments'
     menu_icon = 'tick'
@@ -149,3 +148,10 @@ class StudentEnrollmentAdmin(ModelAdmin):
 modeladmin_register(TeacherAdmin)
 modeladmin_register(ClassAdmin)
 modeladmin_register(StudentEnrollmentAdmin)
+
+
+@hooks.register('register_admin_urls')
+def register_education_admin_urls():
+    return [
+        path('education/pending-fees/', views.PendingFeesReportView.as_view(), name='education_pending_fees'),
+    ]

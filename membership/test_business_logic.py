@@ -8,14 +8,40 @@ from django.test import TestCase, TransactionTestCase
 from django.db import transaction
 from django.utils import timezone
 
-from .models import HouseRegistration, Member, MembershipDues, Payment
+from .models import (
+    HouseRegistration, Member, MembershipDues, Payment,
+    Ward, Taluk, City, State, Country, PostalCode
+)
 
 
 class PaymentBusinessLogicTest(TransactionTestCase):
     """Test critical payment business logic"""
 
     def setUp(self):
-        self.house = HouseRegistration.objects.create(house_name="Test House")
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+        
+        self.house = HouseRegistration.objects.create(
+            house_name="Test House",
+            house_number="H-001",
+            ward=self.ward,
+            taluk=self.taluk,
+            city=self.city,
+            state=self.state,
+            country=self.country,
+            postal_code=self.postal_code
+        )
+        
+        # Create a member for payments
+        self.member = Member.objects.create(
+            first_name="Test",
+            last_name="Member",
+            house=self.house
+        )
         
         # Create multiple unpaid dues
         self.due1 = MembershipDues.objects.create(
@@ -46,7 +72,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
     def test_payment_marks_dues_as_paid(self):
         """Test that payment correctly marks associated dues as paid"""
         payment = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("20.00"),
             payment_method="cash",
             payment_date=date.today()
@@ -72,7 +98,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
     def test_payment_total_matches_dues_amount(self):
         """Test that payment amount matches total of associated dues"""
         payment = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("30.00"),
             payment_method="upi",
             payment_date=date.today()
@@ -88,7 +114,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
         """Test scenario where payment covers only some dues"""
         # Create payment for first due only
         payment = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("10.00"),
             payment_method="cash",
             payment_date=date.today()
@@ -110,7 +136,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
     def test_multiple_payments_for_same_family(self):
         """Test multiple payments for the same house"""
         payment1 = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("10.00"),
             payment_method="cash",
             payment_date=date.today()
@@ -120,7 +146,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
         self.due1.save()
         
         payment2 = Payment.objects.create(
-            house=self.house,
+            member=self.member,
             amount=Decimal("20.00"),
             payment_method="bank",
             payment_date=date.today()
@@ -132,7 +158,7 @@ class PaymentBusinessLogicTest(TransactionTestCase):
         self.due3.save()
         
         # Verify all payments exist
-        payments = Payment.objects.filter(house=self.house)
+        payments = Payment.objects.filter(member=self.member)
         self.assertEqual(payments.count(), 2)
         
         # Verify all dues are paid
@@ -148,7 +174,23 @@ class DuesBusinessLogicTest(TestCase):
     """Test critical dues business logic"""
 
     def setUp(self):
-        self.house = HouseRegistration.objects.create(house_name="Test House")
+        self.ward = Ward.objects.create(name="Test Ward")
+        self.taluk = Taluk.objects.create(name="Test Taluk")
+        self.city = City.objects.create(name="Test City")
+        self.state = State.objects.create(name="Test State")
+        self.country = Country.objects.create(name="Test Country")
+        self.postal_code = PostalCode.objects.create(code="123456")
+        
+        self.house = HouseRegistration.objects.create(
+            house_name="Test House",
+            house_number="H-002",
+            ward=self.ward,
+            taluk=self.taluk,
+            city=self.city,
+            state=self.state,
+            country=self.country,
+            postal_code=self.postal_code
+        )
 
     def test_dues_overdue_calculation(self):
         """Test overdue calculation logic"""
@@ -233,9 +275,21 @@ class DuesBusinessLogicTest(TestCase):
 
     def test_bulk_dues_generation(self):
         """Test generating dues for multiple houses"""
-        house1 = HouseRegistration.objects.create(house_name="House 1")
-        house2 = HouseRegistration.objects.create(house_name="House 2")
-        house3 = HouseRegistration.objects.create(house_name="House 3")
+        house1 = HouseRegistration.objects.create(
+            house_name="House 1", house_number="H-B1",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
+        house2 = HouseRegistration.objects.create(
+            house_name="House 2", house_number="H-B2",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
+        house3 = HouseRegistration.objects.create(
+            house_name="House 3", house_number="H-B3",
+            ward=self.ward, taluk=self.taluk, city=self.city,
+            state=self.state, country=self.country, postal_code=self.postal_code
+        )
         
         year = 2024
         month = 6

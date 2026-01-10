@@ -193,6 +193,12 @@ def register_administration_menu():
                 icon_name="user",
                 order=3,
             ),
+            MenuItem(
+                label="💰 Pending Fees",
+                url=reverse_lazy("education_pending_fees"),
+                icon_name="money",
+                order=4,
+            ),
         ]
     )
 

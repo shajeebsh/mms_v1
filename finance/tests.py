@@ -4,7 +4,8 @@ from django.test import TestCase
 from django.utils import timezone
 
 from finance.models import DonationCategory, ExpenseCategory, Donation, Expense, FinancialReport
-from membership.models import Family, Member
+from membership.models import Member
+from accounting.models import Account, AccountCategory
 
 
 class DonationCategoryModelTest(TestCase):
@@ -46,11 +47,17 @@ class DonationModelTest(TestCase):
     """Test cases for Donation model"""
 
     def setUp(self):
-        self.family = Family.objects.create(name="Test Family")
+        # Create required accounting accounts for signals
+        asset_cat = AccountCategory.objects.create(name="Current Assets", category_type="asset")
+        revenue_cat = AccountCategory.objects.create(name="Revenue", category_type="revenue")
+        
+        Account.objects.create(code="1001", name="Cash in Hand", category=asset_cat)
+        Account.objects.create(code="4001", name="Donation Revenue", category=revenue_cat)
+        
         self.member = Member.objects.create(
             first_name="John",
             last_name="Doe",
-            family=self.family
+            # Family/House not strictly required for this test at DB level
         )
         self.category = DonationCategory.objects.create(name="Zakat")
 
@@ -110,6 +117,13 @@ class ExpenseModelTest(TestCase):
     """Test cases for Expense model"""
 
     def setUp(self):
+        # Create required accounting accounts for signals
+        asset_cat = AccountCategory.objects.create(name="Current Assets", category_type="asset")
+        expense_cat = AccountCategory.objects.create(name="Expenses", category_type="expense")
+        
+        Account.objects.create(code="1001", name="Cash in Hand", category=asset_cat)
+        Account.objects.create(code="5001", name="General Expense", category=expense_cat)
+        
         self.category = ExpenseCategory.objects.create(name="Utilities")
 
     def test_expense_creation(self):

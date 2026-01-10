@@ -19,8 +19,10 @@ class AccountCategory(models.Model):
 
     class Meta:
         verbose_name_plural = "Account Categories"
+    wagtail_reference_index_ignore = True
 
 class Account(models.Model):
+    wagtail_reference_index_ignore = True
     """Specific accounts (e.g., 'HDFC Bank', 'Main Mosque Cash')"""
     name = models.CharField(max_length=100)
     category = models.ForeignKey(AccountCategory, on_delete=models.PROTECT, related_name='accounts')
@@ -33,6 +35,7 @@ class Account(models.Model):
         return f"{self.code} - {self.name}"
 
 class Transaction(models.Model):
+    wagtail_reference_index_ignore = True
     """Represents a financial event"""
     date = models.DateField(default=timezone.now)
     description = models.CharField(max_length=255)
@@ -44,6 +47,7 @@ class Transaction(models.Model):
         return f"{self.date} - {self.description}"
 
 class JournalEntry(models.Model):
+    wagtail_reference_index_ignore = True
     """Double-entry lines (Debit/Credit)"""
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name='entries')
     account = models.ForeignKey(Account, on_delete=models.PROTECT, related_name='journal_entries')
