@@ -81,7 +81,7 @@ class BillingPayment(models.Model):
             invoice.save()
             
             # 2. Post to Accounting Ledger
-            from accounting.models import Transaction, JournalEntry, Account
+            from accounting.models import Transaction, JournalEntry, Account, get_or_create_account
             tx = Transaction.objects.create(
                 date=self.payment_date,
                 description=f"Payment for Invoice {invoice.invoice_number}",
@@ -89,18 +89,18 @@ class BillingPayment(models.Model):
             )
             
             # Debit Asset (Cash/Bank) - simplified logic for now
-            cash_account = Account.objects.get(code='1001')
+            cash_account = get_or_create_account('1001', 'Main Cash', 'asset')
             JournalEntry.objects.create(transaction=tx, account=cash_account, debit=self.amount)
             
             # Credit Revenue (Based on what was invoiced)
             # In a full system, this would be more complex (Accounts Receivable vs Revenue)
             # For simplicity, we credit the respective revenue account directly
             if invoice.house:
-                rev_account = Account.objects.get(code='4002') # Dues Revenue
+                rev_account = get_or_create_account('4002', 'Membership Dues Revenue', 'revenue')
             elif invoice.shop:
-                rev_account = Account.objects.get(code='4003') # Rental Revenue
+                rev_account = get_or_create_account('4003', 'Asset Rental Revenue', 'revenue') # Assuming 4003
             else:
-                rev_account = Account.objects.get(code='4001') # General Revenue
+                rev_account = get_or_create_account('4001', 'Donations Revenue', 'revenue')
                 
             JournalEntry.objects.create(transaction=tx, account=rev_account, credit=self.amount)
 
