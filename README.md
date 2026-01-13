@@ -284,3 +284,58 @@ This will create a `report.html` file in the project directory which you can ope
 
 ## Configuration
 - **Membership Dues**: Go to **Settings > System settings** in the admin panel to configure the default monthly dues amount.
+
+## Testing New Features
+
+### Non-member Donations
+
+1. **Start the development server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+2. **Create a Non-member Donation:**
+   - Go to CMS admin: `http://localhost:8000/cms/`
+   - Navigate to Finance > Donations > Add New Donation
+   - Leave the "Member" field blank
+   - Enter a name in the "Donor Name" field (e.g., "John Smith")
+   - Fill in amount, category, donation type, and date
+   - Save the donation
+   - Verify the donation appears in the list with the donor name displayed
+
+3. **Create a Member Donation:**
+   - Add another donation but select a Member from the dropdown
+   - Leave "Donor Name" blank
+   - Save and verify the member's name is displayed in the list
+
+4. **Verify Donation List Display:**
+   - Go to Finance > Donations
+   - Confirm both member and non-member donations display correctly
+   - Search for the non-member donor name to verify search functionality
+
+### Pending Course Fees Report
+
+1. **Setup Test Data (if not already present):**
+   - Create a Class with a course fee (Education > Classes > Add)
+   - Enroll a student in the class (Education > Student Enrollments > Add)
+   - Set payment status to "Pending" or "Partial"
+
+2. **View Pending Fees Report:**
+   - Navigate to Education > Pending Course Fees
+   - Verify student names display correctly in the table
+   - Check that the following columns show proper data:
+     - Student Name (should show full name, not object reference)
+     - Class name
+     - Total Fee, Paid amount, Balance
+     - Payment status (Pending/Partial)
+     - Contact phone number
+
+3. **Test with Partial Payment:**
+   - Add a fee payment for a student (Education > Student Fee Payments > Add)
+   - Pay less than the total course fee
+   - Refresh the Pending Fees report
+   - Verify the student shows "Partial" status with updated Paid and Balance amounts
+
+4. **Test Full Payment:**
+   - Add another payment to complete the full fee
+   - Verify the student no longer appears in the Pending Fees report
