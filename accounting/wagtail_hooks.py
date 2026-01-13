@@ -1,3 +1,4 @@
+from django.utils.html import format_html
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 from .models import Account, AccountCategory, Transaction, JournalEntry
@@ -75,8 +76,9 @@ class TransactionAdmin(ModelAdmin):
     model = Transaction
     menu_label = 'Ledger Transactions'
     menu_icon = 'transfer'
-    list_display = ('date', 'description', 'reference')
-    search_fields = ('description', 'reference')
+    list_display = ('date', 'name', 'description', 'reference', 'transaction_type', 'colored_amount')
+    search_fields = ('name', 'description', 'reference')
+    list_filter = ('date',)
     add_to_admin_menu = False
     panels = [
         MultiFieldPanel(
@@ -84,13 +86,14 @@ class TransactionAdmin(ModelAdmin):
                 FieldRowPanel(
                     [
                         FieldPanel('date', classname='col6'),
-                        FieldPanel('reference', classname='col6'),
+                        FieldPanel('name', classname='col6'),
                     ],
                     classname='compact-row',
                 ),
                 FieldRowPanel(
                     [
-                        FieldPanel('description', classname='col12'),
+                        FieldPanel('reference', classname='col6'),
+                        FieldPanel('description', classname='col6'),
                     ],
                     classname='compact-row',
                 ),
@@ -99,6 +102,21 @@ class TransactionAdmin(ModelAdmin):
             classname='compact-panel',
         ),
     ]
+
+    def colored_amount(self, obj):
+        """Display amount with color based on transaction type"""
+        amount = obj.amount
+        if obj.is_income:
+            return format_html(
+                '<span style="color: #28a745; font-weight: bold;">₹{}</span>',
+                amount
+            )
+        else:
+            return format_html(
+                '<span style="color: #dc3545; font-weight: bold;">₹{}</span>',
+                amount
+            )
+    colored_amount.short_description = 'Amount'
 
 
 class JournalEntryAdmin(ModelAdmin):

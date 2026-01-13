@@ -83,30 +83,36 @@ class ExpenseAdmin(ModelAdmin):
     menu_label = 'Expenses'
     menu_icon = 'minus'
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ('description', 'amount', 'category', 'date', 'approved_by')
+    list_display = ('name', 'description', 'amount', 'category', 'date', 'approved_by')
     list_filter = ('category', 'date')
-    search_fields = ('description', 'approved_by', 'vendor', 'receipt_number')
+    search_fields = ('name', 'description', 'approved_by', 'vendor', 'receipt_number')
     panels = [
         MultiFieldPanel(
             [
                 FieldRowPanel(
                     [
+                        FieldPanel('name', classname='col6'),
                         FieldPanel('category', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
                         FieldPanel('amount', classname='col6'),
-                    ],
-                    classname='compact-row',
-                ),
-                FieldRowPanel(
-                    [
                         FieldPanel('date', classname='col6'),
-                        FieldPanel('approved_by', classname='col6'),
                     ],
                     classname='compact-row',
                 ),
                 FieldRowPanel(
                     [
+                        FieldPanel('approved_by', classname='col6'),
                         FieldPanel('vendor', classname='col6'),
-                        FieldPanel('receipt_number', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('receipt_number', classname='col12'),
                     ],
                     classname='compact-row',
                 ),
