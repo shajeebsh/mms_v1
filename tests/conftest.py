@@ -1,21 +1,28 @@
+import os
 import pytest
-from playwright.sync_api import sync_playwright
 
-@pytest.fixture(scope="session")
-def browser():
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        yield browser
-        browser.close()
+os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
+
 
 @pytest.fixture(scope="function")
-def context(browser):
-    context = browser.new_context()
-    yield context
-    context.close()
+def admin_user(db):
+    """Create admin user for E2E tests."""
+    from django.contrib.auth.models import User
+    user, created = User.objects.get_or_create(
+        username="admin",
+        defaults={
+            "email": "admin@example.com",
+            "is_staff": True,
+            "is_superuser": True,
+        }
+    )
+    if created:
+        user.set_password("adminpassword")
+        user.save()
+    return user
+
 
 @pytest.fixture(scope="function")
-def page(context):
-    page = context.new_page()
-    yield page
-    page.close()
+def live_server_url(live_server, admin_user):
+    """Provide live server URL with admin user created."""
+    return live_server.url
