@@ -5,6 +5,7 @@ from membership.models import Member
 
 
 class DonationCategory(models.Model):
+    wagtail_reference_index_ignore = True
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
 
@@ -13,6 +14,7 @@ class DonationCategory(models.Model):
 
 
 class ExpenseCategory(models.Model):
+    wagtail_reference_index_ignore = True
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
 
@@ -21,6 +23,7 @@ class ExpenseCategory(models.Model):
 
 
 class Donation(models.Model):
+    wagtail_reference_index_ignore = True
     DONATION_TYPES = [
         ("cash", "Cash"),
         ("check", "Check"),
@@ -70,6 +73,7 @@ class Donation(models.Model):
 
 
 class Expense(models.Model):
+    wagtail_reference_index_ignore = True
     category = models.ForeignKey(
         ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -90,6 +94,7 @@ class Expense(models.Model):
 
 
 class FinancialReport(models.Model):
+    wagtail_reference_index_ignore = True
     REPORT_PERIODS = [
         ("monthly", "Monthly"),
         ("quarterly", "Quarterly"),
