@@ -5,6 +5,7 @@ from membership.models import Member
 
 
 class DonationCategory(models.Model):
+    wagtail_reference_index_ignore = True
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
 
@@ -13,6 +14,7 @@ class DonationCategory(models.Model):
 
 
 class ExpenseCategory(models.Model):
+    wagtail_reference_index_ignore = True
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
 
@@ -21,6 +23,7 @@ class ExpenseCategory(models.Model):
 
 
 class Donation(models.Model):
+    wagtail_reference_index_ignore = True
     DONATION_TYPES = [
         ("cash", "Cash"),
         ("check", "Check"),
@@ -34,6 +37,12 @@ class Donation(models.Model):
         null=True,
         blank=True,
         related_name="donations",
+        help_text="Select a member, or leave blank for non-member donations",
+    )
+    donor_name = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="For non-member donations, enter donor name here",
     )
     category = models.ForeignKey(
         DonationCategory, on_delete=models.SET_NULL, null=True, blank=True
@@ -49,13 +58,22 @@ class Donation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Donation by {self.member} - ₹{self.amount}"
+        donor = self.member or self.donor_name or "Anonymous"
+        return f"Donation by {donor} - ₹{self.amount}"
+
+    @property
+    def donor_display(self):
+        """Returns the donor name for display purposes"""
+        if self.member:
+            return str(self.member)
+        return self.donor_name or "Anonymous"
 
     class Meta:
         ordering = ["-date"]
 
 
 class Expense(models.Model):
+    wagtail_reference_index_ignore = True
     category = models.ForeignKey(
         ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -76,6 +94,7 @@ class Expense(models.Model):
 
 
 class FinancialReport(models.Model):
+    wagtail_reference_index_ignore = True
     REPORT_PERIODS = [
         ("monthly", "Monthly"),
         ("quarterly", "Quarterly"),

@@ -1,8 +1,7 @@
-from wagtail.admin.panels import FieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
 from .models import Donation, Expense, FinancialReport, DonationCategory, ExpenseCategory
-
 
 from home.permission_helpers import ACLPermissionHelper
 
@@ -32,17 +31,49 @@ class DonationAdmin(ModelAdmin):
     menu_label = 'Donations'
     menu_icon = 'money'
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ('member', 'amount', 'donation_type', 'date', 'category')
+    list_display = ('donor_display', 'amount', 'donation_type', 'date', 'category')
     list_filter = ('donation_type', 'date', 'category')
-    search_fields = ('member__first_name', 'member__last_name', 'notes', 'receipt_number')
+    search_fields = ('member__first_name', 'member__last_name', 'donor_name', 'notes', 'receipt_number')
     panels = [
-        FieldPanel('member'),
-        FieldPanel('category'),
-        FieldPanel('amount'),
-        FieldPanel('donation_type'),
-        FieldPanel('date'),
-        FieldPanel('notes'),
-        FieldPanel('receipt_number'),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel('member', classname='col6'),
+                        FieldPanel('donor_name', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('category', classname='col6'),
+                        FieldPanel('amount', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('donation_type', classname='col6'),
+                        FieldPanel('date', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('receipt_number', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('notes', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+            ],
+            heading='Donation Details',
+            classname='compact-panel',
+        ),
     ]
 
 
@@ -56,13 +87,39 @@ class ExpenseAdmin(ModelAdmin):
     list_filter = ('category', 'date')
     search_fields = ('description', 'approved_by', 'vendor', 'receipt_number')
     panels = [
-        FieldPanel('category'),
-        FieldPanel('amount'),
-        FieldPanel('date'),
-        FieldPanel('description'),
-        FieldPanel('approved_by'),
-        FieldPanel('vendor'),
-        FieldPanel('receipt_number'),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel('category', classname='col6'),
+                        FieldPanel('amount', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('date', classname='col6'),
+                        FieldPanel('approved_by', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('vendor', classname='col6'),
+                        FieldPanel('receipt_number', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('description', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+            ],
+            heading='Expense Details',
+            classname='compact-panel',
+        ),
     ]
 
 
@@ -76,13 +133,34 @@ class FinancialReportAdmin(ModelAdmin):
     list_filter = ('period', 'generated_at')
     search_fields = ('period', 'generated_by')
     panels = [
-        FieldPanel('period'),
-        FieldPanel('start_date'),
-        FieldPanel('end_date'),
-        FieldPanel('total_donations'),
-        FieldPanel('total_expenses'),
-        FieldPanel('net_amount'),
-        FieldPanel('generated_by'),
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel('period', classname='col4'),
+                        FieldPanel('start_date', classname='col4'),
+                        FieldPanel('end_date', classname='col4'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('total_donations', classname='col4'),
+                        FieldPanel('total_expenses', classname='col4'),
+                        FieldPanel('net_amount', classname='col4'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('generated_by', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+            ],
+            heading='Report Details',
+            classname='compact-panel',
+        ),
     ]
 
 
