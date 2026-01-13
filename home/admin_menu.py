@@ -147,7 +147,7 @@ def register_administration_menu():
             ),
             MenuItem(
                 label="📂 Chart of Accounts",
-                url=get_modeladmin_url("accounting", "account"),
+                url=reverse_lazy("accounting:chart_of_accounts"),
                 icon_name="list-ul",
                 order=7,
             ),

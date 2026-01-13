@@ -1,0 +1,82 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    {% fragment as heading %}{{ page_title }}{% endfragment %}
+    {% include 'wagtailadmin/shared/header.html' with heading=heading icon="list-ul" %}
+
+    <div class="nice-padding">
+        <div class="chart-of-accounts-container">
+            {% for category_name, category_data in accounts_by_category.items %}
+                <div class="coa-category-section" style="margin-bottom: 30px;">
+                    <h3 class="coa-category-header" style="
+                        background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+                        color: white;
+                        padding: 12px 20px;
+                        border-radius: 8px 8px 0 0;
+                        margin: 0;
+                        font-size: 1.1em;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    ">
+                        <span>{{ category_name }}</span>
+                        <span style="font-weight: normal; font-size: 0.9em;">
+                            Total: ₹{{ category_data.total_balance|floatformat:2 }}
+                        </span>
+                    </h3>
+                    <table class="listing" style="margin-top: 0; border-radius: 0 0 8px 8px; overflow: hidden;">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Code</th>
+                                <th style="width: 35%;">Account Name</th>
+                                <th style="width: 15%; text-align: right;">Debit</th>
+                                <th style="width: 15%; text-align: right;">Credit</th>
+                                <th style="width: 20%; text-align: right;">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if category_data.accounts %}
+                                {% for item in category_data.accounts %}
+                                    <tr>
+                                        <td>
+                                            <span style="
+                                                background: #e8f5e9;
+                                                padding: 4px 8px;
+                                                border-radius: 4px;
+                                                font-family: monospace;
+                                                font-weight: bold;
+                                            ">{{ item.account.code }}</span>
+                                        </td>
+                                        <td>{{ item.account.name }}</td>
+                                        <td style="text-align: right; font-family: monospace;">
+                                            {% if item.debit_total %}₹{{ item.debit_total|floatformat:2 }}{% else %}-{% endif %}
+                                        </td>
+                                        <td style="text-align: right; font-family: monospace;">
+                                            {% if item.credit_total %}₹{{ item.credit_total|floatformat:2 }}{% else %}-{% endif %}
+                                        </td>
+                                        <td style="text-align: right; font-weight: bold; font-family: monospace;">
+                                            {% if item.balance >= 0 %}
+                                                <span style="color: #2e7d32;">₹{{ item.balance|floatformat:2 }}</span>
+                                            {% else %}
+                                                <span style="color: #c62828;">₹{{ item.balance|floatformat:2 }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #757575; padding: 20px;">
+                                        No accounts in this category
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
