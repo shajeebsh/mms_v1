@@ -1,5 +1,7 @@
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 from .models import Account, AccountCategory, Transaction, JournalEntry
+
 
 class AccountCategoryAdmin(ModelAdmin):
     model = AccountCategory
@@ -8,6 +10,28 @@ class AccountCategoryAdmin(ModelAdmin):
     list_display = ('name', 'category_type')
     search_fields = ('name',)
     add_to_admin_menu = False
+    panels = [
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel('name', classname='col6'),
+                        FieldPanel('category_type', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('description', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+            ],
+            heading='Category Details',
+            classname='compact-panel',
+        ),
+    ]
+
 
 class AccountAdmin(ModelAdmin):
     model = Account
@@ -17,6 +41,35 @@ class AccountAdmin(ModelAdmin):
     list_filter = ('category', 'is_active')
     search_fields = ('code', 'name')
     add_to_admin_menu = False
+    panels = [
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel('code', classname='col4'),
+                        FieldPanel('name', classname='col4'),
+                        FieldPanel('category', classname='col4'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('is_active', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('description', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+            ],
+            heading='Account Details',
+            classname='compact-panel',
+        ),
+    ]
+
 
 class TransactionAdmin(ModelAdmin):
     model = Transaction
@@ -25,6 +78,28 @@ class TransactionAdmin(ModelAdmin):
     list_display = ('date', 'description', 'reference')
     search_fields = ('description', 'reference')
     add_to_admin_menu = False
+    panels = [
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel('date', classname='col6'),
+                        FieldPanel('reference', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('description', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+            ],
+            heading='Transaction Details',
+            classname='compact-panel',
+        ),
+    ]
+
 
 class JournalEntryAdmin(ModelAdmin):
     model = JournalEntry
@@ -33,6 +108,35 @@ class JournalEntryAdmin(ModelAdmin):
     list_display = ('transaction', 'account', 'debit', 'credit')
     list_filter = ('account',)
     add_to_admin_menu = False
+    panels = [
+        MultiFieldPanel(
+            [
+                FieldRowPanel(
+                    [
+                        FieldPanel('transaction', classname='col6'),
+                        FieldPanel('account', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('debit', classname='col6'),
+                        FieldPanel('credit', classname='col6'),
+                    ],
+                    classname='compact-row',
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel('memo', classname='col12'),
+                    ],
+                    classname='compact-row',
+                ),
+            ],
+            heading='Journal Entry Details',
+            classname='compact-panel',
+        ),
+    ]
+
 
 modeladmin_register(AccountAdmin)
 modeladmin_register(AccountCategoryAdmin)
