@@ -75,8 +75,9 @@ class TransactionAdmin(ModelAdmin):
     model = Transaction
     menu_label = 'Ledger Transactions'
     menu_icon = 'transfer'
-    list_display = ('date', 'description', 'reference')
-    search_fields = ('description', 'reference')
+    list_display = ('date', 'name', 'description', 'reference', 'total_debit', 'total_credit')
+    search_fields = ('name', 'description', 'reference')
+    list_filter = ('date',)
     add_to_admin_menu = False
     panels = [
         MultiFieldPanel(
@@ -84,13 +85,14 @@ class TransactionAdmin(ModelAdmin):
                 FieldRowPanel(
                     [
                         FieldPanel('date', classname='col6'),
-                        FieldPanel('reference', classname='col6'),
+                        FieldPanel('name', classname='col6'),
                     ],
                     classname='compact-row',
                 ),
                 FieldRowPanel(
                     [
-                        FieldPanel('description', classname='col12'),
+                        FieldPanel('reference', classname='col6'),
+                        FieldPanel('description', classname='col6'),
                     ],
                     classname='compact-row',
                 ),
