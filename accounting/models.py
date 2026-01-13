@@ -63,6 +63,28 @@ class Transaction(models.Model):
         """Sum of all credit entries for this transaction"""
         return sum(entry.credit for entry in self.entries.all())
 
+    @property
+    def transaction_type(self):
+        """Determine transaction type based on accounts involved"""
+        entries = self.entries.select_related('account__category').all()
+        for entry in entries:
+            cat_type = entry.account.category.category_type
+            if cat_type == 'revenue' and entry.credit > 0:
+                return 'Income'
+            if cat_type == 'expense' and entry.debit > 0:
+                return 'Expense'
+        return 'Transfer'
+
+    @property
+    def amount(self):
+        """Returns the transaction amount (debit total, which equals credit total)"""
+        return self.total_debit
+
+    @property
+    def is_income(self):
+        """Check if this is an income transaction"""
+        return self.transaction_type == 'Income'
+
 class JournalEntry(models.Model):
     wagtail_reference_index_ignore = True
     """Double-entry lines (Debit/Credit)"""
