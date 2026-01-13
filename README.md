@@ -284,3 +284,29 @@ This will create a `report.html` file in the project directory which you can ope
 
 ## Configuration
 - **Membership Dues**: Go to **Settings > System settings** in the admin panel to configure the default monthly dues amount.
+
+## Testing New Features
+
+### Non-member Donations & Compact Form Layouts
+
+1. **Start the development server:**
+   ```bash
+   python manage.py runserver
+   ```
+
+2. **Test Non-member Donations:**
+   - Go to CMS admin: `http://localhost:8000/cms/`
+   - Navigate to Finance > Donations > Add New Donation
+   - You should see two fields side-by-side: "Member" (dropdown) and "Donor Name" (text field)
+   - Test by leaving Member blank and entering a donor name for non-member donations
+   - The form should now have compact 2-column layout
+
+3. **Test Compact Layouts:**
+   - Check New Donation, New Expense, New Financial Report forms (Finance module)
+   - Check New Account, New Account Category forms (Accounting module)
+   - Check New Invoice, New Billing Payment forms (Billing module)
+   - All should display fields in compact rows (2-3 fields per row)
+
+4. **Test Pending Course Fees page:**
+   - Navigate to Education > Pending Course Fees report
+   - Student names should now render correctly in the table
