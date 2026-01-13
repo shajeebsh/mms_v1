@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from finance.models import Donation, Expense
 from membership.models import Payment as MemberPayment
 from billing.models import BillingPayment
-from .models import Transaction, JournalEntry, Account
+from .models import Transaction, JournalEntry, Account, AccountCategory, get_or_create_account
 
 @receiver(post_save, sender=Donation)
 def post_donation_to_ledger(sender, instance, created, **kwargs):
@@ -16,11 +16,11 @@ def post_donation_to_ledger(sender, instance, created, **kwargs):
         )
         
         # 2. Debit Asset (Cash/Bank) - Assuming default "Main Cash" for now
-        cash_account = Account.objects.get(code='1001') # Cash
+        cash_account = get_or_create_account('1001', 'Main Cash', 'asset')
         JournalEntry.objects.create(transaction=tx, account=cash_account, debit=instance.amount)
         
         # 3. Credit Revenue (Donations)
-        donation_account = Account.objects.get(code='4001') # Donation Revenue
+        donation_account = get_or_create_account('4001', 'Donations Revenue', 'revenue')
         JournalEntry.objects.create(transaction=tx, account=donation_account, credit=instance.amount)
 
 @receiver(post_save, sender=Expense)
@@ -33,11 +33,11 @@ def post_expense_to_ledger(sender, instance, created, **kwargs):
         )
         
         # 1. Debit Expense
-        expense_account = Account.objects.get(code='5001') # General Expense
+        expense_account = get_or_create_account('5001', 'General Expenses', 'expense')
         JournalEntry.objects.create(transaction=tx, account=expense_account, debit=instance.amount)
         
         # 2. Credit Asset (Cash/Bank)
-        cash_account = Account.objects.get(code='1001') # Cash
+        cash_account = get_or_create_account('1001', 'Main Cash', 'asset')
         JournalEntry.objects.create(transaction=tx, account=cash_account, credit=instance.amount)
 
 @receiver(post_save, sender=MemberPayment)
@@ -50,9 +50,9 @@ def post_membership_payment_to_ledger(sender, instance, created, **kwargs):
         )
         
         # 1. Debit Asset (Cash)
-        cash_account = Account.objects.get(code='1001')
+        cash_account = get_or_create_account('1001', 'Main Cash', 'asset')
         JournalEntry.objects.create(transaction=tx, account=cash_account, debit=instance.amount)
         
         # 2. Credit Revenue (Membership Dues)
-        dues_account = Account.objects.get(code='4002')
+        dues_account = get_or_create_account('4002', 'Membership Dues Revenue', 'revenue')
         JournalEntry.objects.create(transaction=tx, account=dues_account, credit=instance.amount)

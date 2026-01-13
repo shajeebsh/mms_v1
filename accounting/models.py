@@ -34,6 +34,19 @@ class Account(models.Model):
     def __str__(self):
         return f"{self.code} - {self.name}"
 
+def get_or_create_account(code, name, category_type):
+    """Helper to safely get or create an account for ledger posting"""
+    category_name = category_type.capitalize() + "s"
+    category, _ = AccountCategory.objects.get_or_create(
+        category_type=category_type,
+        defaults={'name': category_name}
+    )
+    account, _ = Account.objects.get_or_create(
+        code=code,
+        defaults={'name': name, 'category': category}
+    )
+    return account
+
 class Transaction(models.Model):
     wagtail_reference_index_ignore = True
     """Represents a financial event"""
