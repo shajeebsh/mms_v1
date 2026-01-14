@@ -12,56 +12,120 @@
         --premium-primary: #6366f1;
         --premium-secondary: #a855f7;
         --premium-accent: #f43f5e;
-        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-bg: rgba(255, 255, 255, 0.95);
         --glass-border: rgba(255, 255, 255, 0.3);
         --text-primary: #1e293b;
         --text-secondary: #64748b;
+        --color-members: #10b981;
+        --color-houses: #3b82f6;
+        --color-income: #f59e0b;
+        --color-expenses: #ef4444;
+        --color-classes: #8b5cf6;
+        --color-shops: #ec4899;
+        --color-teachers: #14b8a6;
+        --color-bookings: #f97316;
+        --color-payments: #06b6d4;
+        --color-properties: #84cc16;
     }
 
     .dashboard-header {
-        background: linear-gradient(135deg, var(--premium-primary) 0%, var(--premium-secondary) 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         padding: 40px 0;
         margin-bottom: 30px;
         color: white;
         border-radius: 0 0 24px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: shimmer 15s linear infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     .kpi-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 28px;
     }
 
     .kpi-card {
         background: var(--glass-bg);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        padding: 16px;
+        border: none;
+        border-radius: 16px;
+        padding: 20px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
-        gap: 12px;
-        box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.05);
+        gap: 16px;
+        box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.1);
         height: 100%;
+        position: relative;
+        overflow: hidden;
     }
 
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        border-radius: 4px 0 0 4px;
+    }
+
+    .kpi-card.members::before { background: linear-gradient(180deg, var(--color-members), #34d399); }
+    .kpi-card.houses::before { background: linear-gradient(180deg, var(--color-houses), #60a5fa); }
+    .kpi-card.income::before { background: linear-gradient(180deg, var(--color-income), #fbbf24); }
+    .kpi-card.expenses::before { background: linear-gradient(180deg, var(--color-expenses), #f87171); }
+    .kpi-card.classes::before { background: linear-gradient(180deg, var(--color-classes), #a78bfa); }
+    .kpi-card.shops::before { background: linear-gradient(180deg, var(--color-shops), #f472b6); }
+    .kpi-card.teachers::before { background: linear-gradient(180deg, var(--color-teachers), #2dd4bf); }
+    .kpi-card.bookings::before { background: linear-gradient(180deg, var(--color-bookings), #fb923c); }
+    .kpi-card.payments::before { background: linear-gradient(180deg, var(--color-payments), #22d3ee); }
+    .kpi-card.properties::before { background: linear-gradient(180deg, var(--color-properties), #a3e635); }
+
     .kpi-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.25);
-        border-color: var(--premium-primary);
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.3);
     }
 
     .kpi-icon {
-        font-size: 1.4rem;
-        background: linear-gradient(135deg, var(--premium-primary), var(--premium-secondary));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
         flex-shrink: 0;
+        color: white;
     }
+
+    .kpi-card.members .kpi-icon { background: linear-gradient(135deg, var(--color-members), #34d399); }
+    .kpi-card.houses .kpi-icon { background: linear-gradient(135deg, var(--color-houses), #60a5fa); }
+    .kpi-card.income .kpi-icon { background: linear-gradient(135deg, var(--color-income), #fbbf24); }
+    .kpi-card.expenses .kpi-icon { background: linear-gradient(135deg, var(--color-expenses), #f87171); }
+    .kpi-card.classes .kpi-icon { background: linear-gradient(135deg, var(--color-classes), #a78bfa); }
+    .kpi-card.shops .kpi-icon { background: linear-gradient(135deg, var(--color-shops), #f472b6); }
+    .kpi-card.teachers .kpi-icon { background: linear-gradient(135deg, var(--color-teachers), #2dd4bf); }
+    .kpi-card.bookings .kpi-icon { background: linear-gradient(135deg, var(--color-bookings), #fb923c); }
+    .kpi-card.payments .kpi-icon { background: linear-gradient(135deg, var(--color-payments), #22d3ee); }
+    .kpi-card.properties .kpi-icon { background: linear-gradient(135deg, var(--color-properties), #a3e635); }
 
     .kpi-content {
         display: flex;
@@ -69,7 +133,7 @@
     }
 
     .kpi-value {
-        font-size: 1.2rem;
+        font-size: 1.5rem;
         font-weight: 800;
         color: var(--text-primary);
         letter-spacing: -0.5px;
@@ -77,27 +141,126 @@
     }
 
     .kpi-label {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         color: var(--text-secondary);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
+    .kpi-trend {
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .kpi-trend.up { color: var(--color-members); }
+    .kpi-trend.down { color: var(--color-expenses); }
+
     .chart-container {
         background: var(--glass-bg);
         backdrop-filter: blur(12px);
-        border: 1px solid var(--glass-border);
+        border: none;
         border-radius: 20px;
         padding: 24px;
         margin-bottom: 24px;
-        box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .chart-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     }
 
     .chart-title {
         font-weight: 700;
         letter-spacing: -0.5px;
         color: var(--text-primary);
+        font-size: 1.1rem;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .stat-highlight {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 24px;
+        border-radius: 16px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .stat-highlight .value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .stat-highlight .label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .activity-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .activity-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item .name {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .activity-item .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, #10b981, #34d399);
+        color: white;
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        color: white;
+    }
+
+    .badge-info {
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        color: white;
     }
 
     .action-card {
@@ -212,32 +375,39 @@
         {% if user_type == 'executive' %}
         <!-- Executive Dashboard -->
         <div class="kpi-grid">
-            <div class="kpi-card">
+            <div class="kpi-card members">
                 <div class="kpi-icon"><i class="fas fa-users"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">{{ kpis.total_members|floatformat:0 }}</div>
-                    <div class="kpi-label">Members</div>
+                    <div class="kpi-label">Total Members</div>
+                    <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> Active community</div>
                 </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card houses">
                 <div class="kpi-icon"><i class="fas fa-home"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">{{ kpis.total_houses|floatformat:0 }}</div>
-                    <div class="kpi-label">Houses</div>
+                    <div class="kpi-label">Registered Houses</div>
+                    <div class="kpi-trend up"><i class="fas fa-check-circle"></i> All registered</div>
                 </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card income">
                 <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">₹{{ kpis.total_income|floatformat:0 }}</div>
-                    <div class="kpi-label">Income</div>
+                    <div class="kpi-label">Total Income</div>
+                    <div class="kpi-trend up"><i class="fas fa-chart-line"></i> YTD Collection</div>
                 </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card properties">
                 <div class="kpi-icon"><i class="fas fa-building"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">{{ kpis.occupancy_rate|floatformat:1 }}%</div>
-                    <div class="kpi-label">Occupancy</div>
+                    <div class="kpi-label">Occupancy Rate</div>
+                    <div class="kpi-trend {% if kpis.occupancy_rate >= 80 %}up{% else %}down{% endif %}">
+                        <i class="fas fa-{% if kpis.occupancy_rate >= 80 %}thumbs-up{% else %}exclamation-triangle{% endif %}"></i> 
+                        {% if kpis.occupancy_rate >= 80 %}Good{% else %}Needs attention{% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -283,46 +453,78 @@
         {% elif user_type == 'admin' %}
         <!-- Admin Dashboard -->
         <div class="kpi-grid">
-            <div class="kpi-card">
+            <div class="kpi-card members">
                 <div class="kpi-icon"><i class="fas fa-users"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">{{ total_members|floatformat:0 }}</div>
-                    <div class="kpi-label">Members</div>
+                    <div class="kpi-label">Active Members</div>
+                    <div class="kpi-trend up"><i class="fas fa-user-check"></i> Verified</div>
                 </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card houses">
                 <div class="kpi-icon"><i class="fas fa-home"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">{{ total_houses|floatformat:0 }}</div>
-                    <div class="kpi-label">Houses</div>
+                    <div class="kpi-label">Registered Houses</div>
+                    <div class="kpi-trend up"><i class="fas fa-check-circle"></i> All registered</div>
                 </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card income">
                 <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">₹{{ total_donations|add:total_dues_collected|floatformat:0 }}</div>
-                    <div class="kpi-label">Revenue</div>
+                    <div class="kpi-label">Total Revenue</div>
+                    <div class="kpi-trend up"><i class="fas fa-chart-line"></i> Donations + Dues</div>
                 </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card expenses">
                 <div class="kpi-icon"><i class="fas fa-minus-circle"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">₹{{ total_expenses|floatformat:0 }}</div>
-                    <div class="kpi-label">Expenses</div>
+                    <div class="kpi-label">Total Expenses</div>
+                    <div class="kpi-trend down"><i class="fas fa-arrow-down"></i> Track spending</div>
                 </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card payments">
+                <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
+                <div class="kpi-content">
+                    <div class="kpi-value">₹{{ net_income|floatformat:0 }}</div>
+                    <div class="kpi-label">Net Income</div>
+                    <div class="kpi-trend {% if net_income >= 0 %}up{% else %}down{% endif %}">
+                        <i class="fas fa-{% if net_income >= 0 %}arrow-up{% else %}arrow-down{% endif %}"></i> Balance
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card classes">
                 <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
                 <div class="kpi-content">
-                    <div class="kpi-value">{{ active_classes|floatformat:0 }}</div>
-                    <div class="kpi-label">Classes</div>
+                    <div class="kpi-value">{{ total_classes|floatformat:0 }}</div>
+                    <div class="kpi-label">Active Classes</div>
+                    <div class="kpi-trend up"><i class="fas fa-book-reader"></i> Education</div>
                 </div>
             </div>
-            <div class="kpi-card">
-                <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="kpi-card teachers">
+                <div class="kpi-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ total_teachers|floatformat:0 }}</div>
+                    <div class="kpi-label">Teachers</div>
+                    <div class="kpi-trend up"><i class="fas fa-star"></i> Active staff</div>
+                </div>
+            </div>
+            <div class="kpi-card shops">
+                <div class="kpi-icon"><i class="fas fa-store"></i></div>
                 <div class="kpi-content">
                     <div class="kpi-value">{{ total_shops|floatformat:0 }}</div>
                     <div class="kpi-label">Shops</div>
+                    <div class="kpi-trend up"><i class="fas fa-shopping-bag"></i> Occupied</div>
+                </div>
+            </div>
+            <div class="kpi-card properties">
+                <div class="kpi-icon"><i class="fas fa-building"></i></div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ total_properties|floatformat:0 }}</div>
+                    <div class="kpi-label">Property Units</div>
+                    <div class="kpi-trend up"><i class="fas fa-key"></i> Managed</div>
                 </div>
             </div>
         </div>
@@ -390,7 +592,7 @@
 
         {% else %}
         <!-- Staff Dashboard -->
-        <div class="quick-actions">
+        <div class="quick-actions mb-4">
             {% for action in quick_actions %}
             <a href="{{ action.url }}" class="action-card">
                 <div class="action-icon">
@@ -403,20 +605,29 @@
         </div>
 
         <div class="kpi-grid">
-            <div class="kpi-card">
+            <div class="kpi-card members">
                 <div class="kpi-icon"><i class="fas fa-users"></i></div>
-                <div class="kpi-value">{{ today_overview.total_members|floatformat:0 }}</div>
-                <div class="kpi-label">Total Members</div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ today_overview.total_members|floatformat:0 }}</div>
+                    <div class="kpi-label">Total Members</div>
+                    <div class="kpi-trend up"><i class="fas fa-user-check"></i> Active</div>
+                </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card classes">
                 <div class="kpi-icon"><i class="fas fa-graduation-cap"></i></div>
-                <div class="kpi-value">{{ today_overview.active_classes|floatformat:0 }}</div>
-                <div class="kpi-label">Active Classes</div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ today_overview.active_classes|floatformat:0 }}</div>
+                    <div class="kpi-label">Active Classes</div>
+                    <div class="kpi-trend up"><i class="fas fa-book"></i> Running</div>
+                </div>
             </div>
-            <div class="kpi-card">
+            <div class="kpi-card bookings">
                 <div class="kpi-icon"><i class="fas fa-calendar-day"></i></div>
-                <div class="kpi-value">{{ today_overview.today_bookings|floatformat:0 }}</div>
-                <div class="kpi-label">Today's Bookings</div>
+                <div class="kpi-content">
+                    <div class="kpi-value">{{ today_overview.today_bookings|floatformat:0 }}</div>
+                    <div class="kpi-label">Today's Bookings</div>
+                    <div class="kpi-trend up"><i class="fas fa-calendar-check"></i> Scheduled</div>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -483,6 +694,27 @@
 
         const userType = '{{ user_type }}';
 
+        // Vibrant color palette
+        const colors = {
+            primary: '#667eea',
+            secondary: '#764ba2',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            info: '#3b82f6',
+            purple: '#8b5cf6',
+            pink: '#ec4899',
+            teal: '#14b8a6',
+            orange: '#f97316',
+            cyan: '#06b6d4',
+            lime: '#84cc16',
+        };
+
+        const gradientColors = [
+            colors.success, colors.info, colors.warning, colors.purple, 
+            colors.pink, colors.teal, colors.orange, colors.cyan, colors.lime
+        ];
+
         if (userType === 'executive') {
             const incomeData = dashboardData.incomeTrends;
             if (incomeData.length > 0) {
@@ -493,26 +725,41 @@
                         datasets: [{
                             label: 'Income',
                             data: incomeData.map(item => item.income),
-                            borderColor: '#27ae60',
-                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                            tension: 0.4
+                            borderColor: colors.success,
+                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: colors.success,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
                         }, {
                             label: 'Target',
                             data: incomeData.map(item => item.target),
-                            borderColor: '#e74c3c',
-                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                            borderDash: [5, 5],
-                            tension: 0.4
+                            borderColor: colors.warning,
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderDash: [8, 4],
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { position: 'top' } },
+                        plugins: { 
+                            legend: { 
+                                position: 'top',
+                                labels: { usePointStyle: true, padding: 20 }
+                            } 
+                        },
                         scales: {
                             y: {
                                 beginAtZero: true,
+                                grid: { color: 'rgba(0,0,0,0.05)' },
                                 ticks: { callback: value => '₹' + value.toLocaleString() }
-                            }
+                            },
+                            x: { grid: { display: false } }
                         }
                     }
                 });
@@ -526,13 +773,20 @@
                     labels: ['Collected', 'Remaining'],
                     datasets: [{
                         data: [currentDues, remDues],
-                        backgroundColor: ['#27ae60', '#f1f8e9'],
-                        borderWidth: 0
+                        backgroundColor: [colors.success, '#e2e8f0'],
+                        borderWidth: 0,
+                        hoverOffset: 8
                     }]
                 },
                 options: {
                     responsive: true,
-                    plugins: { legend: { position: 'bottom' } }
+                    cutout: '70%',
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: { usePointStyle: true, padding: 15 }
+                        } 
+                    }
                 }
             });
 
@@ -556,27 +810,44 @@
                         datasets: [{
                             label: 'Income (Donations + Dues)',
                             data: adminData.map(item => (item.donations || 0) + (item.dues || 0)),
-                            borderColor: '#27ae60',
-                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            borderColor: colors.success,
+                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
                             fill: true,
-                            tension: 0.4
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: colors.success,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
                         }, {
                             label: 'Expenses',
                             data: adminData.map(item => item.expenses || 0),
-                            borderColor: '#e74c3c',
-                            backgroundColor: 'rgba(231, 76, 60, 0.05)',
+                            borderColor: colors.danger,
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
                             fill: true,
-                            tension: 0.4
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: colors.danger,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { position: 'top' } },
+                        plugins: { 
+                            legend: { 
+                                position: 'top',
+                                labels: { usePointStyle: true, padding: 20 }
+                            } 
+                        },
                         scales: {
                             y: {
                                 beginAtZero: true,
+                                grid: { color: 'rgba(0,0,0,0.05)' },
                                 ticks: { callback: value => '₹' + value.toLocaleString() }
-                            }
+                            },
+                            x: { grid: { display: false } }
                         }
                     }
                 });
@@ -588,16 +859,32 @@
                         datasets: [{
                             label: 'Total Members',
                             data: adminData.map(item => item.members || 0),
-                            borderColor: '#2980b9',
-                            backgroundColor: 'rgba(41, 128, 185, 0.1)',
+                            borderColor: colors.info,
+                            backgroundColor: 'rgba(59, 130, 246, 0.15)',
                             fill: true,
-                            tension: 0.4
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: colors.info,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { position: 'top' } },
-                        scales: { y: { beginAtZero: false } }
+                        plugins: { 
+                            legend: { 
+                                position: 'top',
+                                labels: { usePointStyle: true, padding: 20 }
+                            } 
+                        },
+                        scales: { 
+                            y: { 
+                                beginAtZero: false,
+                                grid: { color: 'rgba(0,0,0,0.05)' }
+                            },
+                            x: { grid: { display: false } }
+                        }
                     }
                 });
             }
@@ -609,13 +896,23 @@
                         labels: revenueData.map(d => d.label),
                         datasets: [{
                             data: revenueData.map(d => d.total),
-                            backgroundColor: revenueData.map((_, i) => `hsl(${140 + i * 20}, 70%, 50%)`),
+                            backgroundColor: gradientColors.slice(0, revenueData.length),
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            hoverOffset: 8
                         }]
                     },
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                            legend: { 
+                                position: 'bottom', 
+                                labels: { 
+                                    usePointStyle: true, 
+                                    padding: 12,
+                                    font: { size: 11 } 
+                                } 
+                            }
                         }
                     }
                 });
@@ -628,13 +925,24 @@
                         labels: expenseData.map(item => item.category__name),
                         datasets: [{
                             data: expenseData.map(item => item.total),
-                            backgroundColor: ['#e74c3c', '#e67e22', '#f1c40f', '#9b59b6', '#34495e', '#95a5a6'],
+                            backgroundColor: [colors.danger, colors.orange, colors.warning, colors.purple, colors.pink, colors.teal],
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            hoverOffset: 8
                         }]
                     },
                     options: {
                         responsive: true,
+                        cutout: '60%',
                         plugins: {
-                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                            legend: { 
+                                position: 'bottom', 
+                                labels: { 
+                                    usePointStyle: true, 
+                                    padding: 12,
+                                    font: { size: 11 } 
+                                } 
+                            }
                         }
                     }
                 });
