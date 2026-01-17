@@ -1,0 +1,118 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}Payment History - {{ enrollment.student.full_name }}{% endblock %}
+
+{% block content %}
+{% include "wagtailadmin/shared/header.html" with title="Payment History" icon="history" %}
+
+<div class="nice-padding">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages">
+                <ul class="messagelist">
+                    <li class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</li>
+                </ul>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="help-block help-info">
+                <p><strong>Student:</strong> {{ enrollment.student.full_name }}</p>
+                <p><strong>Class:</strong> {{ enrollment.class_instance.name }}</p>
+                <p><strong>Course Fee:</strong> ₹{{ course_fee }}</p>
+                <p><strong>Total Paid:</strong> ₹{{ total_paid }}</p>
+                <p><strong>Balance Due:</strong> 
+                    {% if balance > 0 %}
+                        <span style="color: #d9534f; font-weight: bold;">₹{{ balance }}</span>
+                    {% else %}
+                        <span style="color: #5cb85c; font-weight: bold;">₹0.00 (Fully Paid)</span>
+                    {% endif %}
+                </p>
+                <p><strong>Payment Status:</strong> 
+                    {% if enrollment.payment_status == 'paid' %}
+                        <span class="status-tag primary">Paid</span>
+                    {% elif enrollment.payment_status == 'partial' %}
+                        <span class="status-tag warning">Partial</span>
+                    {% elif enrollment.payment_status == 'exempt' %}
+                        <span class="status-tag secondary">Exempt</span>
+                    {% else %}
+                        <span class="status-tag critical">Pending</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="actions" style="margin-bottom: 20px;">
+        {% if balance > 0 %}
+            <a href="{% url 'education_record_fee_payment_for' enrollment_id=enrollment.id %}" class="button button-primary">Record New Payment</a>
+        {% endif %}
+        <a href="{% url 'education_pending_fees' %}" class="button button-secondary">Back to Pending Fees</a>
+    </div>
+
+    <h3>Payment Records</h3>
+    <table class="listing">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Reference</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.date }}</td>
+                <td>₹{{ payment.amount }}</td>
+                <td>{{ payment.get_payment_method_display }}</td>
+                <td>{{ payment.reference_number|default:"-" }}</td>
+                <td>{{ payment.remarks|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No payments recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+.actions .button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.button-primary {
+    background-color: #007cba;
+    color: white;
+}
+
+.button-secondary {
+    background-color: #f7f7f7;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.help-block {
+    background-color: #f0f4f8;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.help-block p {
+    margin: 5px 0;
+}
+</style>
+{% endblock %}

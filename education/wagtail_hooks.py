@@ -150,8 +150,44 @@ modeladmin_register(ClassAdmin)
 modeladmin_register(StudentEnrollmentAdmin)
 
 
+class StudentFeePaymentAdmin(ModelAdmin):
+    model = StudentFeePayment
+    permission_helper_class = ACLPermissionHelper
+    menu_label = 'Fee Payments'
+    menu_icon = 'money'
+    add_to_admin_menu = False
+    list_display = ('enrollment', 'amount', 'date', 'payment_method', 'reference_number')
+    list_filter = ('payment_method', 'date', 'enrollment__class_instance')
+    search_fields = ('enrollment__student__first_name', 'enrollment__student__last_name', 'reference_number')
+    panels = [
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('enrollment', classname="col6"),
+                FieldPanel('amount', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('date', classname="col6"),
+                FieldPanel('payment_method', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('reference_number', classname="col12"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('remarks', classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Payment Details", classname="compact-panel"),
+    ]
+
+
+modeladmin_register(StudentFeePaymentAdmin)
+
+
 @hooks.register('register_admin_urls')
 def register_education_admin_urls():
     return [
         path('education/pending-fees/', views.PendingFeesReportView.as_view(), name='education_pending_fees'),
+        path('education/record-payment/', views.record_fee_payment_view, name='education_record_fee_payment'),
+        path('education/record-payment/<int:enrollment_id>/', views.record_fee_payment_view, name='education_record_fee_payment_for'),
+        path('education/payment-history/<int:enrollment_id>/', views.payment_history_view, name='education_payment_history'),
+        path('education/all-payments/', views.all_payments_view, name='education_all_payments'),
     ]
