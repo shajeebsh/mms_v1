@@ -1,11 +1,14 @@
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Teacher, Class, StudentEnrollment, StudentFeePayment
+from .models import Teacher, Class, StudentEnrollment, StudentFeePayment, StudentAdmission
 from home.permission_helpers import ACLPermissionHelper
 from wagtail import hooks
 from django.urls import path
 from . import views
+from django import forms
+from django.core.exceptions import ValidationError
+from membership.models import Member
 
 
 class TeacherAdmin(ModelAdmin):
@@ -180,6 +183,133 @@ class StudentFeePaymentAdmin(ModelAdmin):
 
 
 modeladmin_register(StudentFeePaymentAdmin)
+
+
+class StudentAdmissionForm(forms.ModelForm):
+    """Custom form for StudentAdmission with student as a text field"""
+    student_name = forms.CharField(
+        max_length=200,
+        required=True,
+        label="Student Name (text input)",
+        help_text="Enter student's first and last name — this is a free-text field, not a selector",
+        widget=forms.TextInput(attrs={
+            'class': 'vLargeTextField',
+            'placeholder': 'Enter student full name (text)'
+        })
+    )
+    
+    class Meta:
+        model = StudentAdmission
+        exclude = ['student']  # Exclude the model's student field
+        fields = [
+            'student_name',
+            'class_applied',
+            'admission_date',
+            'admission_number',
+            'status',
+            'documents_status',
+            'documents_remarks',
+            'interview_date',
+            'interview_remarks',
+            'parent_contact',
+            'emergency_contact',
+            'special_requirements',
+            'approved_by',
+            'approval_date',
+            'remarks',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If editing an existing object, populate student_name with the student's full name
+        if self.instance.pk and self.instance.student:
+            self.fields['student_name'].initial = self.instance.student.full_name
+        # Ensure student_name field uses text input widget
+        self.fields['student_name'].widget = forms.TextInput(attrs={
+            'class': 'vLargeTextField',
+            'placeholder': 'Enter student full name'
+        })
+
+    def clean_student_name(self):
+        """Validate student name - try to find matching student"""
+        name = self.cleaned_data.get('student_name', '').strip()
+        if not name:
+            raise ValidationError("Student name is required.")
+        return name
+
+    def save(self, commit=True):
+        """Save the form and handle student lookup/creation"""
+        instance = super().save(commit=False)
+        student_name = self.cleaned_data.get('student_name', '').strip()
+        
+        # Try to find the student by full name
+        if student_name:
+            # Split the name to get first and last name
+            name_parts = student_name.split()
+            first_name = name_parts[0] if name_parts else ''
+            last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+            
+            # Search for existing student
+            try:
+                student = Member.objects.get(
+                    first_name__icontains=first_name,
+                    last_name__icontains=last_name
+                )
+                instance.student = student
+            except Member.DoesNotExist:
+                # If not found, try with just first name
+                try:
+                    student = Member.objects.get(first_name__icontains=student_name)
+                    instance.student = student
+                except Member.MultipleObjectsReturned:
+                    raise ValidationError(f"Multiple students found with name '{student_name}'. Please be more specific.")
+                except Member.DoesNotExist:
+                    raise ValidationError(f"Student '{student_name}' not found in the system.")
+            except Member.MultipleObjectsReturned:
+                raise ValidationError(f"Multiple students found with name '{student_name}'. Please be more specific.")
+        
+        if commit:
+            instance.save()
+        return instance
+
+
+class StudentAdmissionAdmin(ModelAdmin):
+    model = StudentAdmission
+    permission_helper_class = ACLPermissionHelper
+    menu_label = 'Admissions'
+    menu_icon = 'form'
+    add_to_admin_menu = False
+    form_class = StudentAdmissionForm
+    list_display = ('class_applied', 'admission_number', 'status', 'admission_date', 'documents_status')
+    list_filter = ('status', 'documents_status', 'admission_date', 'class_applied')
+    search_fields = ('admission_number', 'class_applied__name')
+
+    base_form_class = StudentAdmissionForm
+    def get_form_class(self):
+        return StudentAdmissionForm
+
+    def get_form_fields(self):
+        # Only use fields from the custom form, not the model
+        return [
+            'student_name',
+            'class_applied',
+            'admission_date',
+            'admission_number',
+            'status',
+            'documents_status',
+            'documents_remarks',
+            'interview_date',
+            'interview_remarks',
+            'parent_contact',
+            'emergency_contact',
+            'special_requirements',
+            'approved_by',
+            'approval_date',
+            'remarks',
+        ]
+
+
+modeladmin_register(StudentAdmissionAdmin)
 
 
 @hooks.register('register_admin_urls')
