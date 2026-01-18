@@ -281,7 +281,6 @@ class StudentAdmissionAdmin(ModelAdmin):
     panels = [
         MultiFieldPanel([
             FieldRowPanel([
-                FieldPanel('student_name', classname="col6"),
                 FieldPanel('class_applied', classname="col6"),
             ], classname="compact-row"),
             FieldRowPanel([
