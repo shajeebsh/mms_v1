@@ -1,7 +1,7 @@
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
 from wagtail_modeladmin.options import ModelAdmin, modeladmin_register
 
-from .models import Teacher, Class, StudentEnrollment, StudentFeePayment
+from .models import Teacher, Class, StudentEnrollment, StudentFeePayment, StudentAdmission
 from home.permission_helpers import ACLPermissionHelper
 from wagtail import hooks
 from django.urls import path
@@ -180,6 +180,63 @@ class StudentFeePaymentAdmin(ModelAdmin):
 
 
 modeladmin_register(StudentFeePaymentAdmin)
+
+
+class StudentAdmissionAdmin(ModelAdmin):
+    model = StudentAdmission
+    permission_helper_class = ACLPermissionHelper
+    menu_label = 'Admissions'
+    menu_icon = 'form'
+    add_to_admin_menu = False
+    list_display = ('student', 'class_applied', 'admission_number', 'status', 'admission_date', 'documents_status')
+    list_filter = ('status', 'documents_status', 'admission_date', 'class_applied')
+    search_fields = ('student__first_name', 'student__last_name', 'admission_number', 'class_applied__name')
+    panels = [
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('student', classname="col6"),
+                FieldPanel('class_applied', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('admission_date', classname="col6"),
+                FieldPanel('admission_number', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('status', classname="col6"),
+                FieldPanel('documents_status', classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Admission Details", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('documents_remarks', classname="col12"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('interview_date', classname="col6"),
+                FieldPanel('interview_remarks', classname="col6"),
+            ], classname="compact-row"),
+        ], heading="Interview & Documents", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('parent_contact', classname="col6"),
+                FieldPanel('emergency_contact', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('special_requirements', classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Contact Information", classname="compact-panel"),
+        MultiFieldPanel([
+            FieldRowPanel([
+                FieldPanel('approved_by', classname="col6"),
+                FieldPanel('approval_date', classname="col6"),
+            ], classname="compact-row"),
+            FieldRowPanel([
+                FieldPanel('remarks', classname="col12"),
+            ], classname="compact-row"),
+        ], heading="Approval", classname="compact-panel"),
+    ]
+
+
+modeladmin_register(StudentAdmissionAdmin)
 
 
 @hooks.register('register_admin_urls')

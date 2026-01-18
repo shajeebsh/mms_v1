@@ -213,6 +213,7 @@ class HouseRegistrationForm(forms.ModelForm):
         fields = [
             "house_name",
             "house_number",
+            "area",
             "ward",
             "taluk",
             "city",
@@ -282,8 +283,8 @@ class HouseRegistrationAdmin(ModelAdmin):
     menu_label = "House Registrations"
     menu_icon = "home"
     add_to_admin_menu = False  # Will be included in grouped menu
-    list_display = ("house_name", "house_number", "ward", "city", "state", "country")
-    search_fields = ("house_name", "house_number")
+    list_display = ("house_name", "house_number", "area", "ward", "city", "state", "country")
+    search_fields = ("house_name", "house_number", "area")
 
     def get_form_class(self):
         return HouseRegistrationForm
@@ -295,6 +296,12 @@ class HouseRegistrationAdmin(ModelAdmin):
                     [
                         FieldPanel("house_name", classname="col6"),
                         FieldPanel("house_number", classname="col6"),
+                    ],
+                    classname="compact-row",
+                ),
+                FieldRowPanel(
+                    [
+                        FieldPanel("area", classname="col12"),
                     ],
                     classname="compact-row",
                 ),
