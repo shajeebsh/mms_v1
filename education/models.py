@@ -182,3 +182,58 @@ class StudentFeePayment(models.Model):
 
     class Meta:
         ordering = ['-date']
+
+
+class StudentAdmission(models.Model):
+    wagtail_reference_index_ignore = True
+    ADMISSION_STATUS = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('enrolled', 'Enrolled'),
+    ]
+
+    DOCUMENT_STATUS = [
+        ('pending', 'Pending'),
+        ('submitted', 'Submitted'),
+        ('verified', 'Verified'),
+        ('incomplete', 'Incomplete'),
+    ]
+
+    # Student Information
+    student = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='admissions')
+    admission_date = models.DateField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=ADMISSION_STATUS, default='pending')
+    
+    # Admission Details
+    class_applied = models.ForeignKey(Class, on_delete=models.PROTECT, related_name='admission_applications')
+    admission_number = models.CharField(max_length=50, unique=True, blank=True, help_text="Auto-generated admission ID")
+    
+    # Documents
+    documents_status = models.CharField(max_length=20, choices=DOCUMENT_STATUS, default='pending')
+    documents_remarks = models.TextField(blank=True, help_text="Notes about submitted documents")
+    
+    # Interview/Assessment
+    interview_date = models.DateField(null=True, blank=True)
+    interview_remarks = models.TextField(blank=True)
+    
+    # Additional Information
+    parent_contact = models.CharField(max_length=20, blank=True)
+    emergency_contact = models.CharField(max_length=20, blank=True)
+    special_requirements = models.TextField(blank=True, help_text="Any special requirements or needs")
+    
+    # Administrative
+    approved_by = models.CharField(max_length=200, blank=True, help_text="Name of person who approved")
+    approval_date = models.DateField(null=True, blank=True)
+    remarks = models.TextField(blank=True, help_text="General remarks about admission")
+    
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.student.full_name} - {self.class_applied.name} ({self.get_status_display()})"
+
+    class Meta:
+        verbose_name = 'Student Admission'
+        verbose_name_plural = 'Student Admissions'
+        ordering = ['-admission_date']

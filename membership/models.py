@@ -84,6 +84,7 @@ class HouseRegistration(models.Model):
     wagtail_reference_index_ignore = True
     house_name = models.CharField(max_length=200)
     house_number = models.CharField(max_length=50)
+    area = models.CharField(max_length=200, blank=True, help_text="Area name or locality")
 
     ward = models.ForeignKey(Ward, on_delete=models.PROTECT)
     taluk = models.ForeignKey(Taluk, on_delete=models.PROTECT)
