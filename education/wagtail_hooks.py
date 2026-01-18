@@ -191,11 +191,13 @@ class StudentAdmissionForm(forms.ModelForm):
         max_length=200,
         required=True,
         label="Student Name",
-        help_text="Enter student's first and last name"
+        help_text="Enter student's first and last name",
+        widget=forms.TextInput(attrs={'class': 'vLargeTextField'})
     )
     
     class Meta:
         model = StudentAdmission
+        exclude = ['student']  # Exclude the model's student field
         fields = [
             'student_name',
             'class_applied',
@@ -213,6 +215,10 @@ class StudentAdmissionForm(forms.ModelForm):
             'approval_date',
             'remarks',
         ]
+    
+    widgets = {
+        'student_name': forms.TextInput(attrs={'class': 'vLargeTextField'}),
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
