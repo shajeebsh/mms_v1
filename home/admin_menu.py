@@ -194,10 +194,16 @@ def register_administration_menu():
                 order=3,
             ),
             MenuItem(
+                label="� Student Admissions",
+                url=get_modeladmin_url("education", "studentadmission"),
+                icon_name="form",
+                order=4,
+            ),
+            MenuItem(
                 label="💰 Pending Fees",
                 url=reverse_lazy("education_pending_fees"),
                 icon_name="money",
-                order=4,
+                order=5,
             ),
         ]
     )

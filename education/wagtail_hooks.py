@@ -6,6 +6,9 @@ from home.permission_helpers import ACLPermissionHelper
 from wagtail import hooks
 from django.urls import path
 from . import views
+from django import forms
+from django.core.exceptions import ValidationError
+from membership.models import Member
 
 
 class TeacherAdmin(ModelAdmin):
@@ -182,6 +185,86 @@ class StudentFeePaymentAdmin(ModelAdmin):
 modeladmin_register(StudentFeePaymentAdmin)
 
 
+class StudentAdmissionForm(forms.ModelForm):
+    """Custom form for StudentAdmission with student as a text field"""
+    student_name = forms.CharField(
+        max_length=200,
+        required=True,
+        label="Student Name",
+        help_text="Enter student's first and last name"
+    )
+    
+    class Meta:
+        model = StudentAdmission
+        fields = [
+            'student_name',
+            'class_applied',
+            'admission_date',
+            'admission_number',
+            'status',
+            'documents_status',
+            'documents_remarks',
+            'interview_date',
+            'interview_remarks',
+            'parent_contact',
+            'emergency_contact',
+            'special_requirements',
+            'approved_by',
+            'approval_date',
+            'remarks',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If editing an existing object, populate student_name with the student's full name
+        if self.instance.pk and self.instance.student:
+            self.fields['student_name'].initial = self.instance.student.full_name
+        # Make student_name required
+        self.fields['student_name'].required = True
+
+    def clean_student_name(self):
+        """Validate student name - try to find matching student"""
+        name = self.cleaned_data.get('student_name', '').strip()
+        if not name:
+            raise ValidationError("Student name is required.")
+        return name
+
+    def save(self, commit=True):
+        """Save the form and handle student lookup/creation"""
+        instance = super().save(commit=False)
+        student_name = self.cleaned_data.get('student_name', '').strip()
+        
+        # Try to find the student by full name
+        if student_name:
+            # Split the name to get first and last name
+            name_parts = student_name.split()
+            first_name = name_parts[0] if name_parts else ''
+            last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+            
+            # Search for existing student
+            try:
+                student = Member.objects.get(
+                    first_name__icontains=first_name,
+                    last_name__icontains=last_name
+                )
+                instance.student = student
+            except Member.DoesNotExist:
+                # If not found, try with just first name
+                try:
+                    student = Member.objects.get(first_name__icontains=student_name)
+                    instance.student = student
+                except Member.MultipleObjectsReturned:
+                    raise ValidationError(f"Multiple students found with name '{student_name}'. Please be more specific.")
+                except Member.DoesNotExist:
+                    raise ValidationError(f"Student '{student_name}' not found in the system.")
+            except Member.MultipleObjectsReturned:
+                raise ValidationError(f"Multiple students found with name '{student_name}'. Please be more specific.")
+        
+        if commit:
+            instance.save()
+        return instance
+
+
 class StudentAdmissionAdmin(ModelAdmin):
     model = StudentAdmission
     permission_helper_class = ACLPermissionHelper
@@ -191,10 +274,14 @@ class StudentAdmissionAdmin(ModelAdmin):
     list_display = ('student', 'class_applied', 'admission_number', 'status', 'admission_date', 'documents_status')
     list_filter = ('status', 'documents_status', 'admission_date', 'class_applied')
     search_fields = ('student__first_name', 'student__last_name', 'admission_number', 'class_applied__name')
+    
+    def get_form_class(self):
+        return StudentAdmissionForm
+    
     panels = [
         MultiFieldPanel([
             FieldRowPanel([
-                FieldPanel('student', classname="col6"),
+                FieldPanel('student_name', classname="col6"),
                 FieldPanel('class_applied', classname="col6"),
             ], classname="compact-row"),
             FieldRowPanel([
