@@ -190,11 +190,11 @@ class StudentAdmissionForm(forms.ModelForm):
     student_name = forms.CharField(
         max_length=200,
         required=True,
-        label="Student Name",
-        help_text="Enter student's first and last name",
+        label="Student Name (text input)",
+        help_text="Enter student's first and last name — this is a free-text field, not a selector",
         widget=forms.TextInput(attrs={
             'class': 'vLargeTextField',
-            'placeholder': 'Enter student full name'
+            'placeholder': 'Enter student full name (text)'
         })
     )
     
@@ -280,12 +280,33 @@ class StudentAdmissionAdmin(ModelAdmin):
     menu_icon = 'form'
     add_to_admin_menu = False
     form_class = StudentAdmissionForm
-    list_display = ('student', 'class_applied', 'admission_number', 'status', 'admission_date', 'documents_status')
+    list_display = ('class_applied', 'admission_number', 'status', 'admission_date', 'documents_status')
     list_filter = ('status', 'documents_status', 'admission_date', 'class_applied')
-    search_fields = ('student__first_name', 'student__last_name', 'admission_number', 'class_applied__name')
-    
+    search_fields = ('admission_number', 'class_applied__name')
+
+    base_form_class = StudentAdmissionForm
     def get_form_class(self):
         return StudentAdmissionForm
+
+    def get_form_fields(self):
+        # Only use fields from the custom form, not the model
+        return [
+            'student_name',
+            'class_applied',
+            'admission_date',
+            'admission_number',
+            'status',
+            'documents_status',
+            'documents_remarks',
+            'interview_date',
+            'interview_remarks',
+            'parent_contact',
+            'emergency_contact',
+            'special_requirements',
+            'approved_by',
+            'approval_date',
+            'remarks',
+        ]
 
 
 modeladmin_register(StudentAdmissionAdmin)
