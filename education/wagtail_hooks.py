@@ -277,49 +277,6 @@ class StudentAdmissionAdmin(ModelAdmin):
     
     def get_form_class(self):
         return StudentAdmissionForm
-    
-    panels = [
-        MultiFieldPanel([
-            FieldRowPanel([
-                FieldPanel('class_applied', classname="col6"),
-            ], classname="compact-row"),
-            FieldRowPanel([
-                FieldPanel('admission_date', classname="col6"),
-                FieldPanel('admission_number', classname="col6"),
-            ], classname="compact-row"),
-            FieldRowPanel([
-                FieldPanel('status', classname="col6"),
-                FieldPanel('documents_status', classname="col6"),
-            ], classname="compact-row"),
-        ], heading="Admission Details", classname="compact-panel"),
-        MultiFieldPanel([
-            FieldRowPanel([
-                FieldPanel('documents_remarks', classname="col12"),
-            ], classname="compact-row"),
-            FieldRowPanel([
-                FieldPanel('interview_date', classname="col6"),
-                FieldPanel('interview_remarks', classname="col6"),
-            ], classname="compact-row"),
-        ], heading="Interview & Documents", classname="compact-panel"),
-        MultiFieldPanel([
-            FieldRowPanel([
-                FieldPanel('parent_contact', classname="col6"),
-                FieldPanel('emergency_contact', classname="col6"),
-            ], classname="compact-row"),
-            FieldRowPanel([
-                FieldPanel('special_requirements', classname="col12"),
-            ], classname="compact-row"),
-        ], heading="Contact Information", classname="compact-panel"),
-        MultiFieldPanel([
-            FieldRowPanel([
-                FieldPanel('approved_by', classname="col6"),
-                FieldPanel('approval_date', classname="col6"),
-            ], classname="compact-row"),
-            FieldRowPanel([
-                FieldPanel('remarks', classname="col12"),
-            ], classname="compact-row"),
-        ], heading="Approval", classname="compact-panel"),
-    ]
 
 
 modeladmin_register(StudentAdmissionAdmin)
