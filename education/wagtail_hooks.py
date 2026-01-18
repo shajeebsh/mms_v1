@@ -192,7 +192,10 @@ class StudentAdmissionForm(forms.ModelForm):
         required=True,
         label="Student Name",
         help_text="Enter student's first and last name",
-        widget=forms.TextInput(attrs={'class': 'vLargeTextField'})
+        widget=forms.TextInput(attrs={
+            'class': 'vLargeTextField',
+            'placeholder': 'Enter student full name'
+        })
     )
     
     class Meta:
@@ -215,18 +218,17 @@ class StudentAdmissionForm(forms.ModelForm):
             'approval_date',
             'remarks',
         ]
-    
-    widgets = {
-        'student_name': forms.TextInput(attrs={'class': 'vLargeTextField'}),
-    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # If editing an existing object, populate student_name with the student's full name
         if self.instance.pk and self.instance.student:
             self.fields['student_name'].initial = self.instance.student.full_name
-        # Make student_name required
-        self.fields['student_name'].required = True
+        # Ensure student_name field uses text input widget
+        self.fields['student_name'].widget = forms.TextInput(attrs={
+            'class': 'vLargeTextField',
+            'placeholder': 'Enter student full name'
+        })
 
     def clean_student_name(self):
         """Validate student name - try to find matching student"""
@@ -277,6 +279,7 @@ class StudentAdmissionAdmin(ModelAdmin):
     menu_label = 'Admissions'
     menu_icon = 'form'
     add_to_admin_menu = False
+    form_class = StudentAdmissionForm
     list_display = ('student', 'class_applied', 'admission_number', 'status', 'admission_date', 'documents_status')
     list_filter = ('status', 'documents_status', 'admission_date', 'class_applied')
     search_fields = ('student__first_name', 'student__last_name', 'admission_number', 'class_applied__name')
