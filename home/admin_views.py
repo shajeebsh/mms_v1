@@ -1,8 +1,13 @@
+import csv
+import datetime
 import logging
+from django.apps import apps
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db import transaction
+from django.db import models, transaction
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -364,3 +369,85 @@ def _get_enabled_modules():
         if SystemSettings.is_module_enabled(module_name):
             enabled.append(module_name)
     return enabled
+
+
+@login_required
+@user_passes_test(_is_superuser)
+def data_profiling_view(request):
+    """Admin view for data profiling statistics"""
+    
+    stats = []
+    target_apps = [
+        'membership', 'finance', 'education', 'assets', 
+        'operations', 'hr', 'committee', 'accounting', 'billing', 'home'
+    ]
+    
+    for app_label in target_apps:
+        try:
+            app_config = apps.get_app_config(app_label)
+        except LookupError:
+            continue
+            
+        for model in app_config.get_models():
+            # Skip historical models or M2M through models if they clutter
+            if model._meta.auto_created:
+                continue
+                
+            model_name = model._meta.verbose_name.title()
+            count = model.objects.count()
+            
+            last_updated = None
+            # Try to find a date field for 'last updated'
+            date_fields = [f.name for f in model._meta.fields if isinstance(f, (models.DateTimeField, models.DateField))]
+            
+            if 'updated_at' in date_fields:
+                latest_record = model.objects.order_by('-updated_at').first()
+                if latest_record:
+                    last_updated = latest_record.updated_at
+            elif 'created_at' in date_fields:
+                latest_record = model.objects.order_by('-created_at').first()
+                if latest_record:
+                    last_updated = latest_record.created_at
+            elif date_fields:
+                # Fallback to any date field
+                field_name = date_fields[0]
+                latest_record = model.objects.order_by(f'-{field_name}').first()
+                if latest_record:
+                    last_updated = getattr(latest_record, field_name)
+
+            # Ensure last_updated is a datetime object for template formatting
+            if last_updated and isinstance(last_updated, datetime.date) and not isinstance(last_updated, datetime.datetime):
+                last_updated = datetime.datetime.combine(last_updated, datetime.time.min)
+                if settings.USE_TZ:
+                    last_updated = timezone.make_aware(last_updated)
+
+            stats.append({
+                'app': app_label.title(),
+                'model': model_name,
+                'count': count,
+                'last_updated': last_updated,
+            })
+
+    # Sort stats by app then by record count descending
+    stats.sort(key=lambda x: (x['app'], -x['count']))
+
+    # Handle CSV Export
+    if request.GET.get('export') == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="data_profiling_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Module', 'Model Name', 'Record Count', 'Last Updated'])
+        
+        for s in stats:
+            last_upd = s['last_updated'].strftime('%Y-%m-%d %H:%M:%S') if s['last_updated'] else 'N/A'
+            writer.writerow([s['app'], s['model'], s['count'], last_upd])
+            
+        return response
+
+    context = {
+        'stats': stats,
+        'now': timezone.now(),
+    }
+    
+    return render(request, "home/admin/data_profiling.html", context)

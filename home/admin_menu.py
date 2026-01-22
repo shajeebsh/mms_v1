@@ -567,3 +567,16 @@ def register_sample_data_management_menu():
         icon_name="cog",
         order=2000,
     )
+
+
+@hooks.register("register_admin_menu_item")
+def register_data_profiling_menu():
+    """Register Data Profiling menu item (admin-only)"""
+    from django.urls import reverse
+
+    return MenuItem(
+        "📈 Data Profiling",
+        reverse("home_admin:data_profiling"),
+        icon_name="chart-bar",
+        order=2100,
+    )
