@@ -424,12 +424,12 @@ def data_profiling_view(request):
             stats.append({
                 'app': app_label.title(),
                 'model': model_name,
-                'count': count,
+                'record_count': count,
                 'last_updated': last_updated,
             })
 
     # Sort stats by app then by record count descending
-    stats.sort(key=lambda x: (x['app'], -x['count']))
+    stats.sort(key=lambda x: (x['app'], -x['record_count']))
 
     # Handle CSV Export
     if request.GET.get('export') == 'csv':
@@ -441,7 +441,7 @@ def data_profiling_view(request):
         
         for s in stats:
             last_upd = s['last_updated'].strftime('%Y-%m-%d %H:%M:%S') if s['last_updated'] else 'N/A'
-            writer.writerow([s['app'], s['model'], s['count'], last_upd])
+            writer.writerow([s['app'], s['model'], s['record_count'], last_upd])
             
         return response
 
