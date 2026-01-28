@@ -131,14 +131,35 @@ To use MySQL instead of PostgreSQL:
 python manage.py populate_sample_data
 ```
 
-### 6. Create Admin User
+### 6. Database Migrations
+When you make changes to models, you need to create and apply migrations to update your database schema.
+
+**1. Create Migrations:**
+Generate migration files based on your model changes:
+```bash
+python manage.py makemigrations
+```
+
+**2. Apply Migrations:**
+Apply the generated migrations to the selected database:
+```bash
+python manage.py migrate
+```
+
+**3. Check Status (Optional):**
+To see which migrations have been applied:
+```bash
+python manage.py showmigrations
+```
+
+### 7. Create Admin User
 ```bash
 # Superuser credentials are pre-configured if using sample data:
 # Username: admin / Password: adminpassword
 python manage.py createsuperuser  # To create a new one
 ```
 
-### 7. Run the Server
+### 8. Run the Server
 ```bash
 python manage.py runserver
 ```
