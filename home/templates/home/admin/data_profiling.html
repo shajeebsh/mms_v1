@@ -1,0 +1,104 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}{% trans "Data Profiling" %}{% endblock %}
+
+{% block content %}
+{% trans "Data Profiling" as title %}
+{% include "wagtailadmin/shared/header.html" with title=title icon="chart-bar" %}
+
+<div class="nice-padding">
+    <div class="help-block help-info" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <p>
+                {% trans "This page provides an overview of the data currently stored in the system. Use the button on
+                the right to refresh the statistics." %}
+            </p>
+            <p style="font-size: 0.9em; color: #666; margin-top: 4px;">
+                {% trans "Last refreshed:" %} {{ now|date:"DATETIME_FORMAT" }}
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="?export=csv" class="button button-secondary">
+                <i class="icon icon-download"></i>
+                {% trans "Export to CSV" %}
+            </a>
+            <a href="." class="button button-primary">
+                <i class="icon icon-reset"></i>
+                {% trans "Refresh Data" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="panel" style="margin-top: 20px;">
+        <div class="panel-header">
+            <h2>{% trans "Table Statistics" %}</h2>
+        </div>
+        <div class="panel-content">
+            <table class="listing">
+                <thead>
+                    <tr>
+                        <th style="width: 150px;">{% trans "Module" %}</th>
+                        <th>{% trans "Model / Table Name" %}</th>
+                        <th style="text-align: right; width: 120px;">{% trans "Record Count" %}</th>
+                        <th style="width: 200px;">{% trans "Last Updated" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in stats %}
+                    <tr>
+                        <td>
+                            <span class="status-tag primary"
+                                style="background-color: #007d7e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85em;">
+                                {{ stat.app }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ stat.model }}</strong>
+                        </td>
+                        <td style="text-align: right;">
+                            <span style="font-family: monospace; font-size: 1.1em; font-weight: bold;">{{ stat.record_count }}</span>
+                        </td>
+                        <td>
+                            {% if stat.last_updated %}
+                            {{ stat.last_updated|date:"SHORT_DATETIME_FORMAT" }}
+                            {% else %}
+                            <em style="color: #999;">{% trans "Never" %}</em>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px;">
+                            {% trans "No models found for profiling." %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    table.listing td {
+        vertical-align: middle;
+        padding: 12px 10px;
+    }
+
+    table.listing thead th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    .status-tag.primary {
+        display: inline-block;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    tr:hover td {
+        background-color: #f9f9f9 !important;
+    }
+</style>
+{% endblock %}
