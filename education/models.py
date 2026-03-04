@@ -147,7 +147,6 @@ class StudentEnrollment(models.Model):
         fee = self.class_instance.course_fee
         
         if fee == 0:
-            self.status = 'exempt' # Or handle as paid? Using payment_status field instead.
             self.payment_status = 'exempt'
         elif total >= fee:
             self.payment_status = 'paid'
@@ -155,7 +154,7 @@ class StudentEnrollment(models.Model):
             self.payment_status = 'partial'
         else:
             self.payment_status = 'pending'
-        self.save()
+        self.save(update_fields=['payment_status', 'updated_at'])
 
 
 class StudentFeePayment(models.Model):
@@ -176,6 +175,13 @@ class StudentFeePayment(models.Model):
     remarks = models.TextField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    transaction = models.OneToOneField(
+        'accounting.Transaction',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='fee_payment'
+    )
 
     def __str__(self):
         return f"{self.enrollment.student.full_name} - {self.amount}"
